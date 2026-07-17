@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Work+Sans:wght@500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* === Primary Colors === */
+  --color-primary: #00288e;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1e40af;
+  --color-on-primary-container: #a8b8ff;
+  --color-inverse-primary: #b8c4ff;
+  --color-primary-fixed: #dde1ff;
+  --color-primary-fixed-dim: #b8c4ff;
+  --color-on-primary-fixed: #001453;
+  --color-on-primary-fixed-variant: #173bab;
+
+  /* === Secondary Colors === */
+  --color-secondary: #516070;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d5e4f8;
+  --color-on-secondary-container: #576676;
+  --color-secondary-fixed: #d5e4f8;
+  --color-secondary-fixed-dim: #b9c8db;
+  --color-on-secondary-fixed: #0e1d2b;
+  --color-on-secondary-fixed-variant: #3a4858;
+
+  /* === Tertiary Colors === */
+  --color-tertiary: #003272;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #00489e;
+  --color-on-tertiary-container: #9cbbff;
+  --color-tertiary-fixed: #d8e2ff;
+  --color-tertiary-fixed-dim: #adc6ff;
+  --color-on-tertiary-fixed: #001a42;
+  --color-on-tertiary-fixed-variant: #004395;
+
+  /* === Error Colors === */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* === Surface Colors === */
+  --color-surface: #f9f9ff;
+  --color-surface-dim: #d3daea;
+  --color-surface-bright: #f9f9ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f0f3ff;
+  --color-surface-container: #e7eefe;
+  --color-surface-container-high: #e2e8f8;
+  --color-surface-container-highest: #dce2f3;
+  --color-on-surface: #151c27;
+  --color-on-surface-variant: #444653;
+  --color-inverse-surface: #2a313d;
+  --color-inverse-on-surface: #ebf1ff;
+  --color-surface-tint: #3755c3;
+  --color-surface-variant: #dce2f3;
+
+  /* === Outline Colors === */
+  --color-outline: #757684;
+  --color-outline-variant: #c4c5d5;
+
+  /* === Background === */
+  --color-background: #f9f9ff;
+  --color-on-background: #151c27;
+
+  /* === Success (custom) === */
+  --color-success: #16a34a;
+  --color-success-container: #dcfce7;
+
+  /* === Fonts === */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* === Typography Utilities === */
+@utility text-display-lg {
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 44px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+@utility text-display-lg-mobile {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+@utility text-headline-lg {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+}
+@utility text-headline-lg-mobile {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+}
+@utility text-headline-md {
+  font-family: var(--font-inter);
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+@utility text-headline-sm {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+}
+@utility text-title-lg {
+  font-family: var(--font-inter);
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+@utility text-body-lg {
+  font-family: var(--font-inter);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+@utility text-body-md {
+  font-family: var(--font-inter);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+@utility text-body-sm {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+@utility text-label-md {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+@utility text-label-sm {
+  font-family: var(--font-inter);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+/* === Font Family Utilities === */
+@utility font-headline-sm { font-family: var(--font-display); }
+@utility font-headline-md { font-family: var(--font-display); }
+@utility font-headline-lg { font-family: var(--font-display); }
+@utility font-body-md { font-family: var(--font-inter); }
+@utility font-body-lg { font-family: var(--font-inter); }
+@utility font-label-md { font-family: var(--font-inter); }
+
+/* === Background Pattern === */
+@utility bg-pattern {
+  background-image: radial-gradient(var(--color-outline-variant) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* === Base Styles === */
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline-variant);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline);
+}
