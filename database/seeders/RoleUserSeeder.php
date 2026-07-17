@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ProgramStudi;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,9 @@ class RoleUserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Ensure ProgramStudi exists (SikpSeeder runs first)
+        $prodiId = ProgramStudi::first()?->id ?? 1;
+
         $users = [
             [
                 'name' => 'Mahasiswa User',
@@ -20,6 +24,12 @@ class RoleUserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'mahasiswa',
                 'nim' => '123456789',
+                'program_studi_id' => $prodiId,
+                'no_telepon' => '081234567890',
+                'konsentrasi' => 'Rekayasa Perangkat Lunak',
+                'total_sks' => 120,
+                'semester' => 'VII',
+                'angkatan' => 2022,
             ],
             [
                 'name' => 'Dr. Aris Sudarmaji',
@@ -27,6 +37,8 @@ class RoleUserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'dosen',
                 'nip' => '0012038401',
+                'program_studi_id' => $prodiId,
+                'no_telepon' => '081298765432',
             ],
             [
                 'name' => 'Staff Tata Usaha',

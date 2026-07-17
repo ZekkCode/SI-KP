@@ -5,6 +5,9 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -25,6 +28,13 @@ class User extends Authenticatable
         'role',
         'nim',
         'nip',
+        'program_studi_id',
+        'no_telepon',
+        'konsentrasi',
+        'total_sks',
+        'semester',
+        'foto',
+        'angkatan',
     ];
 
     /**
@@ -63,5 +73,68 @@ class User extends Authenticatable
             'prodi' => '/prodi/dashboard',
             default => '/login',
         };
+    }
+
+    // ─── Relations ──────────────────────────────────────────────
+
+    public function programStudi(): BelongsTo
+    {
+        return $this->belongsTo(ProgramStudi::class);
+    }
+
+    /**
+     * Instansi profile (only for role: instansi).
+     */
+    public function instansi(): HasOne
+    {
+        return $this->hasOne(Instansi::class);
+    }
+
+    /**
+     * KP registrations as mahasiswa.
+     */
+    public function pendaftaransMahasiswa(): HasMany
+    {
+        return $this->hasMany(Pendaftaran::class, 'mahasiswa_id');
+    }
+
+    /**
+     * KP registrations as dosen pembimbing.
+     */
+    public function pendaftaransDosen(): HasMany
+    {
+        return $this->hasMany(Pendaftaran::class, 'dosen_pembimbing_id');
+    }
+
+    /**
+     * Kuota bimbingan (only for role: dosen).
+     */
+    public function kuotaDosens(): HasMany
+    {
+        return $this->hasMany(KuotaDosen::class, 'dosen_id');
+    }
+
+    /**
+     * Logbooks validated by this user (dosen).
+     */
+    public function validatedLogbooks(): HasMany
+    {
+        return $this->hasMany(Logbook::class, 'divalidasi_oleh');
+    }
+
+    /**
+     * Proposals reviewed by this user (dosen).
+     */
+    public function reviewedProposals(): HasMany
+    {
+        return $this->hasMany(Proposal::class, 'reviewed_by');
+    }
+
+    /**
+     * Notifications for this user.
+     */
+    public function notifikasis(): HasMany
+    {
+        return $this->hasMany(Notifikasi::class);
     }
 }

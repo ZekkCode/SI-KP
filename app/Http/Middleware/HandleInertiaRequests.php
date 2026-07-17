@@ -29,10 +29,21 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
+        // Eager-load programStudi for mahasiswa/dosen users
+        if ($user && in_array($user->role, ['mahasiswa', 'dosen', 'prodi'])) {
+            $user->load('programStudi');
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
         ];
     }

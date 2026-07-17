@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Mahasiswa\MahasiswaDashboardController;
+use App\Http\Controllers\Mahasiswa\MahasiswaPanduanController;
+use App\Http\Controllers\Mahasiswa\MahasiswaPendaftaranController;
+use App\Http\Controllers\Mahasiswa\MahasiswaProfilController;
+use App\Http\Controllers\Mahasiswa\MahasiswaProposalController;
+
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -23,15 +29,39 @@ Route::get('/', function (Illuminate\Http\Request $request) {
 // MAHASISWA ROUTES
 // ============================================================
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
-    Route::get('/dashboard', fn() => Inertia::render('Mahasiswa/Dashboard'))->name('dashboard');
-    Route::get('/profil', fn() => Inertia::render('Mahasiswa/ProfilKP'))->name('profil');
-    Route::get('/panduan', fn() => Inertia::render('Mahasiswa/Panduan'))->name('panduan');
-    Route::get('/pendaftaran', fn() => Inertia::render('Mahasiswa/Pendaftaran'))->name('pendaftaran');
+    // Dashboard
+    Route::get('/dashboard', [MahasiswaDashboardController::class, 'index'])->name('dashboard');
+
+    // Profil
+    Route::get('/profil', [MahasiswaProfilController::class, 'index'])->name('profil');
+    Route::put('/profil', [MahasiswaProfilController::class, 'update'])->name('profil.update');
+
+    // Panduan
+    Route::get('/panduan', [MahasiswaPanduanController::class, 'index'])->name('panduan');
+
+    // Pendaftaran
+    Route::get('/pendaftaran', [MahasiswaPendaftaranController::class, 'index'])->name('pendaftaran');
+    Route::post('/pendaftaran', [MahasiswaPendaftaranController::class, 'store'])->name('pendaftaran.store');
+    Route::post('/pendaftaran/draft', [MahasiswaPendaftaranController::class, 'saveDraft'])->name('pendaftaran.draft');
+
+    // Status Pengajuan
     Route::get('/status-pengajuan', fn() => Inertia::render('Mahasiswa/StatusPengajuan'))->name('status-pengajuan');
+
+    // Surat Pengantar
     Route::get('/surat-pengantar', fn() => Inertia::render('Mahasiswa/SuratPengantar'))->name('surat-pengantar');
-    Route::get('/proposal', fn() => Inertia::render('Mahasiswa/Proposal'))->name('proposal');
+
+    // Proposal
+    Route::get('/proposal', [MahasiswaProposalController::class, 'index'])->name('proposal');
+    Route::post('/proposal', [MahasiswaProposalController::class, 'store'])->name('proposal.store');
+    Route::post('/proposal/note', [MahasiswaProposalController::class, 'sendNote'])->name('proposal.note');
+
+    // Logbook
     Route::get('/logbook', fn() => Inertia::render('Mahasiswa/LogbookHarian'))->name('logbook');
+
+    // Berita Acara
     Route::get('/berita-acara', fn() => Inertia::render('Mahasiswa/BeritaAcara'))->name('berita-acara');
+
+    // Penilaian Akhir
     Route::get('/penilaian-akhir', fn() => Inertia::render('Mahasiswa/PenilaianAkhir'))->name('penilaian-akhir');
 });
 
