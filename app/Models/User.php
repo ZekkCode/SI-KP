@@ -33,6 +33,7 @@ class User extends Authenticatable
         'konsentrasi',
         'total_sks',
         'semester',
+        'ipk',
         'foto',
         'angkatan',
     ];

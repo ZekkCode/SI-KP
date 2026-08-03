@@ -1,4 +1,4 @@
-﻿import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
+import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import React from 'react';
 import { Info, UploadCloud, FileText, CheckCircle2, FileDown, Clock, Download, Verified } from 'lucide-react';
 
@@ -49,26 +49,6 @@ export default function PenilaianAkhir() {
                 </div>
               </div>
 
-              {/* LPJ */}
-              <div className="p-4 border-2 border-dashed border-outline-variant rounded-xl hover:border-primary transition-colors group cursor-pointer bg-surface-container-low/50 block w-full text-left">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary-container/10 rounded-lg flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-on-surface">Laporan Pertanggungjawaban (LPJ)</p>
-                      <p className="text-body-sm text-secondary">Format: PDF, Maks 5MB</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-label-sm text-tertiary font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> Terunggah
-                    </span>
-                    <button className="text-primary font-bold hover:underline text-label-md">Ganti</button>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="mt-6 p-4 bg-secondary-container/20 rounded-lg border border-secondary-container flex gap-4">

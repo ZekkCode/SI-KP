@@ -59,6 +59,7 @@ class MahasiswaDashboardController extends Controller
             'notifications' => $notifications,
             'logbookCount' => $logbookCount,
             'logbookTarget' => $logbookTarget,
+            'hasPendaftaran' => $pendaftaran !== null,
         ]);
     }
 

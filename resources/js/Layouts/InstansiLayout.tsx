@@ -8,10 +8,8 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
 
     const navItems = [
         { href: '/instansi/dashboard', label: 'Ringkasan', icon: LayoutDashboard },
-        { href: '/instansi/review', label: 'Penempatan', icon: Users },
-        { href: '/instansi/evaluation', label: 'Performa', icon: BarChart2 },
-        { href: '/instansi/logbook', label: 'Logbook', icon: BookOpen },
-        { href: '/instansi/certificates', label: 'Sertifikat', icon: Award },
+        { href: '/instansi/evaluation', label: 'Penilaian', icon: BarChart2 },
+        { href: '/instansi/logbook', label: 'Monitoring', icon: BookOpen },
         { href: '/instansi/settings', label: 'Pengaturan', icon: Settings },
     ];
 
@@ -31,7 +29,7 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
                 </div>
 
                 {/* Main Navigation */}
-                <div className="flex flex-col gap-2 flex-grow">
+                <div className="flex flex-col gap-3 mt-6 flex-grow">
                     {navItems.map((item) => {
                         const isActive = url.startsWith(item.href);
                         const Icon = item.icon;
@@ -54,9 +52,6 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
 
                 {/* Footer Actions */}
                 <div className="mt-auto flex flex-col gap-4 border-t border-outline-variant pt-6">
-                    <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-xl text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors active:scale-95 duration-150">
-                        Pusat Bantuan
-                    </button>
                     <Link
                         href="/logout"
                         method="post"

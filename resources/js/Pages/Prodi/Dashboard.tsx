@@ -1,18 +1,11 @@
-﻿import ProdiLayout from '@/Layouts/ProdiLayout';
+import ProdiLayout from '@/Layouts/ProdiLayout';
 import { 
-  Download, 
-  RefreshCw, 
   Users, 
   UserMinus, 
   CheckCircle2, 
   MoreVertical,
   AlertTriangle,
-  Search,
-  FileWarning,
-  Database,
-  SlidersHorizontal,
-  UserPlus,
-  BarChart
+  Search
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -22,16 +15,6 @@ export default function Dashboard() {
         <div>
           <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2 tracking-tight">Dashboard Koordinator</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">Ringkasan status mahasiswa magang dan alokasi dosen pembimbing.</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="px-4 py-2 border border-outline rounded-lg text-primary font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center gap-2">
-            <Download size={18} />
-            Unduh Laporan
-          </button>
-          <button className="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors shadow-sm flex items-center gap-2">
-            <RefreshCw size={18} />
-            Sinkronisasi Data
-          </button>
         </div>
       </header>
 
@@ -173,34 +156,8 @@ export default function Dashboard() {
                 <button className="text-primary font-label-md text-label-md font-semibold mt-2 hover:underline">Atur Ulang Plotting</button>
               </div>
             </div>
-
-            <div className="flex gap-3 p-3 rounded-lg bg-surface-container border border-surface-variant">
-              <FileWarning className="text-secondary shrink-0" size={24} />
-              <div>
-                <h4 className="font-body-md text-body-md font-medium text-on-surface">Logbook Kosong</h4>
-                <p className="font-label-md text-label-md text-on-surface-variant mt-1">28 mahasiswa belum mengisi logbook minggu ini.</p>
-                <button className="text-primary font-label-md text-label-md font-semibold mt-2 hover:underline">Kirim Pengingat</button>
-              </div>
-            </div>
           </div>
         </div>
-      </div>
-
-      <h3 className="font-headline-sm text-headline-sm text-on-surface mb-4">Akses Cepat</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { icon: Database, label: 'Database Dosen' },
-          { icon: SlidersHorizontal, label: 'Manajemen Kuota' },
-          { icon: UserPlus, label: 'Plotting Otomatis' },
-          { icon: BarChart, label: 'Monitoring Nilai' },
-        ].map((item, idx) => (
-          <button key={idx} className="bg-surface-container-lowest p-4 rounded-lg border border-outline-variant shadow-sm hover:shadow-md hover:border-primary transition-all flex flex-col items-center justify-center gap-2 text-center group">
-            <div className="w-12 h-12 rounded-full bg-surface-container group-hover:bg-primary-container flex items-center justify-center text-secondary group-hover:text-primary transition-colors">
-              <item.icon size={24} />
-            </div>
-            <span className="font-body-md text-body-md font-medium text-on-surface">{item.label}</span>
-          </button>
-        ))}
       </div>
     </div>
   );

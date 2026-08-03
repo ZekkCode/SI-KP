@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell } from 'lucide-react';
+import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell, Users } from 'lucide-react';
 
 export default function TULayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
@@ -10,7 +10,7 @@ export default function TULayout({ children }: PropsWithChildren) {
     const navItems = [
         { href: '/tu/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/tu/generate-surat', label: 'Surat Pengantar', icon: FileText, alsoActive: '/tu/verifikasi' },
-        { href: '/tu/validasi-berita', label: 'Berita Acara', icon: FileSignature },
+        { href: '/tu/mahasiswa', label: 'Daftar Mahasiswa', icon: Users },
     ];
 
     return (
@@ -53,16 +53,13 @@ export default function TULayout({ children }: PropsWithChildren) {
                             </Link>
                         );
                     })}
-                </div>
-
-                <div className="p-4 mt-auto border-t border-outline-variant/30">
                     <Link
                         href="/logout"
                         method="post"
                         as="button"
-                        className="flex items-center w-full px-4 py-3 rounded-lg text-secondary hover:bg-error-container/20 hover:text-error transition-colors"
+                        className="flex items-center w-full px-4 py-2.5 rounded-lg text-secondary hover:bg-red-50 hover:text-red-600 transition-colors text-left outline-none"
                     >
-                        <LogOut size={20} className="mr-3" />
+                        <span className="mr-3"><LogOut size={20} /></span>
                         <span className="text-sm font-medium">Keluar</span>
                     </Link>
                 </div>

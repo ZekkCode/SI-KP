@@ -26,9 +26,9 @@ class RoleUserSeeder extends Seeder
                 'nim' => '123456789',
                 'program_studi_id' => $prodiId,
                 'no_telepon' => '081234567890',
-                'konsentrasi' => 'Rekayasa Perangkat Lunak',
                 'total_sks' => 120,
-                'semester' => 'VII',
+                'semester' => 'Ganjil 2025/2026',
+                'ipk' => 3.75,
                 'angkatan' => 2022,
             ],
             [

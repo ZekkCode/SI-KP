@@ -1,6 +1,6 @@
-﻿import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
+import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import React from 'react';
-import { AlertTriangle, UploadCloud, MessageSquare, History, CheckCircle, Clock, Info, Activity, HelpCircle } from 'lucide-react';
+import { AlertTriangle, UploadCloud, MessageSquare, History, CheckCircle, Clock } from 'lucide-react';
 
 export default function StatusPengajuan() {
   return (
@@ -141,32 +141,7 @@ export default function StatusPengajuan() {
           </div>
         </div>
 
-        {/* Tips / Guidance */}
-        <div className="col-span-12">
-          <div className="bg-primary-container/5 rounded-xl p-6 border border-primary/10 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex gap-4">
-              <div className="text-primary"><Info className="w-8 h-8" /></div>
-              <div>
-                <h5 className="text-label-md text-primary mb-1 font-bold">Cek Transkrip</h5>
-                <p className="text-body-sm text-secondary">Pastikan scan dalam format PDF dengan resolusi minimal 300dpi.</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="text-primary"><Activity className="w-8 h-8" /></div>
-              <div>
-                <h5 className="text-label-md text-primary mb-1 font-bold">Waktu Verifikasi</h5>
-                <p className="text-body-sm text-secondary">Proses verifikasi ulang membutuhkan waktu maksimal 2 hari kerja.</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="text-primary"><HelpCircle className="w-8 h-8" /></div>
-              <div>
-                <h5 className="text-label-md text-primary mb-1 font-bold">Butuh Bantuan?</h5>
-                <p className="text-body-sm text-secondary">Kunjungi loket TU atau gunakan fitur live chat di menu Support Center.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   );

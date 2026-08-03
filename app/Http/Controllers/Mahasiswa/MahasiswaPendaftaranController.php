@@ -42,8 +42,6 @@ class MahasiswaPendaftaranController extends Controller
                 'tanggal_selesai' => $pendaftaran->tanggal_selesai?->format('Y-m-d'),
                 'bidang_minat' => $pendaftaran->bidang_minat,
                 'catatan_tu' => $pendaftaran->catatan_tu,
-                'krs_uploaded' => $dokumen->where('jenis', 'krs')->isNotEmpty(),
-                'krs_file_name' => $dokumen->where('jenis', 'krs')->first()?->nama_file,
                 'transkrip_uploaded' => $dokumen->where('jenis', 'transkrip')->isNotEmpty(),
                 'transkrip_file_name' => $dokumen->where('jenis', 'transkrip')->first()?->nama_file,
             ];
@@ -72,53 +70,29 @@ class MahasiswaPendaftaranController extends Controller
         }
 
         DB::transaction(function () use ($user, $validated) {
-            // Find or create instansi
-            $instansi = Instansi::firstOrCreate(
-                ['nama' => $validated['nama_instansi']],
-                [
-                    'alamat' => $validated['alamat_instansi'],
-                    'kota' => '',
-                ]
-            );
+            // Update user profile fields
+            $user->update([
+                'name' => $validated['name'],
+                'no_telepon' => $validated['no_telepon'],
+                'email' => $validated['email'],
+                'semester' => $validated['semester'],
+                'total_sks' => $validated['total_sks'],
+                'ipk' => $validated['ipk'],
+            ]);
 
-            // Update alamat if instansi already exists
-            if (!$instansi->wasRecentlyCreated) {
-                $instansi->update(['alamat' => $validated['alamat_instansi']]);
-            }
-
-            // Find existing draft or create new pendaftaran
+            // Find existing draft or create new pendaftaran (without instansi or duration)
             $pendaftaran = Pendaftaran::updateOrCreate(
                 [
                     'mahasiswa_id' => $user->id,
                     'status' => 'draft',
                 ],
                 [
-                    'instansi_id' => $instansi->id,
-                    'tanggal_mulai' => $validated['tanggal_mulai'],
-                    'tanggal_selesai' => $validated['tanggal_selesai'],
+                    'instansi_id' => null,
+                    'tanggal_mulai' => null,
+                    'tanggal_selesai' => null,
                     'status' => 'diajukan',
                 ]
             );
-
-            // Upload KRS file
-            if (isset($validated['krs_file'])) {
-                // Delete old KRS document if exists
-                $oldKrs = $pendaftaran->dokumenPendaftarans()->where('jenis', 'krs')->first();
-                if ($oldKrs) {
-                    Storage::disk('public')->delete($oldKrs->path);
-                    $oldKrs->delete();
-                }
-
-                $krsPath = $validated['krs_file']->store('dokumen/pendaftaran', 'public');
-                DokumenPendaftaran::create([
-                    'pendaftaran_id' => $pendaftaran->id,
-                    'jenis' => 'krs',
-                    'nama_file' => $validated['krs_file']->getClientOriginalName(),
-                    'path' => $krsPath,
-                    'ukuran' => $validated['krs_file']->getSize(),
-                    'uploaded_at' => now(),
-                ]);
-            }
 
             // Upload transkrip file
             if (isset($validated['transkrip_file'])) {

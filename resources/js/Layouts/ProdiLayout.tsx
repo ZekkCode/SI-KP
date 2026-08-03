@@ -2,7 +2,8 @@ import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard, Users, ListOrdered, UserPlus, ClipboardCheck,
-    BarChart3, Settings, LogOut, Menu, Bell, HelpCircle, Search, Plus,
+    BarChart3, Settings, LogOut, Menu, Bell, HelpCircle, Search, Plus, CalendarDays,
+    FileText
 } from 'lucide-react';
 
 export default function ProdiLayout({ children }: PropsWithChildren) {
@@ -12,11 +13,12 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
 
     const menuItems = [
         { href: '/prodi/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/prodi/lecturers', label: 'Database Dosen', icon: Users },
-        { href: '/prodi/quota', label: 'Manajemen Kuota', icon: ListOrdered },
-        { href: '/prodi/plotting', label: 'Plotting Pembimbing', icon: UserPlus },
+        { href: '/prodi/periode', label: 'Pendaftaran & Surat', icon: FileText },
         { href: '/prodi/verification', label: 'Verifikasi Mahasiswa', icon: ClipboardCheck },
-        { href: '/prodi/reports', label: 'Laporan', icon: BarChart3 },
+        { href: '/prodi/plotting', label: 'Pembagian Dosbing', icon: UserPlus },
+        { href: '/prodi/lecturers', label: 'Daftar Dosen Pembimbing', icon: ListOrdered },
+        { href: '/prodi/mahasiswa', label: 'Mahasiswa', icon: Users },
+        { href: '/prodi/reports', label: 'Berita Acara', icon: ClipboardCheck },
     ];
 
     return (
@@ -31,24 +33,17 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
 
             {/* Sidebar */}
             <aside className={`fixed md:sticky top-0 left-0 h-screen w-[260px] bg-surface-container-lowest border-r border-outline-variant z-40 flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-                <div className="p-6 mb-2 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container shrink-0 font-bold">
-                        PR
+                <div className="p-4 flex items-center gap-3 bg-[#0091d5] text-white select-none">
+                    <div className="shrink-0 bg-white rounded-full p-1 shadow-sm">
+                        <img src="/images/Logo UTM terbaru_berwarna (1).png" alt="Logo UTM" className="w-9 h-9 object-contain" />
                     </div>
                     <div>
-                        <h1 className="font-headline-sm text-headline-sm text-primary">Portal Koordinator</h1>
-                        <p className="font-label-md text-label-md text-secondary">Program Studi</p>
+                        <h1 className="text-label-lg font-bold tracking-wider leading-tight">TEKNIK INFORMATIKA</h1>
                     </div>
                 </div>
 
-                <div className="px-4 mb-6">
-                    <button className="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-lg hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2 shadow-sm">
-                        <Plus size={18} />
-                        Alur Kerja Baru
-                    </button>
-                </div>
 
-                <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+                <nav className="flex-1 px-4 mt-6 space-y-1 overflow-y-auto">
                     {menuItems.map((item) => {
                         const isActive = url.startsWith(item.href);
                         const Icon = item.icon;

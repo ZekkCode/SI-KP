@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, FileText, ClipboardList, Award, Settings, HelpCircle, Bell, UserCircle, Search, Menu, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, Award, Bell, UserCircle, Search, Menu, LogOut } from 'lucide-react';
 
 export default function DosenLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
@@ -9,7 +9,7 @@ export default function DosenLayout({ children }: PropsWithChildren) {
     const navItems = [
         { href: '/dosen/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/dosen/review-proposal', label: 'Review Proposal', icon: FileText },
-        { href: '/dosen/logbook', label: 'Monitoring Logbook', icon: ClipboardList },
+        { href: '/dosen/logbook', label: 'Monitoring', icon: ClipboardList },
         { href: '/dosen/grading', label: 'Penilaian Akhir', icon: Award },
     ];
 
@@ -49,23 +49,17 @@ export default function DosenLayout({ children }: PropsWithChildren) {
                             </Link>
                         );
                     })}
-                </nav>
-
-                <div className="px-6 mt-auto flex flex-col gap-2 border-t border-outline-variant pt-4">
-                    <button className="flex items-center gap-3 text-secondary px-4 py-2 hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded-lg text-left">
-                        <Settings className="w-5 h-5" />
-                        <span className="text-sm">Pengaturan</span>
-                    </button>
                     <Link
                         href="/logout"
                         method="post"
                         as="button"
-                        className="flex items-center gap-3 text-secondary px-4 py-2 hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded-lg text-left w-full"
+                        className="flex items-center gap-3 text-secondary px-4 py-3 hover:bg-red-50 hover:text-red-600 transition-all duration-150 rounded-lg text-left w-full outline-none"
                     >
                         <LogOut className="w-5 h-5" />
                         <span className="text-sm">Keluar</span>
                     </Link>
-                </div>
+                </nav>
+
             </aside>
 
             {/* Main Content */}

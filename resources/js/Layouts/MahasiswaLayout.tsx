@@ -12,13 +12,10 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
 
     const navItems = [
         { href: '/mahasiswa/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/mahasiswa/profil', label: 'Profil KP', icon: UserCircle },
-        { href: '/mahasiswa/panduan', label: 'Panduan', icon: BookOpen },
         { href: '/mahasiswa/pendaftaran', label: 'Pendaftaran', icon: ClipboardEdit },
         { href: '/mahasiswa/status-pengajuan', label: 'Status Pengajuan', icon: ClipboardCheck },
         { href: '/mahasiswa/surat-pengantar', label: 'Surat Pengantar', icon: FileText },
         { href: '/mahasiswa/proposal', label: 'Proposal', icon: File },
-        { href: '/mahasiswa/logbook', label: 'Logbook Harian', icon: CalendarDays },
         { href: '/mahasiswa/berita-acara', label: 'Berita Acara', icon: FileClock },
         { href: '/mahasiswa/penilaian-akhir', label: 'Penilaian Akhir', icon: Award },
     ];
@@ -70,6 +67,15 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
                             </Link>
                         );
                     })}
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        className="w-full flex items-center space-x-4 px-3 py-3 rounded-lg transition-all duration-200 text-secondary hover:bg-red-50 hover:text-red-600 text-left outline-none"
+                    >
+                        <LogOut className="w-5 h-5" />
+                        <span className="text-label-md">Keluar</span>
+                    </Link>
                 </nav>
             </aside>
 

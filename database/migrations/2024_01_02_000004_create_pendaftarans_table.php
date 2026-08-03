@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('pendaftarans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mahasiswa_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('instansi_id')->constrained('instansis')->cascadeOnDelete();
+            $table->foreignId('instansi_id')->nullable()->constrained('instansis')->cascadeOnDelete();
             $table->foreignId('dosen_pembimbing_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->date('tanggal_mulai');
-            $table->date('tanggal_selesai');
+            $table->date('tanggal_mulai')->nullable();
+            $table->date('tanggal_selesai')->nullable();
             $table->enum('status', [
                 'draft',
                 'diajukan',

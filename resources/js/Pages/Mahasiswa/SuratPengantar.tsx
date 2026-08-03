@@ -1,172 +1,302 @@
-﻿import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
-import React, { useState } from 'react';
-import { Download, FileText, Info, CheckCircle, ShieldCheck, Eye } from 'lucide-react';
+import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
+import React from 'react';
+import { useForm, usePage, Link } from '@inertiajs/react';
+import { FileText, Building2, MapPin, Calendar, CheckCircle2, Lock, User, Info, AlertCircle, Download, BookOpen, UserCheck } from 'lucide-react';
+import { PageProps } from '@/types';
 
-export default function SuratPengantar() {
-  const [downloadStatus, setDownloadStatus] = useState<'' | 'processing' | 'downloading' | 'success'>('');
+interface PendaftaranData {
+    id: number;
+    status: string;
+    nama_instansi: string;
+    alamat_instansi: string;
+    tanggal_mulai: string | null;
+    tanggal_selesai: string | null;
+    surat_pengantar: {
+        id: number;
+        nomor_surat: string;
+        tanggal_terbit: string;
+        path_file: string | null;
+    } | null;
+}
 
-  const handleDownload = () => {
-    setDownloadStatus('processing');
-    setTimeout(() => {
-      setDownloadStatus('downloading');
-      setTimeout(() => {
-        setDownloadStatus('success');
-      }, 1500);
-    }, 1000);
-  };
+interface SuratPengantarProps extends Record<string, unknown> {
+    nim: string;
+    name: string;
+    jurusan: string;
+    dosenPembimbing: string | null;
+    pendaftaran: PendaftaranData | null;
+    flash: {
+        success?: string;
+        error?: string;
+    };
+}
 
-  return (
-    <div className="flex-1 p-6 max-w-[1280px] mx-auto w-full">
-      <div className="mb-8">
-        <h1 className="text-headline-md text-on-surface mb-2">Download Surat Pengantar</h1>
-        <p className="text-body-md text-secondary">Silakan unduh surat pengantar resmi untuk instansi tujuan Kerja Praktik Anda.</p>
-      </div>
+export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pendaftaran, flash }: PageProps<SuratPengantarProps>) {
+    const isSubmitted = !!pendaftaran && !['draft', 'perlu_perbaikan'].includes(pendaftaran.status);
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Main Card: Document Info */}
-          <div className="bg-white border border-outline-variant rounded-xl p-8 shadow-sm overflow-hidden relative">
-            {/* Decorative element */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-container/5 rounded-bl-full -mr-8 -mt-8"></div>
-            
-            <div className="relative z-10">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <span className="bg-green-100 text-green-700 text-label-sm font-bold px-3 py-1 rounded-full mb-3 inline-block">Siap Diunduh</span>
-                  <h4 className="text-title-lg text-on-surface font-bold">Surat Pengantar Kerja Praktik</h4>
-                  <p className="text-body-sm text-secondary">Nomor: 1234/UN10.F08/KP/2024</p>
-                </div>
-                <FileText className="w-10 h-10 text-primary" />
-              </div>
+    // Form data mapped to instansi and date inputs
+    const form = useForm({
+        nama_instansi: pendaftaran?.nama_instansi || '',
+        alamat_instansi: pendaftaran?.alamat_instansi || '',
+        tanggal_mulai: pendaftaran?.tanggal_mulai || '',
+        tanggal_selesai: pendaftaran?.tanggal_selesai || '',
+    });
 
-              <div className="space-y-4 border-t border-dashed border-outline-variant pt-6 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-label-sm text-secondary uppercase tracking-wider mb-1 font-bold">Instansi Tujuan</p>
-                    <p className="text-body-md font-semibold text-on-surface">PT. Teknologi Maju Bersama</p>
-                    <p className="text-body-sm text-on-surface-variant">Jl. Digital No. 42, Jakarta Pusat</p>
-                  </div>
-                  <div>
-                    <p className="text-label-sm text-secondary uppercase tracking-wider mb-1 font-bold">Ditujukan Kepada</p>
-                    <p className="text-body-md font-semibold text-on-surface">Human Resources Department</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-label-sm text-secondary uppercase tracking-wider mb-1 font-bold">Tanggal Terbit</p>
-                    <p className="text-body-md text-on-surface">24 Oktober 2024</p>
-                  </div>
-                  <div>
-                    <p className="text-label-sm text-secondary uppercase tracking-wider mb-1 font-bold">Masa Berlaku</p>
-                    <p className="text-body-md text-on-surface">Hingga 24 November 2024</p>
-                  </div>
-                </div>
-              </div>
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        form.post('/mahasiswa/surat-pengantar', {
+            preserveScroll: true,
+        });
+    };
 
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <button 
-                  onClick={handleDownload}
-                  className="w-full sm:w-auto flex items-center justify-center bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-tertiary transition-all hover:shadow-lg active:scale-95 group"
-                >
-                  <Download className="w-5 h-5 mr-3 group-hover:-translate-y-1 transition-transform" />
-                  Unduh Surat Pengantar (PDF)
-                </button>
-                
-                <div className={`transition-opacity duration-300 ${downloadStatus ? 'opacity-100' : 'opacity-0'}`}>
-                  {downloadStatus === 'processing' && <p className="text-label-sm text-primary font-semibold">Memproses dokumen...</p>}
-                  {downloadStatus === 'downloading' && <p className="text-label-sm text-primary font-semibold animate-pulse">Mengunduh PDF...</p>}
-                  {downloadStatus === 'success' && (
-                    <p className="text-label-sm text-green-600 font-semibold flex items-center">
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Berhasil diunduh
-                    </p>
-                  )}
-                </div>
-              </div>
+    return (
+        <div className="flex-1 p-6 max-w-[768px] mx-auto w-full relative space-y-6">
+            <div className="mb-6">
+                <h1 className="text-display-lg text-on-surface mb-2">Pengajuan Surat Pengantar</h1>
+                <p className="text-body-md text-secondary">
+                    Ajukan surat pengantar resmi ke instansi atau perusahaan tempat Anda melaksanakan Kerja Praktik.
+                </p>
             </div>
-          </div>
 
-          {/* Guidelines Card */}
-          <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <Info className="w-5 h-5 text-primary" />
-              <h5 className="text-label-md text-on-surface font-bold">Instruksi Penggunaan</h5>
-            </div>
-            <ul className="text-body-sm text-on-surface-variant space-y-2">
-              <li className="flex items-start">
-                <span className="text-primary mr-2 font-bold">1.</span>
-                Pastikan data instansi tujuan sudah sesuai sebelum melakukan pengunduhan.
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2 font-bold">2.</span>
-                Gunakan kertas A4 (80gsm) jika Anda diharuskan menyerahkan dokumen fisik.
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2 font-bold">3.</span>
-                Dokumen ini merupakan dokumen resmi yang sah tanpa perlu tanda tangan basah tambahan.
-              </li>
-            </ul>
-          </div>
+            {/* Flash Alerts */}
+            {flash?.success && (
+                <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl flex items-center gap-3 shadow-sm animate-fade-in">
+                    <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
+                    <div>
+                        <p className="font-bold">Berhasil!</p>
+                        <p className="text-sm">{flash.success}</p>
+                    </div>
+                </div>
+            )}
+
+            {flash?.error && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl flex items-center gap-3 shadow-sm animate-fade-in">
+                    <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+                    <div>
+                        <p className="font-bold">Gagal!</p>
+                        <p className="text-sm">{flash.error}</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Cover Letter Issued Banner */}
+            {pendaftaran?.surat_pengantar && (
+                <div className="bg-gradient-to-r from-primary/10 to-primary-container/20 border border-primary/20 rounded-xl p-6 shadow-sm overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full -mr-4 -mt-4"></div>
+                    <div className="relative z-10">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <span className="bg-green-100 text-green-700 text-label-sm font-bold px-3 py-1 rounded-full mb-2 inline-block">
+                                    Surat Pengantar Terbit
+                                </span>
+                                <h4 className="text-title-lg text-on-surface font-bold">Surat Pengantar Resmi</h4>
+                                <p className="text-body-sm text-secondary">Nomor: {pendaftaran.surat_pengantar.nomor_surat}</p>
+                            </div>
+                            <FileText className="w-10 h-10 text-primary" />
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-dashed border-outline-variant pt-4 gap-4">
+                            <div>
+                                <p className="text-label-sm text-secondary">Tanggal Terbit</p>
+                                <p className="text-body-md text-on-surface font-medium">{pendaftaran.surat_pengantar.tanggal_terbit}</p>
+                            </div>
+                            {pendaftaran.surat_pengantar.path_file && (
+                                <a
+                                    href={`/storage/${pendaftaran.surat_pengantar.path_file}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full sm:w-auto flex items-center justify-center bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:shadow-lg transition-all active:scale-[0.98] gap-2"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Unduh Surat Pengantar (PDF)
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Identitas Mahasiswa & Akademik Card */}
+                    <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-outline-variant bg-surface-container-low flex items-center gap-2">
+                            <User className="w-6 h-6 text-primary" />
+                            <div>
+                                <h2 className="text-title-lg text-on-surface font-semibold">Identitas Mahasiswa</h2>
+                                <p className="text-body-sm text-secondary">Informasi mahasiswa yang terdaftar pada sistem.</p>
+                            </div>
+                        </div>
+
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/50">
+                            <div className="space-y-1">
+                                <label className="text-label-md text-on-surface-variant font-medium flex items-center gap-1.5">
+                                    NIM <Lock className="w-3 h-3 text-secondary" />
+                                </label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={nim}
+                                    className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-label-md text-on-surface-variant font-medium flex items-center gap-1.5">
+                                    Nama Lengkap <Lock className="w-3 h-3 text-secondary" />
+                                </label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={name}
+                                    className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-label-md text-on-surface-variant font-medium flex items-center gap-1.5">
+                                    Jurusan / Program Studi <Lock className="w-3 h-3 text-secondary" />
+                                </label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={jurusan}
+                                    className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-label-md text-on-surface-variant font-medium flex items-center gap-1.5">
+                                    Dosen Pembimbing <Lock className="w-3 h-3 text-secondary" />
+                                </label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={dosenPembimbing || 'Belum Diplot'}
+                                    className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none"
+                                />
+                            </div>
+
+                            <div className="space-y-1 md:col-span-2">
+                                <label className="text-label-md text-on-surface-variant font-medium flex items-center gap-1.5">
+                                    Surat Pengantar Untuk <Lock className="w-3 h-3 text-secondary" />
+                                </label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value="Kerja Praktek"
+                                    className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none font-medium"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Informasi Perusahaan & Pelaksanaan Card */}
+                    <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-outline-variant bg-surface-container-low flex items-center gap-2">
+                            <Building2 className="w-6 h-6 text-primary" />
+                            <div>
+                                <h2 className="text-title-lg text-on-surface font-semibold">Tujuan Instansi & Jadwal Pelaksanaan</h2>
+                                <p className="text-body-sm text-secondary">Tentukan nama instansi/perusahaan tujuan serta tanggal pelaksanaan KP Anda.</p>
+                            </div>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-label-md text-on-surface-variant font-medium">
+                                    Nama Instansi / Perusahaan <span className="text-error">*</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary"><Building2 className="w-4 h-4" /></span>
+                                    <input
+                                        type="text"
+                                        required
+                                        disabled={isSubmitted}
+                                        value={form.data.nama_instansi}
+                                        onChange={e => form.setData('nama_instansi', e.target.value)}
+                                        placeholder="Masukkan nama instansi yang dituju..."
+                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.nama_instansi ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                    />
+                                </div>
+                                {form.errors.nama_instansi && <p className="text-label-sm text-error">{form.errors.nama_instansi}</p>}
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-label-md text-on-surface-variant font-medium">
+                                    Alamat Instansi / Perusahaan <span className="text-error">*</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-3 text-secondary"><MapPin className="w-4 h-4" /></span>
+                                    <textarea
+                                        required
+                                        disabled={isSubmitted}
+                                        rows={3}
+                                        value={form.data.alamat_instansi}
+                                        onChange={e => form.setData('alamat_instansi', e.target.value)}
+                                        placeholder="Masukkan alamat instansi yang dituju secara detail..."
+                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.alamat_instansi ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                    />
+                                </div>
+                                {form.errors.alamat_instansi && <p className="text-label-sm text-error">{form.errors.alamat_instansi}</p>}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-label-md text-on-surface-variant font-medium">
+                                        Tanggal Mulai Kerja Praktik <span className="text-error">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary"><Calendar className="w-4 h-4" /></span>
+                                        <input
+                                            type="date"
+                                            required
+                                            disabled={isSubmitted}
+                                            value={form.data.tanggal_mulai}
+                                            onChange={e => form.setData('tanggal_mulai', e.target.value)}
+                                            className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none bg-white ${form.errors.tanggal_mulai ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                        />
+                                    </div>
+                                    {form.errors.tanggal_mulai && <p className="text-label-sm text-error">{form.errors.tanggal_mulai}</p>}
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-label-md text-on-surface-variant font-medium">
+                                        Tanggal Selesai Kerja Praktik <span className="text-error">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary"><Calendar className="w-4 h-4" /></span>
+                                        <input
+                                            type="date"
+                                            required
+                                            disabled={isSubmitted}
+                                            value={form.data.tanggal_selesai}
+                                            onChange={e => form.setData('tanggal_selesai', e.target.value)}
+                                            className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none bg-white ${form.errors.tanggal_selesai ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                        />
+                                    </div>
+                                    {form.errors.tanggal_selesai && <p className="text-label-sm text-error">{form.errors.tanggal_selesai}</p>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Actions Block */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <button
+                            type="submit"
+                            disabled={form.processing || isSubmitted}
+                            className={`w-full sm:flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${form.processing || isSubmitted ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                            {form.processing ? 'Mengirim...' : isSubmitted ? 'Pengajuan Sudah Diajukan' : 'Submit'}
+                        </button>
+                        <Link
+                            href="/mahasiswa/status-pengajuan"
+                            className="w-full sm:w-auto bg-surface-container-highest text-on-surface border border-outline px-6 py-3 rounded-xl font-bold text-center hover:bg-surface-container-high transition-all active:scale-[0.98]"
+                        >
+                            Cek Status Pengajuan
+                        </Link>
+                    </div>
+                </form>
         </div>
-
-        {/* Sidebar Column */}
-        <div className="space-y-6">
-          {/* Digital Signature & QR Info */}
-          <div className="bg-white border border-outline-variant rounded-xl p-6 shadow-sm text-center">
-            <p className="text-label-md text-on-surface mb-6 font-bold">Verifikasi Keaslian</p>
-            
-            <div className="bg-surface-container-highest p-6 rounded-xl mb-6 inline-block mx-auto relative group">
-              <div className="w-40 h-40 bg-white border border-outline-variant flex items-center justify-center p-2">
-                {/* Simulated QR Code */}
-                <div className="grid grid-cols-4 gap-1 w-full h-full">
-                  <div className="bg-primary"></div><div className="bg-white"></div><div className="bg-primary"></div><div className="bg-primary"></div>
-                  <div className="bg-white"></div><div className="bg-primary"></div><div className="bg-white"></div><div className="bg-white"></div>
-                  <div className="bg-primary"></div><div className="bg-white"></div><div className="bg-primary"></div><div className="bg-white"></div>
-                  <div className="bg-primary"></div><div className="bg-primary"></div><div className="bg-white"></div><div className="bg-primary"></div>
-                  <div className="bg-primary"></div><div className="bg-white"></div><div className="bg-primary"></div><div className="bg-primary"></div>
-                  <div className="bg-white"></div><div className="bg-primary"></div><div className="bg-white"></div><div className="bg-white"></div>
-                  <div className="bg-primary"></div><div className="bg-white"></div><div className="bg-primary"></div><div className="bg-white"></div>
-                  <div className="bg-primary"></div><div className="bg-primary"></div><div className="bg-white"></div><div className="bg-primary"></div>
-                </div>
-              </div>
-              <div className="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl p-4">
-                <p className="text-white text-label-sm font-bold text-center">Pindai untuk verifikasi integritas data dokumen</p>
-              </div>
-            </div>
-
-            <div className="bg-secondary-container/20 p-4 rounded-lg flex items-start space-x-2 text-left mb-4">
-              <ShieldCheck className="w-5 h-5 text-primary flex-shrink-0" />
-              <p className="text-body-sm text-on-secondary-container leading-snug">
-                Dokumen ini telah ditandatangani secara digital oleh <span className="font-bold">Dekan Fakultas Teknik</span>.
-              </p>
-            </div>
-            
-            <p className="text-label-sm text-secondary">ID Verifikasi: FT-2024-X921-KP</p>
-          </div>
-
-          {/* Preview Card */}
-          <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-            <div className="p-4 bg-surface-container border-b border-outline-variant flex justify-between items-center">
-              <span className="text-label-sm font-bold text-on-surface">Pratinjau Dokumen</span>
-              <Eye className="w-4 h-4 text-secondary" />
-            </div>
-            <div className="h-64 bg-surface-dim flex items-center justify-center group cursor-zoom-in">
-              <div className="w-40 h-56 bg-white shadow-md relative p-4 transform group-hover:scale-105 transition-transform duration-300">
-                <div className="w-full h-2 bg-outline-variant mb-1"></div>
-                <div className="w-3/4 h-2 bg-outline-variant mb-4"></div>
-                <div className="w-full h-1 bg-surface-container-highest mb-1"></div>
-                <div className="w-full h-1 bg-surface-container-highest mb-1"></div>
-                <div className="w-full h-1 bg-surface-container-highest mb-1"></div>
-                <div className="w-1/2 h-1 bg-surface-container-highest mb-6"></div>
-                <div className="absolute bottom-4 right-4 w-8 h-8 bg-surface-container-highest opacity-50"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 SuratPengantar.layout = (page: React.ReactNode) => <MahasiswaLayout>{page}</MahasiswaLayout>;

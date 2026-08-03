@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Mahasiswa\MahasiswaDashboardController;
-use App\Http\Controllers\Mahasiswa\MahasiswaPanduanController;
 use App\Http\Controllers\Mahasiswa\MahasiswaPendaftaranController;
 use App\Http\Controllers\Mahasiswa\MahasiswaProfilController;
 use App\Http\Controllers\Mahasiswa\MahasiswaProposalController;
@@ -33,11 +32,8 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/dashboard', [MahasiswaDashboardController::class, 'index'])->name('dashboard');
 
     // Profil
-    Route::get('/profil', [MahasiswaProfilController::class, 'index'])->name('profil');
     Route::put('/profil', [MahasiswaProfilController::class, 'update'])->name('profil.update');
 
-    // Panduan
-    Route::get('/panduan', [MahasiswaPanduanController::class, 'index'])->name('panduan');
 
     // Pendaftaran
     Route::get('/pendaftaran', [MahasiswaPendaftaranController::class, 'index'])->name('pendaftaran');
@@ -48,15 +44,15 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/status-pengajuan', fn() => Inertia::render('Mahasiswa/StatusPengajuan'))->name('status-pengajuan');
 
     // Surat Pengantar
-    Route::get('/surat-pengantar', fn() => Inertia::render('Mahasiswa/SuratPengantar'))->name('surat-pengantar');
+    Route::get('/surat-pengantar', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'index'])->name('surat-pengantar');
+    Route::post('/surat-pengantar', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'store'])->name('surat-pengantar.store');
 
     // Proposal
     Route::get('/proposal', [MahasiswaProposalController::class, 'index'])->name('proposal');
     Route::post('/proposal', [MahasiswaProposalController::class, 'store'])->name('proposal.store');
     Route::post('/proposal/note', [MahasiswaProposalController::class, 'sendNote'])->name('proposal.note');
 
-    // Logbook
-    Route::get('/logbook', fn() => Inertia::render('Mahasiswa/LogbookHarian'))->name('logbook');
+
 
     // Berita Acara
     Route::get('/berita-acara', fn() => Inertia::render('Mahasiswa/BeritaAcara'))->name('berita-acara');
@@ -81,7 +77,10 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
 Route::middleware(['auth', 'role:tu'])->prefix('tu')->name('tu.')->group(function () {
     Route::get('/dashboard', fn() => Inertia::render('TU/Dashboard'))->name('dashboard');
     Route::get('/verifikasi', fn() => Inertia::render('TU/Verifikasi'))->name('verifikasi');
-    Route::get('/generate-surat', fn() => Inertia::render('TU/GenerateSurat'))->name('generate');
+    Route::get('/generate-surat', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'index'])->name('generate');
+    Route::post('/generate-surat/{id}/approve', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'approve'])->name('generate.approve');
+    Route::post('/generate-surat/{id}/reject', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'reject'])->name('generate.reject');
+    Route::get('/mahasiswa', [App\Http\Controllers\TU\TUMahasiswaController::class, 'index'])->name('mahasiswa');
     Route::get('/validasi-berita', fn() => Inertia::render('TU/ValidasiBerita'))->name('validasi');
 });
 
@@ -110,7 +109,11 @@ Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->grou
     Route::get('/plotting', fn() => Inertia::render('Prodi/SupervisorPlotting'))->name('plotting');
     Route::get('/quota', fn() => Inertia::render('Prodi/QuotaManagement'))->name('quota');
     Route::get('/verification', fn() => Inertia::render('Prodi/StudentVerification'))->name('verification');
+    Route::get('/mahasiswa', fn() => Inertia::render('Prodi/Students'))->name('mahasiswa');
     Route::get('/reports', fn() => Inertia::render('Prodi/Reports'))->name('reports');
+    Route::get('/periode', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'index'])->name('periode');
+    Route::post('/periode', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'store'])->name('periode.store');
+    Route::post('/periode/{id}', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'update'])->name('periode.update');
 });
 
 // ============================================================

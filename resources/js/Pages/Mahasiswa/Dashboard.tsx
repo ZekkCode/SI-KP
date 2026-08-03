@@ -1,6 +1,6 @@
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
-import { usePage } from '@inertiajs/react';
-import { School, MapPin, ArrowRight, Check, Hourglass, Mail, Megaphone, AlertCircle, UploadCloud, Download, Edit, HelpCircle } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { School, ArrowRight, Mail, Megaphone, AlertCircle, Download, BookOpen, FileText, Edit3, Briefcase, Verified, CheckCircle2, Calendar, Clock } from 'lucide-react';
 
 interface Notification {
     id: number;
@@ -24,16 +24,8 @@ interface DashboardProps extends Record<string, unknown> {
     notifications: Notification[];
     logbookCount: number;
     logbookTarget: number;
+    hasPendaftaran: boolean;
 }
-
-const steps = [
-    { label: 'Pendaftaran' },
-    { label: 'Verifikasi' },
-    { label: 'Surat Pengantar' },
-    { label: 'Proposal' },
-    { label: 'Pelaksanaan' },
-    { label: 'Laporan' },
-];
 
 function getNotifIcon(tipe: string) {
     switch (tipe) {
@@ -52,29 +44,40 @@ function getNotifIcon(tipe: string) {
 
 import { PageProps } from '@/types';
 
-export default function Dashboard({ userName, userProdi, userAngkatan, userKonsentrasi, statusInfo, currentStep, notifications, logbookCount, logbookTarget }: PageProps<DashboardProps>) {
-    const logbookPercent = logbookTarget > 0 ? Math.round((logbookCount / logbookTarget) * 100) : 0;
-    const circumference = 2 * Math.PI * 28; // r=28
-    const strokeDashoffset = circumference - (logbookPercent / 100) * circumference;
+export default function Dashboard({ userName, userProdi, userAngkatan, userKonsentrasi, statusInfo, currentStep, notifications, logbookCount, logbookTarget, hasPendaftaran }: PageProps<DashboardProps>) {
 
     return (
-        <div className="p-6 max-w-[1280px] mx-auto w-full flex-1">
+        <div className="p-6 max-w-[1280px] mx-auto w-full flex-1 space-y-8">
             <div className="grid grid-cols-12 gap-6">
                 {/* Welcome & Brief Profile Card */}
-                <div className="col-span-12 lg:col-span-8 bg-white border border-outline-variant rounded-xl p-6 flex items-center shadow-sm">
-                    <div className="flex-1">
-                        <h3 className="text-headline-md text-on-surface mb-1">Selamat Datang, {userName}!</h3>
-                        <p className="text-body-md text-secondary mb-4">Lanjutkan langkah Anda menuju dunia profesional melalui program Kerja Praktik semester ini.</p>
-                        <div className="flex flex-wrap gap-4">
-                            <div className="flex items-center space-x-2 bg-surface-container-low px-4 py-2 rounded-lg">
-                                <School className="w-5 h-5 text-primary" />
-                                <span className="text-label-md">{userProdi} - {userAngkatan}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 bg-surface-container-low px-4 py-2 rounded-lg">
-                                <MapPin className="w-5 h-5 text-primary" />
-                                <span className="text-label-md">Yogyakarta, Indonesia</span>
-                            </div>
+                <div className="col-span-12 lg:col-span-8 bg-white border border-outline-variant rounded-xl p-6 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+                    <div className="flex-1 space-y-4">
+                        <div>
+                            <h3 className="text-headline-md text-on-surface mb-1">Selamat Datang, {userName}!</h3>
+                            <p className="text-body-md text-secondary">
+                                {userProdi} - {userAngkatan}
+                            </p>
                         </div>
+                        <p className="text-body-md text-secondary leading-relaxed">
+                            Sistem Informasi Kerja Praktik (SI-KP) membantu Anda mengelola tahapan pelaksanaan KP mulai dari pendaftaran, proposal, hingga penilaian akhir secara terstruktur.
+                        </p>
+                        <div className="flex flex-wrap gap-3 pt-2">
+                            <button className="bg-primary text-white px-4 py-2.5 rounded-lg text-label-md hover:shadow-md transition-all flex items-center space-x-2">
+                                <BookOpen className="w-4 h-4" />
+                                <span>Unduh Buku Panduan</span>
+                            </button>
+                            <button className="border border-primary text-primary px-4 py-2.5 rounded-lg text-label-md hover:bg-primary-container/10 transition-all">
+                                Hubungi Koordinator
+                            </button>
+                        </div>
+                    </div>
+                    <div className="w-full md:w-48 h-32 md:h-40 rounded-xl overflow-hidden shadow-sm relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-primary/10"></div>
+                        <img
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXQKsbzd0HD4f87_TGfq2xTvVtGgchivENcvI5tuAqWBzCZ4NTAqck8TfJWnxGrLU8E7mQBzg8jQrXtTTWvKO7-3vdt8qaMNVjriuIkU387_tBzIULkAu87DgtHWZk2k-rG9AuDj-Aq4trJR2gXUbtBseLTunRNoHlxwHiggYt2lHFsxqXBGitSitJ6JqWO7Inv72Y2OvpN12fMOv0eAUroC_lewtjrRmCa_K0pPAvbL56Iz6Yq9whcXPcRdbtu9XuV21deV-yHag"
+                            alt="Office"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                 </div>
 
@@ -93,44 +96,136 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                     </div>
                     <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
+            </div>
 
-                {/* Horizontal Stepper */}
-                <div className="col-span-12 bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
-                    <h3 className="text-label-md text-secondary mb-8 uppercase tracking-wider">Alur Kerja Praktik</h3>
-                    <div className="relative flex items-center justify-between w-full">
-                        <div className="absolute top-5 left-0 w-full h-1 bg-surface-variant -z-0"></div>
-                        <div
-                            className="absolute top-5 left-0 h-1 bg-primary -z-0 transition-all duration-500"
-                            style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-                        ></div>
+            {/* Infografis Tahapan KP */}
+            <div className="bg-white border border-outline-variant rounded-xl p-6 shadow-sm space-y-6">
+                <div className="flex items-center space-x-2">
+                    <span className="w-2 h-6 bg-primary rounded-full"></span>
+                    <h3 className="text-title-lg font-bold text-on-surface">Infografis Tahapan KP</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-6">
+                    <div className="flex flex-col items-center text-center group">
+                        <div className="w-12 h-12 rounded-full bg-primary-container text-white flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                            <Edit3 className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-label-sm text-primary font-bold">Tahap 1</h4>
+                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Pengajuan & Persetujuan Judul</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center group">
+                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                            <Mail className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-label-sm text-primary font-bold">Tahap 2</h4>
+                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Penerbitan Surat Pengantar</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center group">
+                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                            <Briefcase className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-label-sm text-primary font-bold">Tahap 3</h4>
+                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Pelaksanaan di Instansi</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center group">
+                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                            <FileText className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-label-sm text-primary font-bold">Tahap 4</h4>
+                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Penyusunan Laporan Akhir</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center group">
+                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                            <Verified className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-label-sm text-primary font-bold">Tahap 5</h4>
+                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Sidang & Penilaian Akhir</p>
+                    </div>
+                </div>
+            </div>
 
-                        {steps.map((step, idx) => {
-                            const isCompleted = idx < currentStep;
-                            const isCurrent = idx === currentStep;
-                            return (
-                                <div key={step.label} className="relative z-10 flex flex-col items-center">
-                                    {isCompleted ? (
-                                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md mb-2">
-                                            <Check className="w-5 h-5" />
-                                        </div>
-                                    ) : isCurrent ? (
-                                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg mb-2 ring-4 ring-primary-fixed">
-                                            <Hourglass className="w-5 h-5" />
-                                        </div>
-                                    ) : (
-                                        <div className="w-10 h-10 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center mb-2">
-                                            <div className="w-2 h-2 rounded-full bg-on-surface-variant"></div>
-                                        </div>
-                                    )}
-                                    <span className={`text-label-sm text-center ${isCompleted || isCurrent ? 'text-primary font-bold' : 'text-secondary'}`}>
-                                        {step.label}
-                                    </span>
-                                </div>
-                            );
-                        })}
+            {/* SOP & Persyaratan Dokumen */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-7 bg-white border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center justify-between mb-6">
+                           <h3 className="text-title-md font-bold text-primary flex items-center gap-2">
+                               <BookOpen className="w-5 h-5" />
+                               Standar Operasional Prosedur (SOP)
+                           </h3>
+                           <span className="text-label-sm bg-secondary-container/30 text-secondary px-3 py-0.5 rounded-full">Revisi 2024.1</span>
+                       </div>
+                       <div className="space-y-4">
+                           <div className="flex gap-4">
+                               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-label-md">1</div>
+                               <div>
+                                   <h4 className="text-label-md text-on-surface font-semibold">Pendaftaran Awal</h4>
+                                   <p className="text-body-sm text-secondary">Mahasiswa melakukan pendaftaran melalui portal sistem informasi dengan mengunggah transkrip nilai sementara yang telah diverifikasi.</p>
+                               </div>
+                           </div>
+                           <div className="flex gap-4">
+                               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-label-md">2</div>
+                               <div>
+                                   <h4 className="text-label-md text-on-surface font-semibold">Penentuan Pembimbing</h4>
+                                   <p className="text-body-sm text-secondary">Koordinator KP menetapkan Dosen Pembimbing berdasarkan topik atau bidang minat yang diajukan oleh mahasiswa dalam waktu 3 hari kerja.</p>
+                               </div>
+                           </div>
+                           <div className="flex gap-4">
+                               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-label-md">3</div>
+                               <div>
+                                   <h4 className="text-label-md text-on-surface font-semibold">Bimbingan & Pelaksanaan</h4>
+                                   <p className="text-body-sm text-secondary">Selama periode KP (minimum 40 hari kerja), mahasiswa wajib melakukan bimbingan rutin dan mengisi logbook harian di sistem.</p>
+                               </div>
+                           </div>
+                           <div className="flex gap-4">
+                               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-label-md">4</div>
+                               <div>
+                                   <h4 className="text-label-md text-on-surface font-semibold">Verifikasi Dokumen Akhir</h4>
+                                   <p className="text-body-sm text-secondary">Setelah selesai, mahasiswa wajib mengunggah Berita Acara Pelaksanaan dan Form Penilaian dari Instansi ke sistem untuk verifikasi administrasi.</p>
+                               </div>
+                           </div>
+                       </div>
                     </div>
                 </div>
 
+                <div className="lg:col-span-5 bg-white border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center space-x-2 mb-6">
+                            <Calendar className="w-5 h-5 text-primary" />
+                            <h3 className="text-title-md font-bold text-on-surface">Jadwal Penting KP</h3>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/30 flex items-start justify-between">
+                                <div className="space-y-1">
+                                    <h4 className="text-label-md font-bold text-on-surface">Pendaftaran Kerja Praktik</h4>
+                                    <p className="text-body-sm text-secondary flex items-center gap-1.5 mt-1">
+                                        <Clock className="w-4 h-4 text-primary" />
+                                        1 Agustus - 31 Agustus 2026
+                                    </p>
+                                </div>
+                                <span className="text-label-xs bg-success-container/20 text-success px-2 py-0.5 rounded font-bold">
+                                    Aktif
+                                </span>
+                            </div>
+
+                            <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/30 flex items-start justify-between">
+                                <div className="space-y-1">
+                                    <h4 className="text-label-md font-bold text-on-surface">Pengajuan Surat Pengantar</h4>
+                                    <p className="text-body-sm text-secondary flex items-center gap-1.5 mt-1">
+                                        <Clock className="w-4 h-4 text-primary" />
+                                        1 Agustus - 15 September 2026
+                                    </p>
+                                </div>
+                                <span className="text-label-xs bg-success-container/20 text-success px-2 py-0.5 rounded font-bold">
+                                    Aktif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Links & Notifications */}
+            <div className="grid grid-cols-12 gap-6">
                 {/* Notifications Panel */}
                 <div className="col-span-12 lg:col-span-7 bg-white border border-outline-variant rounded-xl shadow-sm flex flex-col overflow-hidden">
                     <div className="p-6 border-b border-outline-variant flex justify-between items-center">
@@ -164,44 +259,63 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                     </div>
                 </div>
 
-                {/* Quick Links */}
+                {/* Right side widgets */}
                 <div className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-                    <div className="bg-surface-container-high rounded-xl p-6 border border-outline-variant flex-1">
-                        <h3 className="text-label-md font-bold mb-4 uppercase tracking-wider">Aksi Cepat</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                            <button className="bg-white p-4 rounded-lg flex flex-col items-center justify-center border border-outline-variant hover:border-primary hover:text-primary transition-all text-center group">
-                                <UploadCloud className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                                <span className="text-label-sm">Upload Laporan</span>
-                            </button>
-                            <button className="bg-white p-4 rounded-lg flex flex-col items-center justify-center border border-outline-variant hover:border-primary hover:text-primary transition-all text-center group">
-                                <Download className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                                <span className="text-label-sm">Unduh Panduan</span>
-                            </button>
-                            <button className="bg-white p-4 rounded-lg flex flex-col items-center justify-center border border-outline-variant hover:border-primary hover:text-primary transition-all text-center group">
-                                <Edit className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                                <span className="text-label-sm">Isi Logbook</span>
-                            </button>
-                            <button className="bg-white p-4 rounded-lg flex flex-col items-center justify-center border border-outline-variant hover:border-primary hover:text-primary transition-all text-center group">
-                                <HelpCircle className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                                <span className="text-label-sm">Bantuan</span>
-                            </button>
-                        </div>
-                    </div>
 
-                    <div className="bg-white border border-outline-variant rounded-xl p-6 flex items-center justify-between shadow-sm">
+                    {/* Panduan Kerja Praktik download list */}
+                    <div className="bg-surface-container-high rounded-xl p-6 border border-outline-variant flex-1 flex flex-col justify-between">
                         <div>
-                            <span className="text-label-sm text-secondary">Logbook Terisi</span>
-                            <div className="flex items-end space-x-1 mt-1">
-                                <span className="text-headline-md text-on-surface">{logbookCount}</span>
-                                <span className="text-body-sm text-secondary mb-1">/ {logbookTarget} Hari</span>
+                            <h3 className="text-label-md font-bold mb-1 uppercase tracking-wider text-secondary">Dokumen Panduan</h3>
+                            <p className="text-body-sm text-secondary mb-4">Unduh dokumen panduan resmi untuk kelancaran pelaksanaan Kerja Praktik Anda.</p>
+                            <div className="space-y-3">
+                                <a
+                                    href="#"
+                                    className="flex items-center justify-between p-3 bg-white border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all group"
+                                >
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 bg-primary-container/20 rounded-md group-hover:bg-primary-container/40 transition-colors">
+                                            <BookOpen className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-label-md font-bold text-on-surface">Buku Panduan KP</p>
+                                            <p className="text-body-xs text-secondary">PDF • 2.4 MB</p>
+                                        </div>
+                                    </div>
+                                    <Download className="w-5 h-5 text-secondary group-hover:text-primary group-hover:translate-y-0.5 transition-all" />
+                                </a>
+
+                                <a
+                                    href="#"
+                                    className="flex items-center justify-between p-3 bg-white border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all group"
+                                >
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 bg-primary-container/20 rounded-md group-hover:bg-primary-container/40 transition-colors">
+                                            <FileText className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-label-md font-bold text-on-surface">Template Proposal KP</p>
+                                            <p className="text-body-xs text-secondary">DOCX • 1.2 MB</p>
+                                        </div>
+                                    </div>
+                                    <Download className="w-5 h-5 text-secondary group-hover:text-primary group-hover:translate-y-0.5 transition-all" />
+                                </a>
+
+                                <a
+                                    href="#"
+                                    className="flex items-center justify-between p-3 bg-white border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all group"
+                                >
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 bg-primary-container/20 rounded-md group-hover:bg-primary-container/40 transition-colors">
+                                            <FileText className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-label-md font-bold text-on-surface">Template Laporan Akhir</p>
+                                            <p className="text-body-xs text-secondary">DOCX • 1.5 MB</p>
+                                        </div>
+                                    </div>
+                                    <Download className="w-5 h-5 text-secondary group-hover:text-primary group-hover:translate-y-0.5 transition-all" />
+                                </a>
                             </div>
-                        </div>
-                        <div className="w-16 h-16 rounded-full border-4 border-surface-variant flex items-center justify-center relative">
-                            <svg className="absolute inset-0 transform -rotate-90">
-                                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-primary-container/20" />
-                                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className="text-primary" />
-                            </svg>
-                            <span className="text-label-sm font-bold">{logbookPercent}%</span>
                         </div>
                     </div>
                 </div>

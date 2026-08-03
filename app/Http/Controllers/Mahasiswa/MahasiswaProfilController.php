@@ -40,6 +40,6 @@ class MahasiswaProfilController extends Controller
 
         $request->user()->save();
 
-        return redirect()->route('mahasiswa.profil')->with('success', 'Profil Kerja Praktik berhasil diperbarui!');
+        return redirect()->route('mahasiswa.pendaftaran')->with('success', 'Profil Kerja Praktik berhasil diperbarui!');
     }
 }

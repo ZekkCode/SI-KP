@@ -66,9 +66,13 @@ class SikpSeeder extends Seeder
                 'nip' => null,
                 'program_studi_id' => $prodis->random()->id,
                 'no_telepon' => '08' . fake()->numerify('##########'),
-                'konsentrasi' => fake()->randomElement(['Rekayasa Perangkat Lunak', 'Jaringan Komputer', 'Kecerdasan Buatan', 'Data Science', 'Multimedia']),
                 'total_sks' => fake()->numberBetween(100, 140),
-                'semester' => fake()->randomElement(['V', 'VI', 'VII', 'VIII']),
+                'semester' => fake()->randomElement([
+                    'Ganjil 2024/2025', 'Genap 2024/2025',
+                    'Ganjil 2025/2026', 'Genap 2025/2026',
+                    'Ganjil 2026/2027', 'Genap 2026/2027'
+                ]),
+                'ipk' => fake()->randomFloat(2, 3.00, 4.00),
                 'angkatan' => fake()->randomElement([2020, 2021, 2022]),
             ]));
         }

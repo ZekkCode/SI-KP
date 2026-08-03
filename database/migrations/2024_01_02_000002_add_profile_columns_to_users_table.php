@@ -15,7 +15,8 @@ return new class extends Migration
             $table->string('konsentrasi')->nullable()->after('no_telepon');
             $table->unsignedInteger('total_sks')->nullable()->after('konsentrasi');
             $table->string('semester')->nullable()->after('total_sks');
-            $table->string('foto')->nullable()->after('semester');
+            $table->decimal('ipk', 3, 2)->nullable()->after('semester');
+            $table->string('foto')->nullable()->after('ipk');
             $table->year('angkatan')->nullable()->after('foto');
         });
     }

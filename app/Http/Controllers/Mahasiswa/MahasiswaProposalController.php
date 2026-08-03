@@ -98,7 +98,10 @@ class MahasiswaProposalController extends Controller
             ->first();
 
         if (!$pendaftaran) {
-            return back()->with('error', 'Anda belum memiliki pendaftaran. Silakan daftar terlebih dahulu.');
+            $pendaftaran = Pendaftaran::create([
+                'mahasiswa_id' => $user->id,
+                'status' => 'draft',
+            ]);
         }
 
         DB::transaction(function () use ($pendaftaran, $validated, $user) {
@@ -167,7 +170,10 @@ class MahasiswaProposalController extends Controller
             ->first();
 
         if (!$pendaftaran) {
-            return back()->with('error', 'Pendaftaran tidak ditemukan.');
+            $pendaftaran = Pendaftaran::create([
+                'mahasiswa_id' => $user->id,
+                'status' => 'draft',
+            ]);
         }
 
         $proposal = Proposal::where('pendaftaran_id', $pendaftaran->id)

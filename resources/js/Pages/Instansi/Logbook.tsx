@@ -59,7 +59,7 @@ export default function LogbookScreen() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-semibold text-on-surface">Monitoring Logbook</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-semibold text-on-surface">Monitoring</h1>
           <p className="text-sm text-on-surface-variant mt-1">Pantau aktivitas harian mahasiswa KP di perusahaan Anda.</p>
         </div>
         <div className="flex gap-3">

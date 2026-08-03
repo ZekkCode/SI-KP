@@ -108,20 +108,6 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
         });
     };
 
-    if (!hasPendaftaran) {
-        return (
-            <div className="flex-1 p-6 max-w-[1280px] mx-auto w-full flex items-center justify-center">
-                <div className="text-center space-y-4 max-w-md">
-                    <AlertCircle className="w-16 h-16 text-warning mx-auto text-amber-500" />
-                    <h2 className="text-headline-md">Belum Memiliki Pendaftaran</h2>
-                    <p className="text-body-md text-secondary">
-                        Anda harus melakukan pendaftaran dan mendapatkan dosen pembimbing terlebih dahulu sebelum dapat mengunggah proposal.
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="flex-1 p-6 max-w-[1280px] mx-auto w-full">
             {/* Page Header & Status */}
@@ -296,26 +282,7 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
                         </div>
                         <InfoIcon className="absolute -bottom-4 -right-4 w-32 h-32 opacity-10" />
                     </section>
-                    
-                    <section className="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
-                        <h3 className="text-label-md text-secondary uppercase mb-4 tracking-wider font-bold">Dosen Pembimbing</h3>
-                        {dosenPembimbing ? (
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-primary font-bold">
-                                    {dosenPembimbing.initials}
-                                </div>
-                                <div>
-                                    <p className="text-body-md font-bold text-on-surface truncate w-40" title={dosenPembimbing.name}>{dosenPembimbing.name}</p>
-                                    <p className="text-body-sm text-secondary">NIP: {dosenPembimbing.nip}</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <p className="text-body-sm text-secondary">Belum ada dosen pembimbing yang ditetapkan.</p>
-                        )}
-                        <button className="w-full mt-6 py-2 border border-primary text-primary rounded-lg font-bold hover:bg-primary-container/10 transition-colors">
-                            Hubungi via Pesan
-                        </button>
-                    </section>
+
                 </div>
             </div>
 

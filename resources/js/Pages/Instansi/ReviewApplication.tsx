@@ -1,180 +1,228 @@
 import InstansiLayout from '@/Layouts/InstansiLayout';
-import React from 'react';
-import { ChevronRight, Calendar, FileText, Download, Upload, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  ChevronRight, 
+  Calendar, 
+  FileText, 
+  Download, 
+  Upload, 
+  CheckCircle, 
+  XCircle,
+  Mail,
+  Phone,
+  User,
+  GraduationCap,
+  Briefcase,
+  AlertCircle
+} from 'lucide-react';
 
 export default function ReviewApplication() {
+  const [status, setStatus] = useState<'pending' | 'accepted' | 'rejected'>('pending');
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+
   const onConfirm = () => {
-    // TODO: Implement confirmation logic
+    setStatus('accepted');
+    alert('Penerimaan mahasiswa berhasil dikonfirmasi!');
+  };
+
+  const onReject = () => {
+    const reason = prompt('Masukkan alasan penolakan:');
+    if (reason !== null) {
+      setStatus('rejected');
+      alert('Pengajuan mahasiswa ditolak.');
+    }
   };
 
   return (
-    <div className="bg-background text-on-background min-h-screen flex flex-col md:flex-row">
-<main className="flex-1 flex flex-col md:min-h-screen w-full">
-        <div className="flex-1 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full">
+    <main className="flex-1 min-h-screen p-6 md:p-8 w-full max-w-[1200px] mx-auto space-y-8 bg-[#f8fafc]">
+      {/* Breadcrumbs & Header */}
+      <div>
+        <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
+          <span>Penempatan</span>
+          <ChevronRight size={12} className="text-slate-300" />
+          <span className="text-slate-600 font-semibold">Review Pengajuan</span>
+        </div>
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Konfirmasi Penerimaan Kerja Praktek</h1>
+        <p className="text-slate-500 mt-2 text-sm max-w-3xl leading-relaxed">
+          Tinjau data akademik, portofolio, dan proposal mahasiswa sebelum melakukan konfirmasi penempatan kerja praktek di perusahaan Anda.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Student Details */}
+        <div className="lg:col-span-2 space-y-6">
           
-          {/* Breadcrumbs & Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 text-on-surface-variant text-label-md mb-2">
-              <a href="#" className="hover:text-primary transition-colors">Placements</a>
-              <ChevronRight size={16} />
-              <a href="#" className="hover:text-primary transition-colors">Applications</a>
-              <ChevronRight size={16} />
-              <span className="text-on-surface">Review Application</span>
+          {/* Applicant Card */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              {/* Initials Avatar */}
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-3xl shadow-sm shrink-0">
+                BS
+              </div>
+              <div className="flex-grow w-full">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 w-full">
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800">Budi Santoso</h3>
+                    <p className="text-sm font-semibold text-indigo-600 mt-1 flex items-center gap-1.5">
+                      <GraduationCap size={16} />
+                      Teknik Informatika (S1)
+                    </p>
+                  </div>
+                  <div>
+                    <span className={`inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                      status === 'accepted'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : status === 'rejected'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {status === 'accepted' && 'Diterima'}
+                      {status === 'rejected' && 'Ditolak'}
+                      {status === 'pending' && 'Menunggu Konfirmasi'}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mt-6 pt-6 border-t border-slate-100 text-sm">
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">NIM / Student ID</span>
+                    <p className="font-bold text-slate-700">13519001</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Universitas</span>
+                    <p className="font-bold text-slate-700">Universitas Trunojoyo Madura</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Email Akademik</span>
+                    <p className="font-bold text-slate-700 flex items-center gap-1.5">
+                      <Mail size={14} className="text-indigo-500" />
+                      budi.santoso@student.utm.ac.id
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">No. Handphone</span>
+                    <p className="font-bold text-slate-700 flex items-center gap-1.5">
+                      <Phone size={14} className="text-indigo-500" />
+                      +62 812-3456-7890
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h2 className="text-headline-lg-mobile md:text-headline-lg text-on-surface">Konfirmasi Penerimaan Kerja Praktik</h2>
-            <p className="text-body-md text-on-surface-variant mt-2">Review student details and confirm their internship placement.</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-            {/* Left Column: Student Details */}
-            <div className="lg:col-span-2 space-y-gutter">
-              
-              {/* Applicant Card */}
-              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 shadow-sm">
-                <div className="flex flex-col md:flex-row gap-6 items-start">
-                  <img 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9IwyY8WBoMTjpg_Yi_79nfGbzM1T-MiOFCxGUa-2a1Mr6yQ32Rc27wPE6wvu4sILgMAe7nWt_69mo9PwDrRb1vW_UaKnFmr6H0xIgduv_Bv6hOFoUgtSXT8GpaK3uZo1PWoEnm_bBmS9VqGFuv5qBhWb3di5zp0buTtokPUcbjBTyYkRmfP_ocigJgl7zCI5r3JhlJqgd5SW_CKy3aZrcjDiRoU578M5Itd1OJz3YZlpYqUXWqgdxih_J3YLXBhZ3kg3Um0OomtE" 
-                    alt="Budi Santoso" 
-                    className="w-24 h-24 rounded-full object-cover border-2 border-surface-container-high shrink-0"
-                  />
-                  <div className="flex-1 w-full">
-                    <div className="flex justify-between items-start w-full">
-                      <div>
-                        <h3 className="text-headline-md text-on-surface">Budi Santoso</h3>
-                        <p className="text-body-lg text-primary mt-1">Teknik Informatika (S1)</p>
-                      </div>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-label-md whitespace-nowrap">
-                        Menunggu Konfirmasi
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-surface-container-highest">
-                      <div>
-                        <p className="text-label-md text-on-surface-variant uppercase tracking-wider mb-1">NIM / Student ID</p>
-                        <p className="text-body-md text-on-surface font-medium">13519001</p>
-                      </div>
-                      <div>
-                        <p className="text-label-md text-on-surface-variant uppercase tracking-wider mb-1">University</p>
-                        <p className="text-body-md text-on-surface font-medium">Universitas Teknologi Nasional</p>
-                      </div>
-                      <div>
-                        <p className="text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Email</p>
-                        <p className="text-body-md text-on-surface font-medium">budi.santoso@std.utn.ac.id</p>
-                      </div>
-                      <div>
-                        <p className="text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Phone</p>
-                        <p className="text-body-md text-on-surface font-medium">+62 812-3456-7890</p>
-                      </div>
-                    </div>
-                  </div>
+          {/* Internship Details Card */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-6">
+            <h4 className="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-4">
+              <Calendar className="text-indigo-600" size={20} />
+              Rencana Pelaksanaan Kerja Praktek
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Durasi Kerja Praktek</span>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-extrabold text-slate-800">3 Bulan</p>
+                  <span className="text-slate-300">•</span>
+                  <p className="text-sm font-semibold text-slate-500">Full-time (WFO)</p>
                 </div>
               </div>
-
-              {/* Internship Details Card */}
-              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 shadow-sm">
-                <h4 className="text-headline-sm text-on-surface mb-6 flex items-center gap-2">
-                  <Calendar className="text-primary" size={24} />
-                  Proposed Internship Details
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-4 rounded-lg bg-surface-container-low border border-surface-container-highest">
-                    <p className="text-label-md text-on-surface-variant mb-2">Duration</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-body-lg text-on-surface font-medium">3 Months</p>
-                      <span className="text-on-surface-variant">•</span>
-                      <p className="text-body-md text-on-surface-variant">Full-time</p>
-                    </div>
-                  </div>
-                  <div className="p-4 rounded-lg bg-surface-container-low border border-surface-container-highest">
-                    <p className="text-label-md text-on-surface-variant mb-2">Proposed Dates</p>
-                    <p className="text-body-lg text-on-surface font-medium">1 Sep 2024 - 30 Nov 2024</p>
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <p className="text-label-md text-on-surface-variant mb-2">Role Interest / Focus Area</p>
-                  <p className="text-body-md text-on-surface">Software Engineering (Backend Development), Cloud Infrastructure</p>
-                </div>
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Rentang Tanggal Pengajuan</span>
+                <p className="text-lg font-extrabold text-slate-800">1 Sep 2024 - 30 Nov 2024</p>
               </div>
             </div>
-
-            {/* Right Column: Documents & Actions */}
-            <div className="space-y-gutter">
-              {/* Document Preview Card */}
-              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 shadow-sm">
-                <h4 className="text-headline-sm text-on-surface mb-4 flex items-center gap-2">
-                  <FileText className="text-primary" size={24} />
-                  Application Documents
-                </h4>
-                <div className="space-y-3">
-                  <a href="#" className="flex items-center p-3 rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors group">
-                    <div className="w-10 h-10 rounded bg-error-container text-on-error-container flex items-center justify-center mr-3">
-                      <FileText size={20} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-body-md text-on-surface font-medium truncate">Resume_Budi_Santoso.pdf</p>
-                      <p className="text-label-md text-on-surface-variant">1.2 MB</p>
-                    </div>
-                    <Download className="text-on-surface-variant group-hover:text-primary transition-colors" size={20} />
-                  </a>
-                  <a href="#" className="flex items-center p-3 rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors group">
-                    <div className="w-10 h-10 rounded bg-error-container text-on-error-container flex items-center justify-center mr-3">
-                      <FileText size={20} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-body-md text-on-surface font-medium truncate">Proposal_KP_Budi.pdf</p>
-                      <p className="text-label-md text-on-surface-variant">2.4 MB</p>
-                    </div>
-                    <Download className="text-on-surface-variant group-hover:text-primary transition-colors" size={20} />
-                  </a>
-                </div>
-              </div>
-
-              {/* Action Card */}
-              <div className="bg-surface-container-lowest rounded-xl border border-primary p-6 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary-container opacity-10 rounded-bl-full pointer-events-none"></div>
-                
-                <h4 className="text-headline-sm text-on-surface mb-4 relative z-10">Approval Action</h4>
-                <p className="text-body-md text-on-surface-variant mb-6 relative z-10">
-                  Confirming this placement will change the student's status to 'Aktif' and unlock their daily logbook access.
-                </p>
-
-                <div className="mb-6 relative z-10">
-                  <label className="block text-label-md text-on-surface mb-2">Upload Acceptance Letter (Optional)</label>
-                  <div className="border-2 border-dashed border-outline-variant rounded-lg p-4 text-center hover:bg-surface-container-low hover:border-primary transition-colors cursor-pointer group">
-                    <Upload className="mx-auto text-outline group-hover:text-primary mb-2" size={28} />
-                    <p className="text-body-md text-on-surface-variant group-hover:text-primary">Click or drag file to upload</p>
-                    <p className="text-label-md text-outline mt-1">PDF max 5MB</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3 relative z-10">
-                  <button onClick={onConfirm} className="w-full bg-primary text-on-primary text-label-md py-3 px-4 rounded-lg hover:bg-on-primary-fixed-variant transition-colors flex justify-center items-center gap-2 shadow-sm">
-                    <CheckCircle size={20} />
-                    Konfirmasi Penerimaan
-                  </button>
-                  <button className="w-full bg-surface text-error text-label-md py-3 px-4 rounded-lg border border-error hover:bg-error-container transition-colors flex justify-center items-center gap-2">
-                    <XCircle size={20} />
-                    Tolak Pengajuan
-                  </button>
-                </div>
-              </div>
+            <div className="space-y-1.5 pt-2">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Fokus Minat & Peran</span>
+              <p className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                <Briefcase size={16} className="text-indigo-500" />
+                Software Engineering (Backend Development), Cloud Infrastructure
+              </p>
             </div>
           </div>
         </div>
 
-        <footer className="w-full py-8 mt-auto bg-surface-container border-t border-outline-variant">
-          <div className="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-4">
-            <span className="text-headline-sm text-on-surface">InternshipPortal</span>
-            <p className="text-label-md text-on-surface-variant text-center md:text-left">© 2024 University Internship Management System. All rights reserved.</p>
-            <div className="flex gap-4">
-              <a href="#" className="text-label-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Privacy Policy</a>
-              <a href="#" className="text-label-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Terms of Service</a>
-              <a href="#" className="text-label-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Support</a>
+        {/* Right Column: Documents & Actions */}
+        <div className="space-y-6">
+          {/* Document Preview Card */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <FileText className="text-indigo-600" size={20} />
+              Berkas Pengajuan Mahasiswa
+            </h4>
+            <div className="space-y-3">
+              <a href="#" className="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors group">
+                <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center mr-3 shrink-0">
+                  <FileText size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-slate-700 truncate">Resume_Budi_Santoso.pdf</p>
+                  <p className="text-[10px] text-slate-400 font-semibold">1.2 MB | PDF Dokumen</p>
+                </div>
+                <Download className="text-slate-400 group-hover:text-indigo-600 transition-colors" size={18} />
+              </a>
+              
+              <a href="#" className="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors group">
+                <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center mr-3 shrink-0">
+                  <FileText size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-slate-700 truncate">Proposal_KP_Budi.pdf</p>
+                  <p className="text-[10px] text-slate-400 font-semibold">2.4 MB | PDF Dokumen</p>
+                </div>
+                <Download className="text-slate-400 group-hover:text-indigo-600 transition-colors" size={18} />
+              </a>
             </div>
           </div>
-        </footer>
-      </main>
-    </div>
+
+          {/* Action Card */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-6">
+            <h4 className="text-lg font-bold text-slate-800">Keputusan Penempatan</h4>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Konfirmasi penerimaan mahasiswa ini akan mengubah statusnya menjadi 'Aktif' saat masa magang dimulai dan membuka modul logbook.
+            </p>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Unggah Surat Balasan / LoA (Opsional)</label>
+              <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:bg-slate-50 hover:border-indigo-500 transition-colors cursor-pointer group">
+                <Upload className="mx-auto text-slate-400 group-hover:text-indigo-600 mb-2" size={24} />
+                <p className="text-xs font-semibold text-slate-500 group-hover:text-indigo-600">Pilih atau Seret file LoA</p>
+                <p className="text-[10px] text-slate-400 mt-1">PDF maksimal 5MB</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 pt-2">
+              {status === 'pending' && (
+                <>
+                  <button 
+                    onClick={onConfirm} 
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-3 px-4 rounded-xl transition-colors flex justify-center items-center gap-2 shadow-sm"
+                  >
+                    <CheckCircle size={16} />
+                    Konfirmasi Penerimaan
+                  </button>
+                  <button 
+                    onClick={onReject}
+                    className="w-full bg-white text-red-600 hover:bg-red-50 text-xs font-bold py-3 px-4 rounded-xl border border-red-200 hover:border-red-300 transition-colors flex justify-center items-center gap-2"
+                  >
+                    <XCircle size={16} />
+                    Tolak Pengajuan
+                  </button>
+                </>
+              )}
+              {status !== 'pending' && (
+                <button 
+                  onClick={() => setStatus('pending')}
+                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-3 px-4 rounded-xl transition-colors flex justify-center items-center gap-2"
+                >
+                  Reset Keputusan
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
 

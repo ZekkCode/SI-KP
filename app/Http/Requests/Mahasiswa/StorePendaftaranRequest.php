@@ -13,28 +13,40 @@ class StorePendaftaranRequest extends FormRequest
 
     public function rules(): array
     {
+        $user = $this->user();
+        $pendaftaran = \App\Models\Pendaftaran::where('mahasiswa_id', $user->id)
+            ->with('dokumenPendaftarans')
+            ->latest()
+            ->first();
+
+        $transkripUploaded = $pendaftaran && $pendaftaran->dokumenPendaftarans->where('jenis', 'transkrip')->isNotEmpty();
+
         return [
-            'nama_instansi' => ['required', 'string', 'max:255'],
-            'alamat_instansi' => ['required', 'string', 'max:1000'],
-            'tanggal_mulai' => ['required', 'date', 'after_or_equal:2020-01-01'],
-            'tanggal_selesai' => ['required', 'date', 'after:tanggal_mulai'],
-            'krs_file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
-            'transkrip_file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'name' => ['required', 'string', 'max:255'],
+            'no_telepon' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'semester' => ['required', 'string', 'max:50'],
+            'total_sks' => ['required', 'integer', 'min:100'],
+            'ipk' => ['required', 'numeric', 'between:0.00,4.00'],
+            'transkrip_file' => [$transkripUploaded ? 'nullable' : 'required', 'file', 'mimes:pdf', 'max:2048'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'nama_instansi.required' => 'Nama instansi wajib diisi.',
-            'alamat_instansi.required' => 'Alamat instansi wajib diisi.',
-            'tanggal_mulai.required' => 'Tanggal mulai wajib diisi.',
-            'tanggal_mulai.after_or_equal' => 'Tanggal mulai tidak boleh di masa lalu.',
-            'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
-            'tanggal_selesai.after' => 'Tanggal selesai harus setelah tanggal mulai.',
-            'krs_file.required' => 'File KRS wajib diunggah.',
-            'krs_file.mimes' => 'File KRS harus berformat PDF.',
-            'krs_file.max' => 'Ukuran file KRS maksimal 2MB.',
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'no_telepon.required' => 'Nomor WhatsApp wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
+            'semester.required' => 'Semester wajib diisi.',
+            'total_sks.required' => 'Total SKS wajib diisi.',
+            'total_sks.integer' => 'Total SKS harus berupa angka.',
+            'total_sks.min' => 'Total SKS minimal adalah 100 SKS untuk mendaftar.',
+            'ipk.required' => 'IPK wajib diisi.',
+            'ipk.numeric' => 'IPK harus berupa angka.',
+            'ipk.between' => 'IPK harus bernilai antara 0.00 dan 4.00.',
             'transkrip_file.required' => 'File transkrip wajib diunggah.',
             'transkrip_file.mimes' => 'File transkrip harus berformat PDF.',
             'transkrip_file.max' => 'Ukuran file transkrip maksimal 2MB.',
