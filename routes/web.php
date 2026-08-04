@@ -4,6 +4,7 @@ use App\Http\Controllers\Mahasiswa\MahasiswaDashboardController;
 use App\Http\Controllers\Mahasiswa\MahasiswaPendaftaranController;
 use App\Http\Controllers\Mahasiswa\MahasiswaProfilController;
 use App\Http\Controllers\Mahasiswa\MahasiswaProposalController;
+use App\Http\Controllers\TU\TUVerifikasiController;
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -78,7 +79,21 @@ Route::middleware(['auth', 'role:mahasiswa'])
         
         Route::get('/surat-pengantar/download',[App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class,'download'])
             ->name('surat-pengantar.download');
+        // =========================
+        // SURAT BALASAN
+        // =========================
 
+        Route::get('/surat-balasan', [App\Http\Controllers\Mahasiswa\MahasiswaSuratBalasanController::class,'index'])
+            ->name('surat-balasan');
+
+        Route::get('/surat-balasan/detail', [App\Http\Controllers\Mahasiswa\MahasiswaSuratBalasanController::class,'show'])
+            ->name('surat-balasan.show');
+
+        Route::post('/surat-balasan', [App\Http\Controllers\Mahasiswa\MahasiswaSuratBalasanController::class,'store'])
+            ->name('surat-balasan.store');
+
+        Route::get('/surat-balasan/download', [App\Http\Controllers\Mahasiswa\MahasiswaSuratBalasanController::class,'download'])
+            ->name('surat-balasan.download');
         // =========================
         // PROPOSAL
         // =========================
@@ -128,12 +143,18 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
 // ============================================================
 Route::middleware(['auth', 'role:tu'])->prefix('tu')->name('tu.')->group(function () {
     Route::get('/dashboard', fn() => Inertia::render('TU/Dashboard'))->name('dashboard');
-    Route::get('/verifikasi', fn() => Inertia::render('TU/Verifikasi'))->name('verifikasi');
+    Route::get('/verifikasi', [TUVerifikasiController::class, 'index'])->name('verifikasi');
+    Route::post('/verifikasi/{pendaftaran}/approve', [TUVerifikasiController::class,'approve'])->name('verifikasi.approve');
+    Route::post('/verifikasi/{pendaftaran}/reject', [TUVerifikasiController::class,'reject'])->name('verifikasi.reject');
     Route::get('/generate-surat', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'index'])->name('generate');
     Route::post('/generate-surat/{id}/approve', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'approve'])->name('generate.approve');
     Route::post('/generate-surat/{id}/reject', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'reject'])->name('generate.reject');
     Route::get('/mahasiswa', [App\Http\Controllers\TU\TUMahasiswaController::class, 'index'])->name('mahasiswa');
     Route::get('/validasi-berita', fn() => Inertia::render('TU/ValidasiBerita'))->name('validasi');
+    Route::get('/surat-balasan', [App\Http\Controllers\TU\TUSuratBalasanController::class, 'index'])->name('tu.surat-balasan');
+    Route::get('/surat-balasan/{pendaftaran}', [App\Http\Controllers\TU\TUSuratBalasanController::class, 'show'])->name('tu.surat-balasan.show');
+    Route::post('/surat-balasan/{pendaftaran}/approve', [App\Http\Controllers\TU\TUSuratBalasanController::class, 'approve'])->name('tu.surat-balasan.approve');
+    Route::post('/surat-balasan/{pendaftaran}/revisi', [App\Http\Controllers\TU\TUSuratBalasanController::class, 'revisi'])->name('tu.surat-balasan.revisi');
 });
 
 // ============================================================

@@ -7,6 +7,7 @@ import { PageProps } from '@/types';
 interface PendaftaranData {
     id: number;
     status: string;
+    catatan_tu: string | null;
     nama_instansi: string;
     alamat_instansi: string;
     tanggal_mulai: string | null;
@@ -56,6 +57,31 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                 <p className="text-body-md text-secondary">
                     Ajukan surat pengantar resmi ke instansi atau perusahaan tempat Anda melaksanakan Kerja Praktik.
                 </p>
+                {pendaftaran && (
+                    <div
+                        className={`mt-4 rounded-lg p-4 border ${
+                            pendaftaran.status === "perlu_perbaikan"
+                                ? "bg-yellow-50 border-yellow-300"
+                                : "bg-blue-50 border-blue-200"
+                        }`}
+                    >
+                        <p>
+                            <b>Status :</b> {pendaftaran.status.replaceAll("_"," ")}
+                        </p>
+                    </div>
+                )}
+
+                {pendaftaran?.status === "perlu_perbaikan" && (
+                    <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-4">
+                        <h4 className="font-semibold text-red-700">
+                            Catatan Tata Usaha
+                        </h4>
+
+                        <p className="mt-2 text-red-600">
+                            {pendaftaran.catatan_tu ?? "Belum ada catatan."}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Flash Alerts */}
@@ -101,20 +127,20 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                             </div>
                             {pendaftaran.surat_pengantar.path_file && (
                                 <a
-                                    href={`/storage/${pendaftaran.surat_pengantar.path_file}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-full sm:w-auto flex items-center justify-center bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:shadow-lg transition-all active:scale-[0.98] gap-2"
+                                    href="/mahasiswa/surat-pengantar/download"
+                                    className="w-full sm:w-auto flex items-center justify-center bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:shadow-lg transition-all gap-2"
                                 >
                                     <Download className="w-4 h-4" />
-                                    Unduh Surat Pengantar (PDF)
+                                    Unduh Surat Pengantar
                                 </a>
                             )}
+                            <p className="text-sm text-secondary mt-4">Surat pengantar telah diterbitkan. Silakan unduh surat tersebut dan serahkan kepada instansi tujuan Kerja Praktik.</p>
                         </div>
                     </div>
                 </div>
             )}
 
+            {!pendaftaran?.surat_pengantar && (
             <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Identitas Mahasiswa & Akademik Card */}
                     <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
@@ -285,8 +311,7 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                             disabled={form.processing || isSubmitted}
                             className={`w-full sm:flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${form.processing || isSubmitted ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
-                            {form.processing ? 'Mengirim...' : isSubmitted ? 'Pengajuan Sudah Diajukan' : 'Submit'}
-                        </button>
+                            {form.processing ? 'Mengirim...' : pendaftaran?.status === 'perlu_perbaikan' ? 'Perbaiki & Kirim Ulang' : isSubmitted ? 'Pengajuan Sedang Diproses' : 'Ajukan Surat Pengantar' }                        </button>
                         <Link
                             href="/mahasiswa/status-pengajuan"
                             className="w-full sm:w-auto bg-surface-container-highest text-on-surface border border-outline px-6 py-3 rounded-xl font-bold text-center hover:bg-surface-container-high transition-all active:scale-[0.98]"
@@ -295,6 +320,8 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                         </Link>
                     </div>
                 </form>
+
+                )}
         </div>
     );
 }

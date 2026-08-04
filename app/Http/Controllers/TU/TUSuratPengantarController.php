@@ -18,8 +18,14 @@ class TUSuratPengantarController extends Controller
         $selectedId = $request->query('id');
 
         // Fetch cover letter requests
-        $query = Pendaftaran::whereNotNull('instansi_id')
-            ->with(['mahasiswa.programStudi', 'instansi', 'dokumenPendaftarans', 'suratPengantar']);
+        $query = Pendaftaran::where('status', 'verifikasi_tu')
+            ->whereNotNull('instansi_id')
+            ->with([
+                'mahasiswa.programStudi',
+                'instansi',
+                'dokumenPendaftarans',
+                'suratPengantar'
+            ]);
 
         $allRequests = $query->get()->map(function ($p) {
             $transkrip = $p->dokumenPendaftarans->where('jenis', 'transkrip')->first();
@@ -57,9 +63,20 @@ class TUSuratPengantarController extends Controller
         });
 
         // Group by status
-        $pengajuan = $allRequests->filter(fn($r) => $r['status'] === 'verifikasi_tu')->values()->all();
-        $setuju = $allRequests->filter(fn($r) => in_array($r['status'], ['disetujui_tu', 'surat_terbit']))->values()->all();
-        $ditolak = $allRequests->filter(fn($r) => $r['status'] === 'perlu_perbaikan')->values()->all();
+        $pengajuan = $allRequests
+            ->filter(fn($r) => $r['status'] === 'verifikasi_tu')
+            ->values()
+            ->all();
+        
+        $setuju = $allRequests
+            ->filter(fn($r) => $r['status'] === 'surat_terbit')
+            ->values()
+            ->all();
+        
+        $ditolak = $allRequests
+            ->filter(fn($r) => $r['status'] === 'perlu_perbaikan')
+            ->values()
+            ->all();
 
         // Selected student detail
         $selectedStudent = null;

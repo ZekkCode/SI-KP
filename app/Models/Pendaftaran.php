@@ -64,6 +64,11 @@ class Pendaftaran extends Model
         return $this->hasOne(SuratPengantar::class);
     }
 
+    public function suratBalasan(): HasOne
+    {
+        return $this->hasOne(SuratBalasan::class);
+    }
+
     public function proposals(): HasMany
     {
         return $this->hasMany(Proposal::class);

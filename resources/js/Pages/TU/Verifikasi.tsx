@@ -1,9 +1,42 @@
 ﻿import TULayout from '@/Layouts/TULayout';
 import { CheckCircle, Undo2, FileIcon, Eye, Search } from 'lucide-react';
 import { useState } from 'react';
+import { router } from '@inertiajs/react';
 
-export default function Verifikasi() {
+interface Props {
+    pendaftarans: any[];
+}
+
+interface Props{
+    pendaftarans:any[];
+}
+
+export default function Verifikasi({
+    pendaftarans
+}:Props){
   const [showFeedback, setShowFeedback] = useState(false);
+
+  const data = pendaftarans[0];
+
+  const approve = () => {
+      router.post(`/tu/verifikasi/${data.id}/approve`);
+  };
+
+  const revisi = (catatan: string) => {
+      router.post(`/tu/verifikasi/${data.id}/revisi`, {
+          catatan_tu: catatan,
+      });
+  };
+
+  if (!data) {
+      return (
+          <div className="p-10">
+              <h1 className="text-2xl font-bold">
+                  Tidak ada pengajuan yang menunggu verifikasi.
+              </h1>
+          </div>
+      );
+  }
 
   return (
     <div className="animate-in fade-in duration-300">
@@ -35,25 +68,25 @@ export default function Verifikasi() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
               <div>
                 <label className="block text-xs font-medium text-on-surface-variant mb-1">Nama Lengkap</label>
-                <div className="text-base text-on-surface font-medium">Budi Santoso</div>
+                <div className="text-base text-on-surface font-medium">{pendaftarans[0]?.mahasiswa?.name}</div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-on-surface-variant mb-1">NIM</label>
-                <div className="text-base text-on-surface font-medium">13519001</div>
+                <div className="text-base text-on-surface font-medium">{pendaftarans[0]?.mahasiswa?.nim}</div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-on-surface-variant mb-1">Program Studi</label>
-                <div className="text-base text-on-surface font-medium">Teknik Informatika</div>
+                <div className="text-base text-on-surface font-medium">{pendaftarans[0]?.mahasiswa?.program_studi}</div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-on-surface-variant mb-1">Total SKS Lulus</label>
-                <div className="text-base text-on-surface font-medium">110 SKS</div>
+                <div className="text-base text-on-surface font-medium">{pendaftarans[0]?.mahasiswa?.total_sks} SKS</div>
               </div>
                 <div className="md:col-span-2 mt-2">
                   <label className="block text-xs font-medium text-on-surface-variant mb-2">Rencana Tempat KP</label>
                   <div className="text-sm text-on-surface bg-surface-container-low p-4 rounded-lg border border-surface-variant">
-                    <strong className="block text-base mb-1">PT. Teknologi Nusantara Sejahtera</strong>
-                    Jl. Jend. Sudirman Kav 52-53, Jakarta Selatan, 12190
+                    <strong className="block text-base mb-1">{pendaftarans[0]?.instansi?.nama}</strong>
+                    {pendaftarans[0]?.instansi?.alamat}
                   </div>
                 </div>
               </div>
@@ -98,8 +131,9 @@ export default function Verifikasi() {
             <p className="text-sm text-on-surface-variant mb-6">Pastikan semua dokumen valid dan memenuhi syarat SKS minimal (100 SKS) sebelum menyetujui.</p>
             
             <div className="space-y-4">
-              <button className="w-full bg-primary text-white hover:bg-primary/90 py-3 px-4 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2">
-                <CheckCircle size={20} />
+              <button
+              onClick={()=>{router.post('/tu/verifikasi/'+pendaftarans[0].id+'/approve')}} className="w-full bg-primary text-white hover:bg-primary/90 py-3 px-4 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2"
+              >
                 <span>Verifikasi & Setuju</span>
               </button>
               <button 
@@ -129,8 +163,9 @@ export default function Verifikasi() {
                   >
                     Batal
                   </button>
-                  <button className="px-4 py-2 bg-error text-white hover:bg-error/90 rounded-lg text-sm font-bold transition-colors shadow-sm">
-                    Kirim Catatan
+                  <button
+                  onClick={()=>{router.post('/tu/verifikasi/'+pendaftarans[0].id+'/reject',{catatan_tu:"Silakan lengkapi berkas."})}} className="px-4 py-2 bg-error text-white hover:bg-error/90 rounded-lg text-sm font-bold"
+                  >
                   </button>
                 </div>
               </div>

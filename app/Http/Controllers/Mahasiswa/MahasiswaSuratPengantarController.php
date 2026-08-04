@@ -28,6 +28,7 @@ class MahasiswaSuratPengantarController extends Controller
             $pendaftaranData = [
                 'id' => $pendaftaran->id,
                 'status' => $pendaftaran->status,
+                'catatan_tu' => $pendaftaran->catatan_tu,
                 'nama_instansi' => $pendaftaran->instansi?->nama ?? '',
                 'alamat_instansi' => $pendaftaran->instansi?->alamat ?? '',
                 'tanggal_mulai' => $pendaftaran->tanggal_mulai?->format('Y-m-d'),
@@ -57,7 +58,10 @@ class MahasiswaSuratPengantarController extends Controller
         $user = $request->user();
         
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
-            ->with('suratPengantar')
+            ->with([
+                'instansi',
+                'suratPengantar'
+            ])
             ->latest()
             ->first();
         if (
@@ -103,11 +107,13 @@ class MahasiswaSuratPengantarController extends Controller
         ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($pendaftaran, $validated) {
-            $instansi = Instansi::firstOrCreate(
-                ['nama' => $validated['nama_instansi']],
+            $instansi = Instansi::updateOrCreate(
+                [
+                    'nama' => $validated['nama_instansi']
+                ],
                 [
                     'alamat' => $validated['alamat_instansi'],
-                    'kota' => '-',
+                    'kota' => '-'
                 ]
             );
 
@@ -117,6 +123,7 @@ class MahasiswaSuratPengantarController extends Controller
                 'tanggal_mulai' => $validated['tanggal_mulai'],
                 'tanggal_selesai' => $validated['tanggal_selesai'],
                 'status' => 'verifikasi_tu',
+                'catatan_tu' => null,
             ]);
         });
 
@@ -128,7 +135,10 @@ class MahasiswaSuratPengantarController extends Controller
             'mahasiswa_id',
             $request->user()->id
         )
-        ->with('suratPengantar')
+        ->with([
+            'instansi',
+            'suratPengantar'
+        ])
         ->latest()
         ->first();
 

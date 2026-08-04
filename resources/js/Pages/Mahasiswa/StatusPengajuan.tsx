@@ -1,12 +1,49 @@
+import { usePage } from '@inertiajs/react';
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import React from 'react';
 import { AlertTriangle, UploadCloud, MessageSquare, History, CheckCircle, Clock } from 'lucide-react';
 
+const statusText: Record<string, string> = {
+    draft: "Draft",
+    diajukan: "Menunggu Verifikasi",
+    verifikasi_tu: "Sedang Diverifikasi TU",
+    perlu_perbaikan: "Perlu Perbaikan",
+    disetujui_tu: "Disetujui TU",
+    surat_terbit: "Surat Pengantar Terbit",
+    diterima_instansi: "Diterima Instansi",
+    aktif: "Kerja Praktik Berlangsung",
+    selesai: "Selesai",
+};
+
 export default function StatusPengajuan() {
+  const { pendaftaran } = usePage().props as any;
+  if (!pendaftaran) {
+    return (
+        <div className="p-6">
+            <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-6">
+                <h2 className="text-xl font-bold">
+                    Belum Ada Pengajuan
+                </h2>
+
+                <p className="mt-2">
+                    Anda belum melakukan pengajuan Kerja Praktik.
+                </p>
+            </div>
+        </div>
+    );
+}
   return (
     <div className="flex-1 p-6 max-w-[1280px] mx-auto w-full">
       <div className="mb-8">
         <h1 className="text-headline-md text-on-surface mb-2">Status Pengajuan KP</h1>
+        <div className="mt-3 space-y-1">
+          <p className="text-body-md">
+            <b>Instansi :</b> {pendaftaran.instansi?.nama ?? "-"}
+          </p>
+          <p className="text-body-md">
+            <b>Dosen Pembimbing :</b> {pendaftaran.dosenPembimbing?.name ?? "-"} 
+          </p>
+        </div>
         <p className="text-body-md text-secondary">Pantau riwayat pergerakan dan status verifikasi dokumen pendaftaran Kerja Praktik Anda.</p>
       </div>
 
@@ -20,18 +57,23 @@ export default function StatusPengajuan() {
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-title-lg text-error font-bold">Perlu Perbaikan</h4>
-                <span className="px-4 py-1 bg-error-container text-error text-label-sm font-bold rounded-full uppercase tracking-wider">Urgent</span>
+                <h4 className="text-title-lg text-error font-bold">{statusText[pendaftaran.status] ?? pendaftaran.status}</h4>
+                <span className="px-4 py-1 bg-error-container text-error text-label-sm font-bold rounded-full uppercase tracking-wider">{statusText[pendaftaran.status] ?? pendaftaran.status}</span>
               </div>
               <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/30">
                 <p className="text-label-md text-on-surface mb-1">Catatan Admin Tata Usaha:</p>
-                <p className="text-body-md text-secondary">"Mohon lampirkan scan transkrip nilai terbaru yang sudah dilegalisir oleh Fakultas. File yang Anda unggah sebelumnya terpotong dan tidak terbaca dengan jelas pada bagian nilai mata kuliah prasyarat."</p>
+                <p className="text-body-md text-secondary">{pendaftaran.catatan_tu ?? "Belum ada catatan dari Tata Usaha."}</p>
               </div>
               <div className="mt-4 flex flex-wrap gap-3">
-                <button className="bg-primary text-white px-6 py-2 rounded-lg text-label-md font-bold flex items-center gap-2 hover:shadow-lg transition-all active:scale-95">
-                  <UploadCloud className="w-5 h-5" />
-                  Re-upload Dokumen
+                {pendaftaran.status === "perlu_perbaikan" && (
+
+                <button className="bg-primary text-white px-6 py-2 rounded-lg text-label-md font-bold flex items-center gap-2">
+                <UploadCloud className="w-5 h-5"/>
+
+                Re-upload Dokumen
+
                 </button>
+                )}
                 <button className="bg-secondary-container text-on-secondary-container px-6 py-2 rounded-lg text-label-md font-bold flex items-center gap-2 hover:bg-outline-variant/20 transition-all">
                   <MessageSquare className="w-5 h-5" />
                   Hubungi Admin
@@ -50,7 +92,7 @@ export default function StatusPengajuan() {
                 Riwayat Pergerakan Dokumen
               </h4>
               <div className="text-label-sm text-secondary hidden sm:block">
-                Terakhir diperbarui: 24 Okt 2024, 14:20
+                Terakhir diperbarui: {new Date(pendaftaran.updated_at).toLocaleString("id-ID")}
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -67,68 +109,28 @@ export default function StatusPengajuan() {
                   <tr className="hover:bg-surface-container-low/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">
-                        <span className="text-body-md font-bold text-on-surface">24 Okt 2024</span>
-                        <span className="text-label-sm text-secondary">14:20 WIB</span>
+                        <span className="text-body-md font-bold text-on-surface">{new Date(pendaftaran.created_at).toLocaleDateString("id-ID")}</span>
+                        <span className="text-label-sm text-secondary">{new Date(pendaftaran.created_at).toLocaleTimeString("id-ID")}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-body-md font-medium text-on-surface">Verifikasi Admin TU</p>
+                      <p className="text-body-md font-medium text-on-surface">Status Pengajuan</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-error-container text-error rounded-full text-label-sm font-bold">
                         <span className="w-2 h-2 rounded-full bg-error"></span>
-                        Perlu Perbaikan
+                        {statusText[pendaftaran.status] ?? pendaftaran.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-body-sm text-on-surface-variant max-w-xs line-clamp-2 italic">"Scan transkrip nilai tidak terbaca dengan jelas..."</p>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-surface-container-low/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col">
-                        <span className="text-body-md font-medium text-on-surface">22 Okt 2024</span>
-                        <span className="text-label-sm text-secondary">09:15 WIB</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-body-md font-medium text-on-surface">Dokumen Diterima Sistem</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-secondary rounded-full text-label-sm font-bold">
-                        <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                        Menunggu Verifikasi
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-body-sm text-on-surface-variant">-</p>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-surface-container-low/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col">
-                        <span className="text-body-md font-medium text-on-surface">21 Okt 2024</span>
-                        <span className="text-label-sm text-secondary">21:45 WIB</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-body-md font-medium text-on-surface">Submit Pendaftaran Awal</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary-fixed text-primary rounded-full text-label-sm font-bold">
-                        <span className="w-2 h-2 rounded-full bg-primary"></span>
-                        Berhasil Submit
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-body-sm text-on-surface-variant">Pendaftaran awal berhasil diajukan oleh mahasiswa.</p>
+                      <p className="text-body-sm text-on-surface-variant max-w-xs line-clamp-2 italic">{pendaftaran.catatan_tu ?? "-"}</p>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div className="px-6 py-4 bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between">
-              <span className="text-label-sm text-secondary">Menampilkan 1-3 dari 3 riwayat</span>
+              <span className="text-label-sm text-secondary">Menampilkan data pengajuan terbaru</span>
               <div className="flex gap-2">
                 <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container disabled:opacity-30" disabled>
                   &lt;
