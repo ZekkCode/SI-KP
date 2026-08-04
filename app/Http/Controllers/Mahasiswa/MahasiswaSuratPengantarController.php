@@ -7,6 +7,8 @@ use App\Models\Instansi;
 use App\Models\Pendaftaran;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,6 +47,8 @@ class MahasiswaSuratPengantarController extends Controller
             'jurusan' => $user->programStudi?->nama ?? '-',
             'dosenPembimbing' => $pendaftaran?->dosenPembimbing?->name ?? null,
             'pendaftaran' => $pendaftaranData,
+            'hasSurat' => $pendaftaran?->suratPengantar != null,
+            'statusKP' => $pendaftaran?->status,
         ]);
     }
 
@@ -53,14 +57,36 @@ class MahasiswaSuratPengantarController extends Controller
         $user = $request->user();
         
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
+            ->with('suratPengantar')
             ->latest()
             ->first();
+        if (
+            $pendaftaran &&
+            $pendaftaran->suratPengantar
+        ) {
+            return back()->with(
+                'error',
+                'Surat pengantar sudah diterbitkan.'
+            );
+        }    
 
         if (!$pendaftaran) {
             $pendaftaran = Pendaftaran::create([
                 'mahasiswa_id' => $user->id,
                 'status' => 'draft',
             ]);
+        }
+
+        if (
+            in_array(
+                $pendaftaran->status,
+                ['aktif', 'selesai']
+            )
+        ) {
+            return back()->with(
+                'error',
+                'Data tidak dapat diubah karena Kerja Praktik sudah berjalan.'
+            );
         }
 
         $validated = $request->validate([
@@ -96,4 +122,34 @@ class MahasiswaSuratPengantarController extends Controller
 
         return back()->with('success', 'Pengajuan Surat Pengantar berhasil dikirim!');
     }
+    public function download(Request $request): StreamedResponse
+    {
+        $pendaftaran = Pendaftaran::where(
+            'mahasiswa_id',
+            $request->user()->id
+        )
+        ->with('suratPengantar')
+        ->latest()
+        ->first();
+
+        if (
+            !$pendaftaran ||
+            !$pendaftaran->suratPengantar
+        ) {
+            abort(404, 'Surat pengantar belum tersedia.');
+        }
+
+        $surat = $pendaftaran->suratPengantar;
+
+        if (!Storage::disk('public')->exists($surat->path_file)) {
+            abort(404, 'File surat tidak ditemukan.');
+        }
+
+        return Storage::disk('public')->download(
+            $surat->path_file,
+            basename($surat->path_file)
+        );
+    }
+
+
 }

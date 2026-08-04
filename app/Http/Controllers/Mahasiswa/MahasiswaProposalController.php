@@ -11,6 +11,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Notifikasi;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -144,6 +146,14 @@ class MahasiswaProposalController extends Controller
                 ]);
             }
         });
+        
+        Notifikasi::create([
+            'user_id' => $user->id,
+            'judul' => 'Proposal KP',
+            'pesan' => 'Proposal berhasil dikirim.',
+            'tipe' => 'success',
+            'is_read' => false,
+        ]);
 
         return redirect()
             ->route('mahasiswa.proposal')
@@ -194,6 +204,98 @@ class MahasiswaProposalController extends Controller
         return redirect()
             ->route('mahasiswa.proposal')
             ->with('success', 'Catatan berhasil dikirim.');
+    }
+    public function download(Proposal $proposal): StreamedResponse
+    {
+        abort_unless(
+            $proposal->pendaftaran->mahasiswa_id == auth()->id(),
+            403
+        );
+
+        if (!Storage::disk('public')->exists($proposal->path_file)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->download(
+            $proposal->path_file,
+            basename($proposal->path_file)
+        );
+    }
+    public function destroy(Proposal $proposal): RedirectResponse
+    {
+        abort_unless(
+            $proposal->pendaftaran->mahasiswa_id == auth()->id(),
+            403
+        );
+
+        if ($proposal->status == 'disetujui') {
+            return back()->with(
+                'error',
+                'Proposal yang sudah disetujui tidak dapat dihapus.'
+            );
+        }
+
+        Storage::disk('public')->delete($proposal->path_file);
+
+        $proposal->delete();
+
+        return back()->with(
+            'success',
+            'Proposal berhasil dihapus.'
+        );
+    }
+    public function update(
+        StoreProposalRequest $request,
+        Proposal $proposal
+    ): RedirectResponse {
+
+        abort_unless(
+            $proposal->pendaftaran->mahasiswa_id == auth()->id(),
+            403
+        );
+
+        $validated = $request->validated();
+
+        $file = $proposal->path_file;
+
+        if ($request->hasFile('file_proposal')) {
+
+            Storage::disk('public')->delete($file);
+
+            $file = $request
+                ->file('file_proposal')
+                ->store('proposal','public');
+        }
+
+        $proposal->update([
+
+            'judul'=>$validated['judul'],
+
+            'abstrak'=>$validated['abstrak'],
+
+            'path_file'=>$file,
+
+            'versi'=>$proposal->versi+1,
+
+            'status'=>'diajukan',
+
+            'submitted_at'=>now()
+
+        ]);
+
+        Notifikasi::create([
+            'user_id' => auth()->id(),
+            'judul' => 'Proposal KP',
+            'pesan' => 'Proposal berhasil diperbarui.',
+            'tipe' => 'info',
+            'is_read' => false,
+        ]);
+
+        return back()->with(
+            'success',
+            'Proposal berhasil diperbarui.'
+        );
+
     }
 
     /**

@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Logbook;
 use App\Models\Notifikasi;
+use App\Models\Proposal;
+use App\Models\BeritaAcara;
+use App\Models\SuratPengantar;
+use App\Models\NilaiAkhir;
+use Carbon\Carbon;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -45,8 +50,78 @@ class MahasiswaDashboardController extends Controller
         // Logbook progress (count filled / 40 target days)
         $logbookCount = 0;
         $logbookTarget = 40;
+        // Proposal
+        $totalProposal = 0;
+        $proposalStatus = '-';
+
+        // Surat
+        $suratStatus = 'Belum Terbit';
+
+        // Berita Acara
+        $beritaStatus = 'Belum Ada';
+
+        // Nilai
+        $nilaiAkhir = null;
+
+        // Progress
+        $progress = 0;
+
+        // Notifikasi
+        $unreadNotification = Notifikasi::where('user_id', $user->id)
+        ->where('is_read', false)
+        ->count();
         if ($pendaftaran) {
-            $logbookCount = Logbook::where('pendaftaran_id', $pendaftaran->id)->count();
+
+            $logbookCount = Logbook::where(
+                'pendaftaran_id',
+                $pendaftaran->id
+            )->count();
+
+            $totalProposal = Proposal::where(
+                'pendaftaran_id',
+                $pendaftaran->id
+            )->count();
+
+            $proposal = Proposal::where(
+                'pendaftaran_id',
+                $pendaftaran->id
+            )->latest()->first();
+
+            if ($proposal) {
+                $proposalStatus = $proposal->status;
+            }
+
+            $surat = SuratPengantar::where(
+                'pendaftaran_id',
+                $pendaftaran->id
+            )->first();
+
+            if ($surat) {
+                $suratStatus = $surat->status;
+            }
+
+            $berita = BeritaAcara::where(
+                'pendaftaran_id',
+                $pendaftaran->id
+            )->first();
+
+            if ($berita) {
+                $beritaStatus = 'Sudah Upload';
+            }
+
+            $nilai = NilaiAkhir::where(
+                'pendaftaran_id',
+                $pendaftaran->id
+            )->first();
+
+            if ($nilai) {
+                $nilaiAkhir = $nilai->nilai_akhir;
+            }
+
+            $progress = min(
+                round(($logbookCount / $logbookTarget) * 100),
+                100
+            );
         }
 
         return Inertia::render('Mahasiswa/Dashboard', [
@@ -60,8 +135,15 @@ class MahasiswaDashboardController extends Controller
             'logbookCount' => $logbookCount,
             'logbookTarget' => $logbookTarget,
             'hasPendaftaran' => $pendaftaran !== null,
-        ]);
-    }
+            'progress' => $progress,
+            'proposalCount' => $totalProposal,
+            'proposalStatus' => $proposalStatus,
+            'suratStatus' => $suratStatus,
+            'beritaStatus' => $beritaStatus,
+            'nilaiAkhir' => $nilaiAkhir,
+            'unreadNotification' => $unreadNotification,
+            ]);
+        }
 
     /**
      * Determine the stepper step based on pendaftaran state.

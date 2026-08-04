@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -219,5 +220,161 @@ class MahasiswaPendaftaranController extends Controller
         return redirect()
             ->route('mahasiswa.pendaftaran')
             ->with('success', 'Draft pendaftaran berhasil disimpan.');
+    }
+    public function statusPengajuan(Request $request): Response
+    {
+        $pendaftaran = Pendaftaran::where(
+            'mahasiswa_id',
+            $request->user()->id
+        )
+        ->with([
+            'instansi',
+            'dosenPembimbing',
+            'suratPengantar',
+            'proposals'
+        ])
+        ->latest()
+        ->first();
+
+        return Inertia::render(
+            'Mahasiswa/StatusPengajuan',
+            [
+                'pendaftaran' => $pendaftaran
+            ]
+        );
+    }
+    public function download(
+        Pendaftaran $pendaftaran,
+        string $jenis
+    ): StreamedResponse {
+
+        abort_unless(
+            $pendaftaran->mahasiswa_id == auth()->id(),
+            403
+        );
+
+        $dokumen = $pendaftaran
+            ->dokumenPendaftarans()
+            ->where('jenis',$jenis)
+            ->firstOrFail();
+
+        return Storage::disk('public')
+            ->download(
+                $dokumen->path,
+                $dokumen->nama_file
+            );
+    }
+
+    public function cancel(
+        Pendaftaran $pendaftaran
+    ): RedirectResponse{
+
+        abort_unless(
+            $pendaftaran->mahasiswa_id==auth()->id(),
+            403
+        );
+
+        if(
+            in_array(
+                $pendaftaran->status,
+                [
+                    'aktif',
+                    'selesai'
+                ]
+            )
+        ){
+            return back()->with(
+                'error',
+                'Pengajuan tidak dapat dibatalkan.'
+            );
+        }
+
+        $pendaftaran->update([
+            'status'=>'dibatalkan'
+        ]);
+
+        return back()->with(
+            'success',
+            'Pengajuan berhasil dibatalkan.'
+        );
+
+    }
+
+    public function destroy(
+        Pendaftaran $pendaftaran
+    ): RedirectResponse{
+
+        abort_unless(
+            $pendaftaran->mahasiswa_id==auth()->id(),
+            403
+        );
+
+        if(
+            $pendaftaran->status!='draft'
+        ){
+
+            return back()->with(
+                'error',
+                'Hanya draft yang dapat dihapus.'
+            );
+
+        }
+
+        foreach(
+            $pendaftaran->dokumenPendaftarans
+            as
+            $dokumen
+        ){
+
+            Storage::disk('public')
+                ->delete(
+                    $dokumen->path
+                );
+
+            $dokumen->delete();
+
+        }
+
+        $pendaftaran->delete();
+
+        return back()->with(
+            'success',
+            'Draft berhasil dihapus.'
+        );
+
+    }
+
+    public function update(
+        StorePendaftaranRequest $request,
+        Pendaftaran $pendaftaran
+    ): RedirectResponse{
+    
+        abort_unless(
+            $pendaftaran->mahasiswa_id==auth()->id(),
+            403
+        );
+    
+        if(
+            !$pendaftaran->canEdit()
+        ){
+    
+            return back()->with(
+                'error',
+                'Pengajuan tidak dapat diedit.'
+            );
+    
+        }
+    
+        $pendaftaran->update([
+            'tanggal_mulai'=>$request->tanggal_mulai,
+            'tanggal_selesai'=>$request->tanggal_selesai,
+            'bidang_minat'=>$request->bidang_minat
+        ]);
+    
+        return back()->with(
+            'success',
+            'Pengajuan berhasil diperbarui.'
+        );
+    
     }
 }
