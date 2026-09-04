@@ -2,13 +2,16 @@ import { PropsWithChildren, ReactNode, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard, UserCircle, BookOpen, ClipboardEdit, ClipboardCheck,
-    FileText, File, CalendarDays, FileClock, Award, Bell, LogOut, Menu,
+    FileText, File, CalendarDays, FileClock, Award, Bell, LogOut, Menu, BellRing, FileCheck,
 } from 'lucide-react';
 
 export default function MahasiswaLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
     const user = (props as any).auth?.user;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const notifications = (props as any).auth?.notifications || [];
+    const unreadCount = notifications.filter((n: any) => !n.is_read).length;
 
     const navItems = [
         { href: '/mahasiswa/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,8 +19,10 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
         { href: '/mahasiswa/status-pengajuan', label: 'Status Pengajuan', icon: ClipboardCheck },
         { href: '/mahasiswa/surat-pengantar', label: 'Surat Pengantar', icon: FileText },
         { href: '/mahasiswa/proposal', label: 'Proposal', icon: File },
+        { href: '/mahasiswa/logbook', label: 'Monitoring', icon: BookOpen },
         { href: '/mahasiswa/berita-acara', label: 'Berita Acara', icon: FileClock },
-        { href: '/mahasiswa/penilaian-akhir', label: 'Penilaian Akhir', icon: Award },
+        { href: '/mahasiswa/dokumen-akhir', label: 'Laporan Akhir', icon: FileCheck },
+        { href: '/mahasiswa/penilaian', label: 'Penilaian Akhir', icon: Award },
     ];
 
     return (
@@ -31,20 +36,18 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed left-0 top-0 h-screen w-64 bg-white border-r border-outline-variant z-50 flex flex-col py-6 px-4 shadow-sm transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <div className="mb-8 px-2 flex items-center justify-between">
-                    <h1 className="text-headline-md text-primary tracking-tight">SI-KP</h1>
-                    <button className="md:hidden text-secondary" onClick={() => setIsSidebarOpen(false)}>✕</button>
-                </div>
-
-                <div className="flex items-center space-x-4 px-3 py-3 mb-6 bg-surface-container-low rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold overflow-hidden">
-                        <UserCircle className="w-6 h-6" />
+            <aside className={`fixed left-0 top-0 h-screen w-64 bg-white border-r border-outline-variant z-50 flex flex-col shadow-sm transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
+                    <button className="absolute top-4 right-4 md:hidden text-secondary" onClick={() => setIsSidebarOpen(false)}>✕</button>
+                    <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
+                        {user?.avatar ? (
+                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.name?.substring(0, 2).toUpperCase() || 'MH'
+                        )}
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-label-md text-on-surface truncate w-32">{user?.name || 'Mahasiswa User'}</span>
-                        <span className="text-body-sm text-secondary truncate">NIM: {user?.nim || '123456789'}</span>
-                    </div>
+                    <h2 className="text-xl font-display font-semibold text-primary mb-1 text-center">Mahasiswa</h2>
+                    <p className="text-xs font-medium text-secondary text-center">Teknik Informatika</p>
                 </div>
 
                 <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
@@ -87,12 +90,62 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
                         <button className="md:hidden text-primary hover:bg-surface-container p-2 rounded-full" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                             <Menu className="w-5 h-5" />
                         </button>
-                        <h2 className="text-title-lg font-bold text-primary">Sistem Informasi Kerja Praktik</h2>
+                        <h2 className="text-title-lg font-bold text-primary">Kerja Praktik Teknik Informatika</h2>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <button className="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
-                            <Bell className="w-5 h-5" />
-                        </button>
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                                className="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant relative"
+                            >
+                                <Bell className="w-5 h-5" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-error rounded-full">
+                                        {unreadCount}
+                                    </span>
+                                )}
+                            </button>
+                            {isNotifOpen && (
+                                <div className="absolute right-0 mt-2 w-80 bg-white border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="p-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                                        <h3 className="text-title-md font-bold text-on-surface">Notifikasi</h3>
+                                        <span className="text-label-sm text-primary cursor-pointer hover:underline">Tandai semua dibaca</span>
+                                    </div>
+                                    <div className="max-h-96 overflow-y-auto">
+                                        {notifications.length > 0 ? (
+                                            notifications.map((notif: any) => (
+                                                <div key={notif.id} className={`p-4 border-b border-outline-variant hover:bg-surface-container-lowest transition-colors cursor-pointer ${!notif.is_read ? 'bg-primary/5' : ''}`}>
+                                                    <div className="flex gap-3">
+                                                        <div className={`p-2 rounded-full flex-shrink-0 ${notif.tipe === 'info' ? 'bg-blue-100 text-blue-600' : notif.tipe === 'warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
+                                                            <BellRing className="w-4 h-4" />
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="text-label-md font-bold text-on-surface mb-1">{notif.judul}</h4>
+                                                            <p className="text-body-sm text-secondary line-clamp-2">{notif.pesan}</p>
+                                                            <span className="text-[10px] text-outline mt-1 block">{new Date(notif.created_at).toLocaleDateString()}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-6 text-center text-secondary">
+                                                <p className="text-body-md">Tidak ada notifikasi baru.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-2 border-t border-outline-variant text-center bg-surface-container-lowest">
+                                        <Link href="#" className="text-label-sm text-primary hover:underline">Lihat semua notifikasi</Link>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <Link
+                            href={route('profile.edit')}
+                            className="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+                            title="Profil Saya"
+                        >
+                            <UserCircle className="w-5 h-5" />
+                        </Link>
                         <Link
                             href="/logout"
                             method="post"

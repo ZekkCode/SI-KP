@@ -14,9 +14,11 @@ interface PendaftaranData {
     tanggal_selesai: string | null;
     surat_pengantar: {
         id: number;
-        nomor_surat: string;
-        tanggal_terbit: string;
+        nomor_surat: string | null;
+        tanggal_terbit: string | null;
         path_file: string | null;
+        file_scan: string | null;
+        status: string;
     } | null;
 }
 
@@ -35,13 +37,25 @@ interface SuratPengantarProps extends Record<string, unknown> {
 export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pendaftaran, flash }: PageProps<SuratPengantarProps>) {
     const isSubmitted = !!pendaftaran && !['draft', 'perlu_perbaikan'].includes(pendaftaran.status);
 
-    // Form data mapped to instansi and date inputs
-    const form = useForm({
+    const form = useForm<{
+        nama_instansi: string;
+        alamat_instansi: string;
+        tanggal_mulai: string;
+        tanggal_selesai: string;
+    }>({
         nama_instansi: pendaftaran?.nama_instansi || '',
         alamat_instansi: pendaftaran?.alamat_instansi || '',
         tanggal_mulai: pendaftaran?.tanggal_mulai || '',
         tanggal_selesai: pendaftaran?.tanggal_selesai || '',
     });
+
+    const uploadForm = useForm<{ file_scan: File | null }>({
+        file_scan: null,
+    });
+
+    const cetakUrl = pendaftaran?.id 
+        ? `/mahasiswa/surat-pengantar/${pendaftaran.id}/cetak?nama_instansi=${encodeURIComponent(form.data.nama_instansi)}&alamat_instansi=${encodeURIComponent(form.data.alamat_instansi)}&tanggal_mulai=${form.data.tanggal_mulai}&tanggal_selesai=${form.data.tanggal_selesai}`
+        : '#';
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -50,6 +64,16 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
         });
     };
 
+    const handleUpload = (e: React.FormEvent) => {
+        e.preventDefault();
+        uploadForm.post('/mahasiswa/surat-pengantar/upload', {
+            preserveScroll: true,
+        });
+    };
+
+    const suratStatus = pendaftaran?.surat_pengantar?.status;
+    const isLocked = suratStatus === 'menunggu_verifikasi' || suratStatus === 'terverifikasi';
+
     return (
         <div className="flex-1 p-6 max-w-[768px] mx-auto w-full relative space-y-6">
             <div className="mb-6">
@@ -57,16 +81,19 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                 <p className="text-body-md text-secondary">
                     Ajukan surat pengantar resmi ke instansi atau perusahaan tempat Anda melaksanakan Kerja Praktik.
                 </p>
-                {pendaftaran && (
-                    <div
-                        className={`mt-4 rounded-lg p-4 border ${
-                            pendaftaran.status === "perlu_perbaikan"
-                                ? "bg-yellow-50 border-yellow-300"
-                                : "bg-blue-50 border-blue-200"
-                        }`}
-                    >
-                        <p>
-                            <b>Status :</b> {pendaftaran.status.replaceAll("_"," ")}
+                {suratStatus === 'menunggu_verifikasi' && (
+                    <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-blue-800 flex items-center gap-2">
+                            <Info className="w-5 h-5"/>
+                            <b>File sedang diperiksa TU.</b> Harap tunggu proses verifikasi.
+                        </p>
+                    </div>
+                )}
+                {suratStatus === 'terverifikasi' && (
+                    <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                        <p className="text-green-800 flex items-center gap-2">
+                            <CheckCircle2 className="w-5 h-5"/>
+                            <b>Surat Pengantar telah diverifikasi!</b>
                         </p>
                     </div>
                 )}
@@ -105,42 +132,42 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                 </div>
             )}
 
-            {/* Cover Letter Issued Banner */}
-            {pendaftaran?.surat_pengantar && (
+            {suratStatus === 'terverifikasi' && pendaftaran?.surat_pengantar && (
                 <div className="bg-gradient-to-r from-primary/10 to-primary-container/20 border border-primary/20 rounded-xl p-6 shadow-sm overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full -mr-4 -mt-4"></div>
                     <div className="relative z-10">
                         <div className="flex items-start justify-between mb-4">
                             <div>
                                 <span className="bg-green-100 text-green-700 text-label-sm font-bold px-3 py-1 rounded-full mb-2 inline-block">
-                                    Surat Pengantar Terbit
+                                    Surat Pengantar Resmi
                                 </span>
-                                <h4 className="text-title-lg text-on-surface font-bold">Surat Pengantar Resmi</h4>
-                                <p className="text-body-sm text-secondary">Nomor: {pendaftaran.surat_pengantar.nomor_surat}</p>
+                                <h4 className="text-title-lg text-on-surface font-bold">Surat Pengantar Terverifikasi</h4>
+                                <p className="text-body-sm text-secondary">Nomor: {pendaftaran.surat_pengantar.nomor_surat || 'Menunggu Nomor'}</p>
                             </div>
                             <FileText className="w-10 h-10 text-primary" />
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-dashed border-outline-variant pt-4 gap-4">
                             <div>
                                 <p className="text-label-sm text-secondary">Tanggal Terbit</p>
-                                <p className="text-body-md text-on-surface font-medium">{pendaftaran.surat_pengantar.tanggal_terbit}</p>
+                                <p className="text-body-md text-on-surface font-medium">{pendaftaran.surat_pengantar.tanggal_terbit || '-'}</p>
                             </div>
-                            {pendaftaran.surat_pengantar.path_file && (
+                            {pendaftaran.surat_pengantar.file_scan && (
                                 <a
-                                    href="/mahasiswa/surat-pengantar/download"
+                                    href={`/storage/${pendaftaran.surat_pengantar.file_scan}`}
+                                    target="_blank"
                                     className="w-full sm:w-auto flex items-center justify-center bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:shadow-lg transition-all gap-2"
                                 >
                                     <Download className="w-4 h-4" />
-                                    Unduh Surat Pengantar
+                                    Lihat File Scan
                                 </a>
                             )}
-                            <p className="text-sm text-secondary mt-4">Surat pengantar telah diterbitkan. Silakan unduh surat tersebut dan serahkan kepada instansi tujuan Kerja Praktik.</p>
+                            <p className="text-sm text-secondary mt-4">Surat pengantar telah disetujui TU dan bisa diserahkan ke instansi.</p>
                         </div>
                     </div>
                 </div>
             )}
 
-            {!pendaftaran?.surat_pengantar && (
+            
             <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Identitas Mahasiswa & Akademik Card */}
                     <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
@@ -184,7 +211,7 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                                 <input
                                     type="text"
                                     readOnly
-                                    value={jurusan}
+                                    value="Teknik Informatika"
                                     className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none"
                                 />
                             </div>
@@ -235,11 +262,11 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                                     <input
                                         type="text"
                                         required
-                                        disabled={isSubmitted}
+                                        
                                         value={form.data.nama_instansi}
                                         onChange={e => form.setData('nama_instansi', e.target.value)}
-                                        placeholder="Masukkan nama instansi yang dituju..."
-                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.nama_instansi ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                        placeholder="Contoh: PT. Teknologi Indonesia"
+                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.nama_instansi ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'}`}
                                     />
                                 </div>
                                 {form.errors.nama_instansi && <p className="text-label-sm text-error">{form.errors.nama_instansi}</p>}
@@ -253,12 +280,12 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                                     <span className="absolute left-4 top-3 text-secondary"><MapPin className="w-4 h-4" /></span>
                                     <textarea
                                         required
-                                        disabled={isSubmitted}
+                                        
                                         rows={3}
                                         value={form.data.alamat_instansi}
                                         onChange={e => form.setData('alamat_instansi', e.target.value)}
                                         placeholder="Masukkan alamat instansi yang dituju secara detail..."
-                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.alamat_instansi ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.alamat_instansi ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'}`}
                                     />
                                 </div>
                                 {form.errors.alamat_instansi && <p className="text-label-sm text-error">{form.errors.alamat_instansi}</p>}
@@ -272,13 +299,13 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary"><Calendar className="w-4 h-4" /></span>
                                         <input
-                                            type="date"
-                                            required
-                                            disabled={isSubmitted}
-                                            value={form.data.tanggal_mulai}
-                                            onChange={e => form.setData('tanggal_mulai', e.target.value)}
-                                            className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none bg-white ${form.errors.tanggal_mulai ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                                        />
+                                        type="date"
+                                        required
+                                        
+                                        value={form.data.tanggal_mulai}
+                                        onChange={e => form.setData('tanggal_mulai', e.target.value)}
+                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.tanggal_mulai ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'}`}
+                                    />
                                     </div>
                                     {form.errors.tanggal_mulai && <p className="text-label-sm text-error">{form.errors.tanggal_mulai}</p>}
                                 </div>
@@ -290,13 +317,13 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary"><Calendar className="w-4 h-4" /></span>
                                         <input
-                                            type="date"
-                                            required
-                                            disabled={isSubmitted}
-                                            value={form.data.tanggal_selesai}
-                                            onChange={e => form.setData('tanggal_selesai', e.target.value)}
-                                            className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none bg-white ${form.errors.tanggal_selesai ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                                        />
+                                        type="date"
+                                        required
+                                        
+                                        value={form.data.tanggal_selesai}
+                                        onChange={e => form.setData('tanggal_selesai', e.target.value)}
+                                        className={`w-full pl-11 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.tanggal_selesai ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'}`}
+                                    />
                                     </div>
                                     {form.errors.tanggal_selesai && <p className="text-label-sm text-error">{form.errors.tanggal_selesai}</p>}
                                 </div>
@@ -308,20 +335,52 @@ export default function SuratPengantar({ nim, name, jurusan, dosenPembimbing, pe
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                         <button
                             type="submit"
-                            disabled={form.processing || isSubmitted}
-                            className={`w-full sm:flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${form.processing || isSubmitted ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            disabled={form.processing}
+                            className={`w-full sm:flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${form.processing ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
-                            {form.processing ? 'Mengirim...' : pendaftaran?.status === 'perlu_perbaikan' ? 'Perbaiki & Kirim Ulang' : isSubmitted ? 'Pengajuan Sedang Diproses' : 'Ajukan Surat Pengantar' }                        </button>
-                        <Link
-                            href="/mahasiswa/status-pengajuan"
-                            className="w-full sm:w-auto bg-surface-container-highest text-on-surface border border-outline px-6 py-3 rounded-xl font-bold text-center hover:bg-surface-container-high transition-all active:scale-[0.98]"
+                            {form.processing ? 'Menyimpan...' : 'Simpan / Update Data Instansi'}
+                        </button>
+                        {(suratStatus === 'draft' || suratStatus === 'revisi') && (
+                        <a
+                            href={cetakUrl}
+                            target="_blank"
+                            className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-center transition-all bg-secondary text-white hover:bg-secondary/90 active:scale-[0.98]`}
                         >
-                            Cek Status Pengajuan
-                        </Link>
+                            Cetak Draft PDF
+                        </a>
+                        )}
                     </div>
                 </form>
 
+                {(suratStatus === 'draft' || suratStatus === 'revisi') && (
+                    <form onSubmit={handleUpload} className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden p-6 space-y-4">
+                        <div>
+                            <h3 className="text-lg font-bold text-on-surface">Unggah File Scan</h3>
+                            <p className="text-sm text-secondary">Setelah mendapatkan tanda tangan offline, unggah file PDF yang sudah ditandatangani untuk diverifikasi TU.</p>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-label-md text-on-surface-variant font-medium">
+                                Dokumen Pengajuan Final (PDF) <span className="text-error">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                accept=".pdf"
+                                required
+                                onChange={e => uploadForm.setData('file_scan', e.target.files ? e.target.files[0] : null)}
+                                className={`w-full py-2 border rounded-lg transition-all outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 ${uploadForm.errors.file_scan ? 'border-error' : 'border-outline-variant'}`}
+                            />
+                            {uploadForm.errors.file_scan && <p className="text-label-sm text-error">{uploadForm.errors.file_scan}</p>}
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={uploadForm.processing}
+                            className={`w-full bg-primary text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${uploadForm.processing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                            {uploadForm.processing ? 'Mengunggah...' : 'Unggah File Scan'}
+                        </button>
+                    </form>
                 )}
+
         </div>
     );
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,8 +19,14 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        
+        if ($user->role === 'instansi') {
+            $user->load('pembimbingLapangan.instansi');
+        }
+
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
         ]);
     }
@@ -33,6 +40,14 @@ class ProfileController extends Controller
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($request->user()->avatar) {
+                Storage::disk('public')->delete($request->user()->avatar);
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $request->user()->avatar = $path;
         }
 
         $request->user()->save();
@@ -50,6 +65,10 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        if ($user->role === 'mahasiswa') {
+            return back()->with('error', 'Akun mahasiswa dikelola secara resmi oleh pihak institusi dan tidak dapat dihapus secara mandiri.');
+        }
 
         Auth::logout();
 

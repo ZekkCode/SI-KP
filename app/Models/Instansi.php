@@ -38,4 +38,12 @@ class Instansi extends Model
     {
         return $this->hasMany(Pendaftaran::class);
     }
+
+    /**
+     * Pembimbing lapangans associated with this instansi.
+     */
+    public function pembimbingLapangans(): HasMany
+    {
+        return $this->hasMany(PembimbingLapangan::class);
+    }
 }

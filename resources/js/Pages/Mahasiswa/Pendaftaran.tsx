@@ -144,11 +144,11 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                                 <input
                                     type="text"
                                     required
-                                    disabled={isSubmitted}
+                                    
                                     value={form.data.name}
                                     onChange={e => form.setData('name', e.target.value)}
                                     placeholder="Masukkan nama sesuai KTP"
-                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.name ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.name ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} `}
                                 />
                                 {form.errors.name && <p className="text-label-sm text-error">{form.errors.name}</p>}
                             </div>
@@ -161,16 +161,16 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-label-md text-on-surface-variant font-medium">Program Studi</label>
-                                <input type="text" readOnly value={user.program_studi?.nama || '-'} className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none" />
+                                <input type="text" readOnly value="Teknik Informatika" className="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-variant/30 text-secondary cursor-not-allowed outline-none" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-label-md text-on-surface-variant font-medium">Semester</label>
                                 <select
                                     required
-                                    disabled={isSubmitted}
+                                    
                                     value={form.data.semester}
                                     onChange={e => form.setData('semester', e.target.value)}
-                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none bg-white ${form.errors.semester ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none bg-white ${form.errors.semester ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} `}
                                 >
                                     <option value="" disabled>Pilih Semester</option>
                                     <option value="Ganjil 2024/2025">Semester Ganjil 2024/2025</option>
@@ -194,11 +194,11 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                                     <input
                                         type="tel"
                                         required
-                                        disabled={isSubmitted}
+                                        
                                         value={form.data.no_telepon.replace(/^08/, '8')}
                                         onChange={e => form.setData('no_telepon', '08' + e.target.value.replace(/^8/, ''))}
                                         placeholder="8123456789"
-                                        className={`w-full pl-12 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.no_telepon ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                        className={`w-full pl-12 pr-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.no_telepon ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} `}
                                     />
                                 </div>
                                 {form.errors.no_telepon && <p className="text-label-sm text-error">{form.errors.no_telepon}</p>}
@@ -208,11 +208,11 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                                 <input
                                     type="email"
                                     required
-                                    disabled={isSubmitted}
+                                    
                                     value={form.data.email}
                                     onChange={e => form.setData('email', e.target.value)}
                                     placeholder="nama@student.univ.ac.id"
-                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.email ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.email ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} `}
                                 />
                                 {form.errors.email && <p className="text-label-sm text-error">{form.errors.email}</p>}
                             </div>
@@ -225,11 +225,11 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                                     type="number"
                                     required
                                     min="0"
-                                    disabled={isSubmitted}
+                                    
                                     placeholder="Contoh: 105"
                                     value={form.data.total_sks}
                                     onChange={(e) => form.setData('total_sks', e.target.value)}
-                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.data.total_sks && (!isValidSks || form.errors.total_sks) ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.data.total_sks && (!isValidSks || form.errors.total_sks) ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} `}
                                 />
                                 <p className={`text-label-sm ${form.data.total_sks && (!isValidSks || form.errors.total_sks) ? 'text-error' : form.data.total_sks && isValidSks ? 'text-primary' : 'text-secondary'}`}>
                                     {form.errors.total_sks ? form.errors.total_sks : form.data.total_sks && !isValidSks ? '⚠️ SKS Anda belum mencukupi prasyarat (Min. 100).' : form.data.total_sks && isValidSks ? '✅ SKS memenuhi prasyarat pendaftaran.' : 'Masukkan angka total SKS dari KHS terakhir.'}
@@ -243,11 +243,11 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                                     step="0.01"
                                     min="0.00"
                                     max="4.00"
-                                    disabled={isSubmitted}
+                                    
                                     placeholder="Contoh: 3.50"
                                     value={form.data.ipk}
                                     onChange={(e) => form.setData('ipk', e.target.value)}
-                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.ipk ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} ${isSubmitted ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 transition-all outline-none ${form.errors.ipk ? 'border-error focus:ring-error/20 focus:border-error' : 'border-outline-variant focus:ring-primary/20 focus:border-primary'} `}
                                 />
                                 {form.errors.ipk && <p className="text-label-sm text-error">{form.errors.ipk}</p>}
                             </div>
@@ -265,14 +265,14 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                     <div>
                         <label className="block text-label-md text-on-surface-variant mb-2">Transkrip Nilai Terakhir</label>
                         <div className="relative group">
-                            <input type="file" accept=".pdf" id="upload_transkrip" className="hidden" disabled={isSubmitted} onChange={(e) => handleFileChange(e, 'transkrip_file')} />
+                            <input type="file" accept=".pdf" id="upload_transkrip" className="hidden"  onChange={(e) => handleFileChange(e, 'transkrip_file')} />
                             <label
                                 htmlFor="upload_transkrip"
                                 className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl transition-all cursor-pointer ${
                                     form.data.transkrip_file || pendaftaran?.transkrip_uploaded
                                         ? 'border-green-500 bg-green-50'
                                         : 'border-primary/30 bg-primary-container/5 hover:border-primary hover:bg-primary-container/10'
-                                } ${isSubmitted ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                } `}
                             >
                                 {form.data.transkrip_file ? (
                                     <>
@@ -311,10 +311,10 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                     <p className="text-body-sm text-on-secondary-container mb-6">Pastikan seluruh data personal dan berkas persyaratan yang Anda masukkan sudah benar sebelum melakukan pengiriman.</p>
                     <button
                         type="submit"
-                        disabled={form.processing || isSubmitted || !isValidSks}
-                        className={`w-full bg-primary text-white py-3 rounded-lg font-label-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${form.processing || isSubmitted || !isValidSks ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        disabled={form.processing || !isValidSks}
+                        className={`w-full bg-primary text-white py-3 rounded-lg font-label-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${form.processing || !isValidSks ? 'opacity-60 cursor-not-allowed' : ''}`}
                     >
-                        {form.processing ? 'Mengirim...' : isSubmitted ? 'Pendaftaran Sudah Dikirim' : 'Kirim Pendaftaran'}
+                        {form.processing ? 'Menyimpan...' : (pendaftaran ? 'Update Pendaftaran' : 'Daftar Sekarang')}
                     </button>
                 </div>
             </form>

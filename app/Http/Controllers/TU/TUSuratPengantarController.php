@@ -17,9 +17,9 @@ class TUSuratPengantarController extends Controller
     {
         $selectedId = $request->query('id');
 
-        // Fetch cover letter requests
-        $query = Pendaftaran::where('status', 'verifikasi_tu')
-            ->whereNotNull('instansi_id')
+        $query = Pendaftaran::whereHas('suratPengantar', function($q) {
+                $q->whereIn('status', ['menunggu_verifikasi', 'terverifikasi', 'revisi']);
+            })
             ->with([
                 'mahasiswa.programStudi',
                 'instansi',
@@ -50,6 +50,8 @@ class TUSuratPengantarController extends Controller
                     'id' => $p->suratPengantar->id,
                     'nomor_surat' => $p->suratPengantar->nomor_surat,
                     'tanggal_terbit' => $p->suratPengantar->tanggal_terbit?->format('d M Y'),
+                    'file_scan' => $p->suratPengantar->file_scan,
+                    'status' => $p->suratPengantar->status,
                 ] : null,
                 'docs' => $transkrip ? [
                     [
@@ -64,17 +66,17 @@ class TUSuratPengantarController extends Controller
 
         // Group by status
         $pengajuan = $allRequests
-            ->filter(fn($r) => $r['status'] === 'verifikasi_tu')
+            ->filter(fn($r) => $r['surat_pengantar'] && $r['surat_pengantar']['status'] === 'menunggu_verifikasi')
             ->values()
             ->all();
         
         $setuju = $allRequests
-            ->filter(fn($r) => $r['status'] === 'surat_terbit')
+            ->filter(fn($r) => $r['surat_pengantar'] && $r['surat_pengantar']['status'] === 'terverifikasi')
             ->values()
             ->all();
         
         $ditolak = $allRequests
-            ->filter(fn($r) => $r['status'] === 'perlu_perbaikan')
+            ->filter(fn($r) => $r['surat_pengantar'] && $r['surat_pengantar']['status'] === 'revisi')
             ->values()
             ->all();
 
@@ -97,29 +99,19 @@ class TUSuratPengantarController extends Controller
     {
         $pendaftaran = Pendaftaran::findOrFail($id);
 
-        $validated = $request->validate([
-            'nomor_surat' => ['required', 'string', 'max:255', 'unique:surat_pengantars,nomor_surat'],
-        ], [
-            'nomor_surat.required' => 'Nomor surat wajib diisi.',
-            'nomor_surat.unique' => 'Nomor surat sudah terdaftar di sistem.',
-        ]);
-
-        DB::transaction(function () use ($pendaftaran, $validated, $request) {
+        DB::transaction(function () use ($pendaftaran, $request) {
             $pendaftaran->update([
                 'status' => 'surat_terbit',
                 'diverifikasi_oleh' => $request->user()->id,
                 'diverifikasi_pada' => now(),
+                'catatan_tu' => null,
             ]);
 
-            SuratPengantar::create([
-                'pendaftaran_id' => $pendaftaran->id,
-                'nomor_surat' => $validated['nomor_surat'],
+            $pendaftaran->suratPengantar()->update([
+                'status' => 'terverifikasi',
+                // Optional: we can generate a nomor_surat automatically if we want, or leave it null since it's an offline signed document
+                'nomor_surat' => $pendaftaran->suratPengantar->nomor_surat ?? uniqid('SP-'),
                 'tanggal_terbit' => now(),
-                'tanggal_berlaku' => now()->addMonths(3),
-                'ditandatangani_oleh' => 'Dr. Budi Santoso, M.Kom.',
-                'nip_penandatangan' => '19800101 200501 1 001',
-                'generated_by' => $request->user()->id,
-                'verification_id' => uniqid('KP-'),
             ]);
         });
 
@@ -139,8 +131,11 @@ class TUSuratPengantarController extends Controller
         ]);
 
         $pendaftaran->update([
-            'status' => 'perlu_perbaikan',
             'catatan_tu' => $validated['catatan_tu'],
+        ]);
+        
+        $pendaftaran->suratPengantar()->update([
+            'status' => 'revisi'
         ]);
 
         return redirect()

@@ -16,11 +16,12 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'initialRole' => $request->query('role'),
         ]);
     }
 
@@ -33,8 +34,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect to role-specific dashboard
         $user = $request->user();
+
+        if ($user && $user->must_change_password) {
+            return redirect()->route('password.force_change');
+        }
+        
+        if (strtolower($user->role) === 'prodi') {
+            return redirect()->intended('/prodi/dashboard');
+        }
+
         $dashboardRoute = $user->dashboardRoute();
 
         return redirect()->intended($dashboardRoute);

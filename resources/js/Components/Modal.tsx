@@ -61,6 +61,7 @@ export default function Modal({
                 >
                     <DialogPanel
                         className={`mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full ${maxWidthClass}`}
+                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
                     >
                         {children}
                     </DialogPanel>

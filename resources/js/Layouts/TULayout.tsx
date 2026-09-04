@@ -1,16 +1,20 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell, Users } from 'lucide-react';
+import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell, Users, ClipboardCheck, UserCheck, Database } from 'lucide-react';
 
 export default function TULayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
     const user = (props as any).auth?.user;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const navItems = [
+    const navItems: { href: string; label: string; icon: any; alsoActive?: string }[] = [
         { href: '/tu/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/tu/generate-surat', label: 'Surat Pengantar', icon: FileText, alsoActive: '/tu/verifikasi' },
+        { href: '/tu/persetujuan-akun', label: 'Permohonan Akun', icon: UserCheck },
+        { href: '/tu/master-mahasiswa', label: 'Master Mahasiswa', icon: Database },
         { href: '/tu/mahasiswa', label: 'Daftar Mahasiswa', icon: Users },
+        { href: '/tu/verifikasi-pendaftaran', label: 'Verifikasi Mahasiswa', icon: ClipboardCheck },
+        { href: '/tu/generate-surat', label: 'Surat Pengantar', icon: FileText },
+        { href: '/tu/surat-balasan', label: 'Surat Balasan', icon: FileSignature },
     ];
 
     return (
@@ -27,10 +31,14 @@ export default function TULayout({ children }: PropsWithChildren) {
             <nav className={`flex flex-col h-screen w-64 fixed left-0 top-0 bg-white border-r border-outline-variant shadow-sm z-30 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
                     <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
-                        TU
+                        {user?.avatar ? (
+                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.name?.substring(0, 2).toUpperCase() || 'TU'
+                        )}
                     </div>
                     <h2 className="text-xl font-display font-semibold text-primary mb-1 text-center">Tata Usaha</h2>
-                    <p className="text-xs font-medium text-secondary text-center">Fakultas Teknik</p>
+                    <p className="text-xs font-medium text-secondary text-center">Teknik Informatika</p>
                 </div>
 
                 <div className="flex-1 overflow-y-auto w-full px-4 space-y-1 py-2">
@@ -42,17 +50,23 @@ export default function TULayout({ children }: PropsWithChildren) {
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
-                                className={`flex items-center w-full px-4 py-2.5 rounded-lg transition-all duration-200 ease-in-out ${
-                                    isActive
+                                className={`flex items-center w-full px-4 py-2.5 rounded-lg transition-all duration-200 ease-in-out ${isActive
                                         ? 'text-primary font-bold border-l-4 border-primary bg-primary-container/10 rounded-l-none'
                                         : 'text-secondary hover:bg-secondary-container/20 hover:text-primary'
-                                }`}
+                                    }`}
                             >
                                 <span className="mr-3"><Icon size={20} /></span>
                                 <span className="text-sm">{item.label}</span>
                             </Link>
                         );
                     })}
+                    <Link
+                        href={route('profile.edit')}
+                        className="flex items-center w-full px-4 py-2.5 rounded-lg text-secondary hover:bg-secondary-container/20 hover:text-primary transition-colors text-left outline-none"
+                    >
+                        <span className="mr-3"><Users size={20} /></span>
+                        <span className="text-sm font-medium">Profil Saya</span>
+                    </Link>
                     <Link
                         href="/logout"
                         method="post"

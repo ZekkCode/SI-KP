@@ -14,6 +14,12 @@ class SuratPengantar extends Model
 
     protected $fillable = [
         'pendaftaran_id',
+        'nama_instansi',
+        'alamat_instansi',
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'file_scan',
+        'status',
         'nomor_surat',
         'tanggal_terbit',
         'tanggal_berlaku',
@@ -27,6 +33,8 @@ class SuratPengantar extends Model
     protected function casts(): array
     {
         return [
+            'tanggal_mulai' => 'date',
+            'tanggal_selesai' => 'date',
             'tanggal_terbit' => 'date',
             'tanggal_berlaku' => 'date',
         ];

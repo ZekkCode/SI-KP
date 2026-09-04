@@ -17,8 +17,10 @@ class Logbook extends Model
         'jam_selesai',
         'deskripsi',
         'path_foto',
-        'status',
+        'status_dosen',
+        'status_instansi',
         'catatan_dosen',
+        'catatan_instansi',
         'divalidasi_oleh',
         'divalidasi_pada',
     ];

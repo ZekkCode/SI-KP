@@ -8,24 +8,24 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
 
     const navItems = [
         { href: '/instansi/dashboard', label: 'Ringkasan', icon: LayoutDashboard },
-        { href: '/instansi/evaluation', label: 'Penilaian', icon: BarChart2 },
         { href: '/instansi/logbook', label: 'Monitoring', icon: BookOpen },
-        { href: '/instansi/settings', label: 'Pengaturan', icon: Settings },
+        { href: '/instansi/evaluation', label: 'Penilaian', icon: BarChart2 },
     ];
 
     return (
         <div className="min-h-screen bg-surface font-sans flex">
             {/* Sidebar */}
-            <nav className="bg-surface-container-low h-screen w-[260px] fixed left-0 top-0 border-r border-outline-variant flex-col py-6 px-4 z-40 hidden md:flex">
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-8 px-4">
-                    <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold overflow-hidden text-lg">
-                        IN
+            <nav className="bg-white h-screen w-64 fixed left-0 top-0 border-r border-outline-variant flex flex-col shadow-sm z-40 hidden md:flex">
+                <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
+                    <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
+                        {user?.avatar ? (
+                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.name?.substring(0, 2).toUpperCase() || 'PL'
+                        )}
                     </div>
-                    <div>
-                        <h1 className="text-headline-sm text-on-surface font-bold">Portal Supervisor</h1>
-                        <p className="text-label-md text-on-surface-variant">Akses Eksternal</p>
-                    </div>
+                    <h2 className="text-xl font-display font-semibold text-primary mb-1 text-center">Pembimbing Lapangan</h2>
+                    <p className="text-xs font-medium text-secondary text-center">Akses Eksternal</p>
                 </div>
 
                 {/* Main Navigation */}
@@ -52,6 +52,13 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
 
                 {/* Footer Actions */}
                 <div className="mt-auto flex flex-col gap-4 border-t border-outline-variant pt-6">
+                    <Link
+                        href={route('profile.edit')}
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all active:scale-95 duration-150 text-left w-full"
+                    >
+                        <Users size={20} />
+                        <span className="text-body-md">Profil Saya</span>
+                    </Link>
                     <Link
                         href="/logout"
                         method="post"

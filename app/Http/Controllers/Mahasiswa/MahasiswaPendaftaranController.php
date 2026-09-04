@@ -61,14 +61,6 @@ class MahasiswaPendaftaranController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        // Check if user already has an active/non-draft pendaftaran
-        $existingActive = Pendaftaran::where('mahasiswa_id', $user->id)
-            ->whereNotIn('status', ['draft', 'selesai', 'ditolak_instansi'])
-            ->exists();
-
-        if ($existingActive) {
-            return back()->with('error', 'Anda sudah memiliki pendaftaran yang sedang diproses.');
-        }
 
         DB::transaction(function () use ($user, $validated) {
             // Update user profile fields
@@ -81,19 +73,26 @@ class MahasiswaPendaftaranController extends Controller
                 'ipk' => $validated['ipk'],
             ]);
 
-            // Find existing draft or create new pendaftaran (without instansi or duration)
-            $pendaftaran = Pendaftaran::updateOrCreate(
+            // Find existing or create new pendaftaran
+            $pendaftaran = Pendaftaran::firstOrCreate(
                 [
                     'mahasiswa_id' => $user->id,
-                    'status' => 'draft',
                 ],
                 [
-                    'instansi_id' => null,
-                    'tanggal_mulai' => null,
-                    'tanggal_selesai' => null,
                     'status' => 'diajukan',
+                    'dosen_pembimbing_id' => $user->dosen_wali_id,
                 ]
             );
+
+            // Otomatis pasangkan dosen pembimbing dari dosen wali mahasiswa jika belum terisi
+            if (empty($pendaftaran->dosen_pembimbing_id) && ! empty($user->dosen_wali_id)) {
+                $pendaftaran->dosen_pembimbing_id = $user->dosen_wali_id;
+                $pendaftaran->save();
+            }
+
+            if (in_array($pendaftaran->status, ['draft', 'perlu_perbaikan'])) {
+                $pendaftaran->update(['status' => 'diajukan']);
+            }
 
             // Upload transkrip file
             if (isset($validated['transkrip_file'])) {
