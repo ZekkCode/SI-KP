@@ -1,161 +1,147 @@
 import ProdiLayout from '@/Layouts/ProdiLayout';
-import { 
-  Users, 
-  UserMinus, 
-  CheckCircle2, 
-  MoreVertical,
-  AlertTriangle,
-  Search
-} from 'lucide-react';
+import { Users, GraduationCap, Building2, AlertTriangle, FileText, Settings, ArrowRight, Briefcase } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
-export default function Dashboard() {
+interface Stats {
+  total_mahasiswa: number;
+  total_dosen: number;
+  total_instansi: number;
+}
+
+interface Props {
+  stats: Stats;
+}
+
+export default function ProdiDashboard({ stats }: Props) {
+  const statCards = [
+    {
+      title: "Total Mahasiswa",
+      value: stats.total_mahasiswa.toString(),
+      icon: <GraduationCap size={24} />,
+      color: "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30",
+      link: route().has('prodi.mahasiswa') ? route('prodi.mahasiswa') : '#',
+    },
+    {
+      title: "Dosen Pembimbing Aktif",
+      value: stats.total_dosen.toString(),
+      icon: <Users size={24} />,
+      color: "text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/30",
+      link: route().has('prodi.dosen.index') ? route('prodi.dosen.index') : '#',
+    },
+    {
+      title: "Instansi Mitra",
+      value: stats.total_instansi.toString(),
+      icon: <Building2 size={24} />,
+      color: "text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/30",
+      link: route().has('prodi.instansi.index') ? route('prodi.instansi.index') : '#',
+    }
+  ];
+
+  const quickActions = [
+    {
+      title: "Plotting Dosen",
+      description: "Atur pembimbing untuk mahasiswa yang telah disetujui",
+      icon: <Users size={20} />,
+      link: route().has('prodi.plotting') ? route('prodi.plotting') : '#',
+      color: "bg-surface-variant hover:bg-surface-container transition-colors text-on-surface"
+    },
+    {
+      title: "Manajemen Kuota",
+      description: "Atur batas maksimal bimbingan tiap dosen",
+      icon: <Settings size={20} />,
+      link: route().has('prodi.dosen.index') ? route('prodi.dosen.index') : '#',
+      color: "bg-surface-variant hover:bg-surface-container transition-colors text-on-surface"
+    },
+    {
+      title: "Verifikasi Mahasiswa",
+      description: "Tinjau pendaftaran mahasiswa baru",
+      icon: <FileText size={20} />,
+      link: route().has('prodi.verification') ? route('prodi.verification') : '#',
+      color: "bg-surface-variant hover:bg-surface-container transition-colors text-on-surface"
+    },
+    {
+      title: "Kelola Instansi",
+      description: "Tambahkan dan kelola data instansi mitra tempat mahasiswa magang.",
+      icon: <Building2 size={20} />,
+      link: route().has('prodi.instansi.index') ? route('prodi.instansi.index') : '#',
+      color: "bg-surface-variant hover:bg-surface-container transition-colors text-on-surface"
+    },
+    {
+      title: "Whitelist Pembimbing Lapangan",
+      description: "Daftarkan nama pembimbing lapangan sebagai syarat registrasi akun instansi.",
+      icon: <Briefcase size={20} />,
+      link: route().has('prodi.pembimbing-lapangan.index') ? route('prodi.pembimbing-lapangan.index') : '#',
+      color: "bg-surface-variant hover:bg-surface-container transition-colors text-on-surface"
+    }
+  ];
+
   return (
-    <div className="p-4 md:p-8 max-w-[1200px] mx-auto">
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2 tracking-tight">Dashboard Koordinator</h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">Ringkasan status mahasiswa magang dan alokasi dosen pembimbing.</p>
-        </div>
-      </header>
-
-      {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <Users size={80} className="text-primary" />
-          </div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
-              <Users size={20} />
-            </div>
-            <h3 className="font-body-md text-body-md text-on-surface-variant font-medium">Total Mahasiswa Aktif</h3>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-headline-lg text-headline-lg text-on-surface">342</span>
-            <span className="font-label-md text-label-md text-surface-tint flex items-center">↑ 12%</span>
-          </div>
-          <p className="font-label-md text-label-md text-outline mt-2">Periode Semester Ganjil 2023/2024</p>
-        </div>
-
-        <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <UserMinus size={80} className="text-error" />
-          </div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-on-error-container">
-              <UserMinus size={20} />
-            </div>
-            <h3 className="font-body-md text-body-md text-on-surface-variant font-medium">Belum Mendapat Dosen</h3>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-headline-lg text-headline-lg text-on-surface">45</span>
-            <span className="font-label-md text-label-md text-error flex items-center">Perlu Plotting</span>
-          </div>
-          <div className="w-full bg-surface-container mt-3 h-2 rounded-full overflow-hidden">
-            <div className="bg-error h-full rounded-full" style={{ width: '15%' }}></div>
-          </div>
-        </div>
-
-        <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <CheckCircle2 size={80} className="text-surface-tint" />
-          </div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
-              <CheckCircle2 size={20} />
-            </div>
-            <h3 className="font-body-md text-body-md text-on-surface-variant font-medium">Persentase Penyelesaian</h3>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-headline-lg text-headline-lg text-on-surface">68%</span>
-            <span className="font-label-md text-label-md text-secondary">Rata-rata progres</span>
-          </div>
-          <div className="w-full bg-surface-container mt-3 h-2 rounded-full overflow-hidden">
-            <div className="bg-primary h-full rounded-full" style={{ width: '68%' }}></div>
-          </div>
+          <h1 className="text-3xl font-display font-semibold text-on-surface">Dasbor Program Studi</h1>
+          <p className="text-on-surface-variant mt-1">Ringkasan eksekutif dan statistik keseluruhan pelaksanaan Kerja Praktik.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+        {statCards.map((card, idx) => (
+          <Link key={idx} href={card.link} className="block group">
+            <div className="bg-surface-lowest rounded-2xl p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all h-full relative overflow-hidden flex flex-col justify-between">
+              <div className="flex justify-between items-start mb-4">
+                <div className={`p-3 rounded-xl ${card.color}`}>
+                  {card.icon}
+                </div>
+              </div>
+              <div>
+                <div className="text-4xl font-display font-bold text-on-surface mb-1 group-hover:scale-105 origin-left transition-transform">
+                  {card.value}
+                </div>
+                <h3 className="text-sm font-medium text-on-surface-variant">{card.title}</h3>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+        <div className="lg:col-span-2 bg-surface-lowest rounded-2xl border border-outline-variant shadow-sm p-6 flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface">Progres Evaluasi Mahasiswa</h3>
-            <button className="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
-              <MoreVertical size={20} />
-            </button>
+            <h2 className="text-lg font-display font-semibold text-on-surface">Aksi Cepat</h2>
           </div>
-          
-          <div className="flex-1 flex items-end gap-2 h-64 relative border-b border-l border-outline-variant pb-2 pl-2">
-            {/* Y-axis labels */}
-            <div className="absolute -left-8 bottom-0 top-0 flex flex-col justify-between text-label-md text-outline py-2">
-              <span>100</span>
-              <span>75</span>
-              <span>50</span>
-              <span>25</span>
-              <span>0</span>
-            </div>
-            
-            <div className="absolute left-2 right-0 bottom-[25%] border-t border-dashed border-outline-variant w-full z-0"></div>
-            <div className="absolute left-2 right-0 bottom-[50%] border-t border-dashed border-outline-variant w-full z-0"></div>
-            <div className="absolute left-2 right-0 bottom-[75%] border-t border-dashed border-outline-variant w-full z-0"></div>
-            
-            {/* Bars */}
-            <div className="flex-1 flex justify-center group z-10">
-              <div className="w-full max-w-[40px] bg-primary-fixed-dim rounded-t-sm h-[40%] group-hover:bg-primary transition-colors relative">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-label-md px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Tahap 1: 40%</div>
-              </div>
-            </div>
-            <div className="flex-1 flex justify-center group z-10">
-              <div className="w-full max-w-[40px] bg-primary-fixed-dim rounded-t-sm h-[65%] group-hover:bg-primary transition-colors relative">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-label-md px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Tahap 2: 65%</div>
-              </div>
-            </div>
-            <div className="flex-1 flex justify-center group z-10">
-              <div className="w-full max-w-[40px] bg-primary rounded-t-sm h-[85%] relative shadow-[0_0_10px_rgba(0,89,187,0.3)]">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-label-md px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Tahap 3: 85%</div>
-              </div>
-            </div>
-            <div className="flex-1 flex justify-center group z-10">
-              <div className="w-full max-w-[40px] bg-surface-variant rounded-t-sm h-[30%] group-hover:bg-outline transition-colors relative">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-label-md px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Tahap 4: 30%</div>
-              </div>
-            </div>
-            <div className="flex-1 flex justify-center group z-10">
-              <div className="w-full max-w-[40px] bg-surface-variant rounded-t-sm h-[10%] group-hover:bg-outline transition-colors relative">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-label-md px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Selesai: 10%</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex justify-between px-2 mt-4 text-label-md text-outline">
-            <span className="flex-1 text-center">Pendaftaran</span>
-            <span className="flex-1 text-center">Proposal</span>
-            <span className="flex-1 text-center font-bold text-primary">Pelaksanaan</span>
-            <span className="flex-1 text-center">Laporan</span>
-            <span className="flex-1 text-center">Selesai</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+            {quickActions.map((action, idx) => (
+              <Link key={idx} href={action.link} className={`p-5 rounded-xl border border-outline-variant group flex flex-col justify-between ${action.color}`}>
+                <div>
+                  <div className="mb-3 text-primary">{action.icon}</div>
+                  <h3 className="font-semibold text-on-surface mb-1">{action.title}</h3>
+                  <p className="text-sm text-on-surface-variant">{action.description}</p>
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <ArrowRight size={18} className="text-on-surface-variant group-hover:text-primary transition-colors group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col">
-          <h3 className="font-headline-sm text-headline-sm text-on-surface mb-6">Perlu Perhatian</h3>
-          <div className="space-y-4 flex-1 overflow-y-auto">
-            <div className="flex gap-3 p-3 rounded-lg bg-error-container/30 border border-error-container">
-              <AlertTriangle className="text-error shrink-0" size={24} />
-              <div>
-                <h4 className="font-body-md text-body-md font-medium text-on-surface">12 Proposal Menunggu</h4>
-                <p className="font-label-md text-label-md text-on-surface-variant mt-1">Melewati batas waktu review 3 hari.</p>
-                <button className="text-primary font-label-md text-label-md font-semibold mt-2 hover:underline">Tinjau Sekarang</button>
-              </div>
+        <div className="bg-primary text-on-primary rounded-2xl shadow-sm p-6 relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute -right-6 -top-6 text-on-primary/10 rotate-12">
+            <AlertTriangle size={120} />
+          </div>
+          <div className="relative z-10">
+            <div className="bg-on-primary text-primary inline-flex p-2 rounded-lg mb-4">
+              <AlertTriangle size={20} />
             </div>
-
-            <div className="flex gap-3 p-3 rounded-lg bg-surface-container border border-surface-variant">
-              <Search className="text-secondary shrink-0" size={24} />
-              <div>
-                <h4 className="font-body-md text-body-md font-medium text-on-surface">Plotting Dosen Terkendala</h4>
-                <p className="font-label-md text-label-md text-on-surface-variant mt-1">5 Dosen melebihi kuota maksimal (10 mahasiswa).</p>
-                <button className="text-primary font-label-md text-label-md font-semibold mt-2 hover:underline">Atur Ulang Plotting</button>
-              </div>
-            </div>
+            <h2 className="text-xl font-display font-bold mb-2">Pusat Perhatian</h2>
+            <p className="text-on-primary/90 text-sm leading-relaxed mb-6">
+              Pastikan Anda secara berkala meninjau "Plotting Dosen" dan "Manajemen Kuota" agar tidak ada mahasiswa yang terlantar tanpa bimbingan dan tidak ada dosen yang beban kerjanya berlebih.
+            </p>
+          </div>
+          <div className="relative z-10">
+            <Link href={route().has('prodi.plotting') ? route('prodi.plotting') : '#'} className="inline-flex items-center gap-2 bg-on-primary text-primary px-4 py-2 rounded-lg font-medium text-sm hover:bg-on-primary/90 transition-colors w-full justify-center">
+              Periksa Antrean Plotting <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </div>
@@ -163,4 +149,4 @@ export default function Dashboard() {
   );
 }
 
-Dashboard.layout = (page: React.ReactNode) => <ProdiLayout>{page}</ProdiLayout>;
+ProdiDashboard.layout = (page: React.ReactNode) => <ProdiLayout>{page}</ProdiLayout>;

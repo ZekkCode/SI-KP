@@ -1,34 +1,46 @@
 import { useState } from 'react';
 import ProdiLayout from '@/Layouts/ProdiLayout';
 import { Search, Printer, Users, CheckCircle, Clock } from 'lucide-react';
+import PageHeader from '@/Components/PageHeader';
+import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
 
 interface Student {
   no: number;
   nim: string;
-  name: string;
+  mahasiswa: {
+    name: string;
+  };
   semester: string;
-  status: 'Sedang KP' | 'Selesai KP';
+  status: 'Sedang KP' | 'Selesai KP' | 'Tidak KP / Belum KP';
+  status_asli: 'sedang_kp' | 'selesai' | 'belum_kp';
 }
 
-const INITIAL_STUDENTS: Student[] = [
-  { no: 1, nim: '20041110001', name: 'Budi Santoso', semester: 'Genap 2022/2023', status: 'Sedang KP' },
-  { no: 2, nim: '20041110002', name: 'Siti Aminah', semester: 'Genap 2022/2023', status: 'Selesai KP' },
-  { no: 3, nim: '20041110003', name: 'Ahmad Dahlan', semester: 'Genap 2022/2023', status: 'Sedang KP' },
-  { no: 4, nim: '20041110004', name: 'Diana Fitri', semester: 'Genap 2022/2023', status: 'Selesai KP' },
-  { no: 5, nim: '20041110005', name: 'Eko Prabowo', semester: 'Genap 2022/2023', status: 'Sedang KP' },
-  { no: 6, nim: '20041110012', name: 'Rian Hidayat', semester: 'Ganjil 2023/2024', status: 'Sedang KP' },
-  { no: 7, nim: '20041110015', name: 'Indah Lestari', semester: 'Ganjil 2023/2024', status: 'Selesai KP' },
-];
+interface Props {
+  initialStudents: Student[];
+}
 
-export default function Students() {
-  const [selectedSemester, setSelectedSemester] = useState('Genap 2022/2023');
+const generateSemesterOptions = () => {
+  const currentYear = new Date().getFullYear();
+  return [
+    { value: '', label: 'Semua Semester' },
+    { value: `Ganjil ${currentYear}/${currentYear + 1}`, label: `Ganjil ${currentYear}/${currentYear + 1}` },
+    { value: `Genap ${currentYear}/${currentYear + 1}`, label: `Genap ${currentYear}/${currentYear + 1}` },
+    { value: `Ganjil ${currentYear + 1}/${currentYear + 2}`, label: `Ganjil ${currentYear + 1}/${currentYear + 2}` },
+    { value: `Genap ${currentYear + 1}/${currentYear + 2}`, label: `Genap ${currentYear + 1}/${currentYear + 2}` }
+  ];
+};
+
+export default function Students({ initialStudents = [] }: Props) {
+  const [selectedSemester, setSelectedSemester] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS);
+  const [students, setStudents] = useState<Student[]>(initialStudents);
+  const semesterOptions = generateSemesterOptions();
 
   // Filter students based on search and semester
   const filteredStudents = students.filter(student => {
     const matchesSemester = selectedSemester ? student.semester === selectedSemester : true;
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const nameToMatch = student.mahasiswa?.name || '';
+    const matchesSearch = nameToMatch.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           student.nim.includes(searchTerm);
     return matchesSemester && matchesSearch;
   });
@@ -41,16 +53,9 @@ export default function Students() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-[1200px] mx-auto space-y-8 bg-[#f4f6f9] min-h-screen">
+    <div className="animate-in fade-in duration-300 p-4 md:p-8">
       {/* Header */}
-      <div>
-        <p className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
-          KERJA PRAKTEK TEKNIK INFORMATIKA UTM
-        </p>
-        <h1 className="text-3xl font-bold text-[#002f6c] mt-1">
-          Mahasiswa Kerja Praktek
-        </h1>
-      </div>
+      <PageHeader title="Daftar Mahasiswa" description="Daftar mahasiswa yang sedang atau telah selesai melaksanakan Kerja Praktek." />
 
       {/* Grid Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -99,21 +104,20 @@ export default function Students() {
       </div>
 
       {/* Main Table Card */}
-      <div id="daftar-mahasiswa" className="bg-white rounded-xl border border-outline-variant shadow-sm p-6 space-y-6">
-        <h2 className="text-xl font-semibold text-center text-slate-700">
-          Daftar Mahasiswa Kerja Praktek 2026
-        </h2>
-
+      <div id="daftar-mahasiswa" className="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden mt-8">
         {/* Filters and Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-50 p-4 rounded-lg">
+        <div className="p-4 border-b border-outline-variant bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-1 w-full gap-3 items-center">
             <select
               value={selectedSemester}
               onChange={(e) => setSelectedSemester(e.target.value)}
-              className="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 w-full sm:max-w-xs focus:outline-none"
+              className="bg-white border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-primary focus:border-primary block p-2 w-full sm:max-w-xs focus:outline-none"
             >
-              <option value="Genap 2022/2023">Genap 2022/2023</option>
-              <option value="Ganjil 2023/2024">Ganjil 2023/2024</option>
+              {semesterOptions.map((opt, idx) => (
+                <option key={idx} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
 
             <div className="relative flex-1 max-w-sm hidden sm:block">
@@ -122,69 +126,70 @@ export default function Students() {
                 placeholder="Cari NIM atau Nama..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 pr-10 py-2.5 focus:outline-none"
+                className="bg-white border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 pr-4 py-2 focus:outline-none transition-all"
               />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={18} />
             </div>
           </div>
 
           <div className="flex w-full sm:w-auto gap-2 justify-end">
             <button 
-              className="bg-[#0091d5] hover:bg-sky-600 text-white font-medium rounded-lg text-sm px-4 py-2.5 flex items-center justify-center gap-2 shadow-sm transition-colors w-12 h-10 sm:w-auto"
-              title="Cari"
-            >
-              <Search size={18} />
-            </button>
-            <button 
               onClick={handlePrint}
-              className="bg-[#f59e0b] hover:bg-amber-600 text-white font-medium rounded-lg text-sm px-4 py-2.5 flex items-center justify-center gap-2 shadow-sm transition-colors w-12 h-10 sm:w-auto"
+              className="bg-primary hover:bg-primary/90 text-white font-medium rounded-lg text-sm px-4 py-2 flex items-center justify-center gap-2 shadow-sm transition-colors active:scale-95"
               title="Cetak Laporan"
             >
-              <Printer size={18} />
+              <Printer size={18} /> Cetak
             </button>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto border border-slate-200 rounded-lg">
-          <table className="w-full text-sm text-left text-slate-500 border-collapse">
-            <thead className="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+        <div className="overflow-x-auto">
+          <ModernTable>
+            <ModernTableHeader>
               <tr>
-                <th className="py-3 px-4 text-center font-bold">No.</th>
-                <th className="py-3 px-4 font-bold">NIM</th>
-                <th className="py-3 px-4 font-bold">Nama Mahasiswa</th>
-                <th className="py-3 px-4 font-bold">Semester</th>
-                <th className="py-3 px-4 text-center font-bold">Status</th>
+                <ModernTableTh>No</ModernTableTh>
+                <ModernTableTh>NIM</ModernTableTh>
+                <ModernTableTh>Nama Mahasiswa</ModernTableTh>
+                <ModernTableTh>Semester</ModernTableTh>
+                <ModernTableTh>Status</ModernTableTh>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 bg-white">
+            </ModernTableHeader>
+            <ModernTableBody>
               {filteredStudents.length > 0 ? (
                 filteredStudents.map((student, index) => (
-                  <tr key={student.nim} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3.5 px-4 text-center font-medium text-slate-900">{index + 1}</td>
-                    <td className="py-3.5 px-4 font-mono font-medium text-slate-900">{student.nim}</td>
-                    <td className="py-3.5 px-4 font-medium text-slate-900">{student.name}</td>
-                    <td className="py-3.5 px-4">{student.semester}</td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                        student.status === 'Selesai KP' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-blue-100 text-blue-800'
+                  <tr key={student.nim} className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                    <ModernTableTd>{index + 1}</ModernTableTd>
+                    <ModernTableTd>{student.nim}</ModernTableTd>
+                    <ModernTableTd>{student.mahasiswa?.name ?? 'Nama Tidak Ditemukan'}</ModernTableTd>
+                    <ModernTableTd>{student.semester}</ModernTableTd>
+                    <ModernTableTd>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        student.status_asli === 'selesai' 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : student.status_asli === 'sedang_kp'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-surface-variant text-on-surface-variant'
                       }`}>
                         {student.status}
                       </span>
-                    </td>
+                    </ModernTableTd>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-400">
-                    Tidak ada data mahasiswa untuk filter ini.
-                  </td>
+                  <ModernTableTd>
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-outline">
+                        <Users size={24} />
+                      </div>
+                      <p>Tidak ada data mahasiswa untuk filter ini.</p>
+                    </div>
+                  </ModernTableTd>
                 </tr>
               )}
-            </tbody>
-          </table>
+            </ModernTableBody>
+          </ModernTable>
         </div>
       </div>
     </div>

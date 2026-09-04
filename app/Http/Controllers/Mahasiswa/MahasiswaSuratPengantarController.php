@@ -29,15 +29,17 @@ class MahasiswaSuratPengantarController extends Controller
                 'id' => $pendaftaran->id,
                 'status' => $pendaftaran->status,
                 'catatan_tu' => $pendaftaran->catatan_tu,
-                'nama_instansi' => $pendaftaran->instansi?->nama ?? '',
-                'alamat_instansi' => $pendaftaran->instansi?->alamat ?? '',
-                'tanggal_mulai' => $pendaftaran->tanggal_mulai?->format('Y-m-d'),
-                'tanggal_selesai' => $pendaftaran->tanggal_selesai?->format('Y-m-d'),
+                'nama_instansi' => $pendaftaran->suratPengantar?->nama_instansi ?? $pendaftaran->instansi?->nama ?? '',
+                'alamat_instansi' => $pendaftaran->suratPengantar?->alamat_instansi ?? $pendaftaran->instansi?->alamat ?? '',
+                'tanggal_mulai' => $pendaftaran->suratPengantar?->tanggal_mulai?->format('Y-m-d') ?? $pendaftaran->tanggal_mulai?->format('Y-m-d'),
+                'tanggal_selesai' => $pendaftaran->suratPengantar?->tanggal_selesai?->format('Y-m-d') ?? $pendaftaran->tanggal_selesai?->format('Y-m-d'),
                 'surat_pengantar' => $pendaftaran->suratPengantar ? [
                     'id' => $pendaftaran->suratPengantar->id,
                     'nomor_surat' => $pendaftaran->suratPengantar->nomor_surat,
                     'tanggal_terbit' => $pendaftaran->suratPengantar->tanggal_terbit?->format('d M Y'),
                     'path_file' => $pendaftaran->suratPengantar->path_file,
+                    'file_scan' => $pendaftaran->suratPengantar->file_scan,
+                    'status' => $pendaftaran->suratPengantar->status,
                 ] : null,
             ];
         }
@@ -64,33 +66,12 @@ class MahasiswaSuratPengantarController extends Controller
             ])
             ->latest()
             ->first();
-        if (
-            $pendaftaran &&
-            $pendaftaran->suratPengantar
-        ) {
-            return back()->with(
-                'error',
-                'Surat pengantar sudah diterbitkan.'
-            );
-        }    
 
         if (!$pendaftaran) {
             $pendaftaran = Pendaftaran::create([
                 'mahasiswa_id' => $user->id,
                 'status' => 'draft',
             ]);
-        }
-
-        if (
-            in_array(
-                $pendaftaran->status,
-                ['aktif', 'selesai']
-            )
-        ) {
-            return back()->with(
-                'error',
-                'Data tidak dapat diubah karena Kerja Praktik sudah berjalan.'
-            );
         }
 
         $validated = $request->validate([
@@ -117,17 +98,49 @@ class MahasiswaSuratPengantarController extends Controller
                 ]
             );
 
-            // Update pendaftaran details
+            // Update pendaftaran details (for backward compatibility if needed)
             $pendaftaran->update([
                 'instansi_id' => $instansi->id,
                 'tanggal_mulai' => $validated['tanggal_mulai'],
                 'tanggal_selesai' => $validated['tanggal_selesai'],
-                'status' => 'verifikasi_tu',
-                'catatan_tu' => null,
             ]);
+
+            $pendaftaran->suratPengantar()->updateOrCreate(
+                ['pendaftaran_id' => $pendaftaran->id],
+                [
+                    'nama_instansi' => $validated['nama_instansi'],
+                    'alamat_instansi' => $validated['alamat_instansi'],
+                    'tanggal_mulai' => $validated['tanggal_mulai'],
+                    'tanggal_selesai' => $validated['tanggal_selesai'],
+                    'status' => 'draft',
+                ]
+            );
         });
 
-        return back()->with('success', 'Pengajuan Surat Pengantar berhasil dikirim!');
+        return back()->with('success', 'Data draf surat pengantar berhasil disimpan! Silakan cetak draf untuk meminta tanda tangan basah.');
+    }
+
+    public function upload(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file_scan' => ['required', 'file', 'mimes:pdf', 'max:5120']
+        ]);
+        
+        $pendaftaran = Pendaftaran::where('mahasiswa_id', $request->user()->id)->latest()->firstOrFail();
+        $surat = $pendaftaran->suratPengantar;
+        
+        if (!$surat || !in_array($surat->status, ['draft', 'revisi'])) {
+            return back()->with('error', 'Tidak dapat mengunggah file. Surat pengantar belum di-draft atau sudah diproses.');
+        }
+
+        $path = $request->file('file_scan')->store('surat_pengantar/scans', 'public');
+
+        $surat->update([
+            'file_scan' => $path,
+            'status' => 'menunggu_verifikasi'
+        ]);
+
+        return back()->with('success', 'File scan berhasil diunggah dan sedang diverifikasi TU.');
     }
     public function download(Request $request): StreamedResponse
     {
@@ -162,4 +175,21 @@ class MahasiswaSuratPengantarController extends Controller
     }
 
 
+    public function cetak(Request $request, $id)
+    {
+        $data = Pendaftaran::with(['instansi', 'mahasiswa', 'suratPengantar'])
+            ->findOrFail($id);
+
+        $surat = $data->suratPengantar;
+        if (!$surat) {
+            abort(404, 'Data surat belum ada.');
+        }
+
+        $nama_instansi = $surat->nama_instansi;
+        $alamat_instansi = $surat->alamat_instansi;
+        $tanggal_mulai = $surat->tanggal_mulai;
+        $tanggal_selesai = $surat->tanggal_selesai;
+
+        return view('cetak.surat-pengantar', compact('data', 'nama_instansi', 'alamat_instansi', 'tanggal_mulai', 'tanggal_selesai'));
+    }
 }

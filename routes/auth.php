@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PembimbingLapanganAuthController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +17,16 @@ Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
+    Route::post('register/check-nim', [RegisteredUserController::class, 'checkNim'])
+        ->name('register.check-nim');
+
     Route::post('register', [RegisteredUserController::class, 'store']);
+
+    Route::get('register/pembimbing-lapangan', [PembimbingLapanganAuthController::class, 'create'])
+        ->name('register.pl');
+
+    Route::post('pembimbing-lapangan/register', [PembimbingLapanganAuthController::class, 'register'])
+        ->name('pembimbing-lapangan.register');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
@@ -33,6 +44,12 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Google Login Routes
+    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])
+        ->name('auth.google');
+    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])
+        ->name('auth.google.callback');
 });
 
 Route::middleware('auth')->group(function () {
@@ -53,6 +70,12 @@ Route::middleware('auth')->group(function () {
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+
+    Route::get('ganti-password-pertama', [\App\Http\Controllers\Auth\ForceChangePasswordController::class, 'create'])
+        ->name('password.force_change');
+
+    Route::post('ganti-password-pertama', [\App\Http\Controllers\Auth\ForceChangePasswordController::class, 'update'])
+        ->name('password.force_change.update');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

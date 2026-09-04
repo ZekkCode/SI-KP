@@ -11,6 +11,7 @@ interface Student {
     semester: string;
     ipk: string | number;
     status_pendaftaran: string;
+    status_akun: string;
 }
 
 interface Props {
@@ -98,6 +99,7 @@ export default function DaftarMahasiswa({ students, filters }: Props) {
                                 <th className="px-6 py-4">Mahasiswa</th>
                                 <th className="px-6 py-4">Program Studi</th>
                                 <th className="px-6 py-4">Akademik</th>
+                                <th className="px-6 py-4">Status Akun</th>
                                 <th className="px-6 py-4">Status Pendaftaran</th>
                                 <th className="px-6 py-4 text-right">Aksi</th>
                             </tr>
@@ -127,18 +129,31 @@ export default function DaftarMahasiswa({ students, filters }: Props) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${student.status_akun === 'aktif' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+                                                {student.status_akun === 'aktif' ? 'AKTIF' : 'MENUNGGU VERIFIKASI'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getStatusBadgeClass(student.status_pendaftaran)}`}>
                                                 {formatStatusLabel(student.status_pendaftaran)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <Link
-                                                href={`/tu/verifikasi`}
-                                                className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline text-sm"
-                                            >
-                                                Verifikasi
-                                                <ChevronRight className="w-4 h-4" />
-                                            </Link>
+                                            {student.status_akun !== 'aktif' ? (
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm('Apakah Anda yakin ingin memverifikasi dan mengaktifkan akun ini?')) {
+                                                            router.put(`/tu/mahasiswa/${student.id}/verifikasi`);
+                                                        }
+                                                    }}
+                                                    className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline text-sm"
+                                                >
+                                                    Verifikasi Akun
+                                                    <ChevronRight className="w-4 h-4" />
+                                                </button>
+                                            ) : (
+                                                <span className="text-secondary text-sm">Terverifikasi</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))

@@ -1,211 +1,293 @@
 import InstansiLayout from '@/Layouts/InstansiLayout';
-import React, { useState } from 'react';
-import { ChevronRight, IdCard, Building2, Calendar, Info, Lock } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import { BarChart2, CheckCircle2, FileSignature, Upload, X, ScanLine, Building2 } from 'lucide-react';
+import Modal from '@/Components/Modal';
+import PageHeader from '@/Components/PageHeader';
+import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
 
-export default function Evaluation() {
-  const [scores, setScores] = useState({
-    val1: 85,
-    val2: 88,
-    val3: 92,
-    val4: 80
+interface Mahasiswa {
+  name: string;
+  nim: string;
+}
+
+interface Pendaftaran {
+  id: number;
+  mahasiswa: Mahasiswa;
+  status_kp: string;
+  is_dinilai: boolean;
+  nilai_instansi: string | number | null;
+  komponen_nilai: Record<string, string | number> | null;
+}
+
+interface Props {
+  pendaftarans: Pendaftaran[];
+  error?: string;
+}
+
+export default function EvaluationScreen({ pendaftarans, error }: Props) {
+  const [selectedPendaftaran, setSelectedPendaftaran] = useState<Pendaftaran | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data, setData, post, processing, reset, errors } = useForm({
+    kedisiplinan: '',
+    kerjasama: '',
+    kinerja: '',
+    catatan: '',
   });
 
-  const finalScore = (Object.values(scores).reduce((a, b) => a + b, 0) / 4).toFixed(2);
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh] gap-4">
+        <Building2 size={64} className="text-error" />
+        <h2 className="text-xl font-display font-semibold text-on-surface">Akses Ditolak</h2>
+        <p className="text-secondary text-center max-w-md">{error}</p>
+      </div>
+    );
+  }
 
-  const handleScoreChange = (key: keyof typeof scores, value: string) => {
-    const num = Math.min(100, Math.max(1, Number(value)));
-    setScores(prev => ({ ...prev, [key]: num }));
+  const openGradingModal = (pendaftaran: Pendaftaran) => {
+    setSelectedPendaftaran(pendaftaran);
+    if (pendaftaran.komponen_nilai) {
+      setData({
+        kedisiplinan: pendaftaran.komponen_nilai.kedisiplinan?.toString() || '',
+        kerjasama: pendaftaran.komponen_nilai.kerjasama?.toString() || '',
+        kinerja: pendaftaran.komponen_nilai.kinerja?.toString() || '',
+        catatan: '', 
+      });
+    } else {
+      setData({
+        kedisiplinan: '',
+        kerjasama: '',
+        kinerja: '',
+        catatan: '',
+      });
+    }
+    setIsModalOpen(true);
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => {
+      setSelectedPendaftaran(null);
+      reset();
+    }, 200);
+  };
+
+  const handleScoreChange = (field: keyof typeof data, value: string) => {
+    if (field === 'catatan') {
+      setData(field, value);
+      return;
+    }
+    
+    let num = parseInt(value, 10);
+    if (isNaN(num)) {
+      setData(field, '');
+      return;
+    }
+    if (num > 100) num = 100;
+    if (num < 0) num = 0;
+    setData(field, num.toString());
+  };
+
+  const submitGrading = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPendaftaran) return;
+
+    post(route('instansi.evaluation.store', selectedPendaftaran.id), {
+      onSuccess: () => {
+        closeModal();
+      },
+    });
+  };
+
+  // Helper to calculate runtime total for preview
+  const disiplin = parseFloat(data.kedisiplinan) || 0;
+  const kerja = parseFloat(data.kerjasama) || 0;
+  const praktek = parseFloat(data.kinerja) || 0;
+  // Bobot: Kedisiplinan 30%, Kerjasama 30%, Kinerja Praktis 40%
+  const totalPreview = (disiplin * 0.3) + (kerja * 0.3) + (praktek * 0.4);
+
   return (
-    <main className="flex-1 min-h-screen p-6 md:p-8 w-full max-w-[1200px] mx-auto space-y-8 bg-[#f8fafc]">
-      {/* Breadcrumbs & Header */}
-      <div>
-        <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
-          <span>Evaluations</span>
-          <ChevronRight size={12} className="text-slate-300" />
-          <span className="text-slate-600 font-semibold">Input Nilai & Evaluasi</span>
-        </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Input Nilai dan Evaluasi Kinerja</h1>
-        <p className="text-slate-500 mt-2 text-sm max-w-3xl leading-relaxed">
-          Lengkapi form evaluasi di bawah ini untuk menilai performa mahasiswa selama masa magang. Data akan dibekukan setelah disubmit.
-        </p>
-      </div>
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+      <PageHeader title="Penilaian Industri" description="Evaluasi performa dan kedisiplinan mahasiswa selama melaksanakan kerja praktik/magang." />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Left Column */}
-        <div className="xl:col-span-2 flex flex-col gap-6">
-          {/* Student Profile Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-xl shadow-sm shrink-0">
-              BS
+      <div className="bg-surface-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col mt-2">
+        <div className="overflow-x-auto">
+          {pendaftarans.length === 0 ? (
+            <div className="p-12 text-center flex flex-col items-center">
+              <FileSignature size={48} className="text-outline mb-4 opacity-50" />
+              <p className="font-body-lg text-on-surface">Belum ada mahasiswa</p>
+              <p className="font-body-md text-secondary mt-1">Belum ada mahasiswa magang aktif atau yang telah selesai untuk dinilai.</p>
             </div>
-            <div className="flex-grow">
-              <h3 className="text-xl font-bold text-slate-800">Budi Santoso</h3>
-              <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-xs font-semibold text-slate-500">
-                <span className="flex items-center gap-1.5"><IdCard size={14} className="text-indigo-500" /> NIM: 190512040</span>
-                <span className="flex items-center gap-1.5"><Building2 size={14} className="text-indigo-500" /> Divisi: Software Engineering</span>
-                <span className="flex items-center gap-1.5"><Calendar size={14} className="text-indigo-500" /> Periode: Jan - Jun 2024</span>
-              </div>
-            </div>
-            <div className="bg-amber-50 text-amber-800 border border-amber-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider shrink-0">
-              Menunggu Nilai
-            </div>
-          </div>
-
-          {/* Evaluation Form Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-6">
-            <h3 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-4">Metrik Penilaian (Skala 1-100)</h3>
-            
-            <div className="flex flex-col gap-6">
-              {/* Metric 1 */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <label className="md:col-span-1 text-sm font-semibold text-slate-600">Kedisiplinan</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="range" min="1" max="100" 
-                    value={scores.val1} 
-                    onChange={(e) => handleScoreChange('val1', e.target.value)}
-                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
-                  />
-                </div>
-                <div className="md:col-span-1">
-                  <input 
-                    type="number" min="1" max="100" 
-                    value={scores.val1}
-                    onChange={(e) => handleScoreChange('val1', e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-center text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" 
-                  />
-                </div>
-              </div>
-
-              {/* Metric 2 */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <label className="md:col-span-1 text-sm font-semibold text-slate-600">Tanggung Jawab</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="range" min="1" max="100" 
-                    value={scores.val2} 
-                    onChange={(e) => handleScoreChange('val2', e.target.value)}
-                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
-                  />
-                </div>
-                <div className="md:col-span-1">
-                  <input 
-                    type="number" min="1" max="100" 
-                    value={scores.val2}
-                    onChange={(e) => handleScoreChange('val2', e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-center text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" 
-                  />
-                </div>
-              </div>
-
-              {/* Metric 3 */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <label className="md:col-span-1 text-sm font-semibold text-slate-600">Kerja Sama Tim</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="range" min="1" max="100" 
-                    value={scores.val3} 
-                    onChange={(e) => handleScoreChange('val3', e.target.value)}
-                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
-                  />
-                </div>
-                <div className="md:col-span-1">
-                  <input 
-                    type="number" min="1" max="100" 
-                    value={scores.val3}
-                    onChange={(e) => handleScoreChange('val3', e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-center text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" 
-                  />
-                </div>
-              </div>
-
-              {/* Metric 4 */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <label className="md:col-span-1 text-sm font-semibold text-slate-600">Pencapaian Target</label>
-                <div className="md:col-span-2">
-                  <input 
-                    type="range" min="1" max="100" 
-                    value={scores.val4} 
-                    onChange={(e) => handleScoreChange('val4', e.target.value)}
-                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
-                  />
-                </div>
-                <div className="md:col-span-1">
-                  <input 
-                    type="number" min="1" max="100" 
-                    value={scores.val4}
-                    onChange={(e) => handleScoreChange('val4', e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-center text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" 
-                  />
-                </div>
-              </div>
-
-              {/* Additional Comments */}
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Catatan Kualitatif / Tambahan (Opsional)</label>
-                <textarea 
-                  className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none text-slate-700" 
-                  placeholder="Masukkan catatan mengenai kinerja, keahlian teknis, dan etos kerja mahasiswa..." 
-                  rows={4}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="xl:col-span-1 flex flex-col gap-6">
-          {/* Estimation Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Estimasi Nilai Akhir</h3>
-            <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-5xl font-extrabold text-indigo-600">{finalScore}</span>
-              <span className="text-sm font-bold text-slate-400">/ 100</span>
-            </div>
-            
-            <div className="bg-indigo-50/50 p-4 rounded-xl flex items-start gap-3 border border-indigo-100">
-              <Info className="text-indigo-600 shrink-0 mt-0.5" size={16} />
-              <p className="text-xs text-indigo-800 leading-relaxed font-medium">
-                Nilai akhir dihitung secara otomatis sebagai rata-rata dari keempat metrik. Setelah Anda mengirimkan penilaian ini, nilai akan dibekukan dan tidak dapat diubah kembali.
-              </p>
-            </div>
-          </div>
-
-          {/* E-Signature Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm relative overflow-hidden">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Tanda Tangan Digital</h3>
-            <p className="text-xs text-slate-500 mb-4">Barcode validasi digital unik akan disematkan pada dokumen sertifikat magang resmi.</p>
-            
-            <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-50">
-              <img 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdyTLT-MA8LkdQeAbGNA4XmI5DoWI9SLhOegcrnIPlRDjvxN57154b-AP1DeAKk62_1RBjzIVoSniM5IxdhUWRoxcIHxCPwYR9UPb6i5LxqcyRmbVFvSzWEj2KbE-FGMWEi87Gf50X-Xmt75SjI34NU1fGzsoqdVhDAE-2GXlfYLU1gBASZNsVv3fiOH3rxWC9UQIcHVCIPwnDeVgFxAQ2RbEUJwM3bWqFqxhCAIS904eInSfIHxYkngyz_bIduuShnBu_rpVNM6Q" 
-                alt="Signature Barcode" 
-                className="w-20 h-20 mb-3 opacity-90 mix-blend-multiply"
-              />
-              <span className="text-xs text-slate-500 text-center leading-normal">
-                Ditandatangani secara digital oleh:<br/>
-                <strong className="text-slate-800 font-bold">PT Telkom Indonesia</strong><br/>
-                Supervisor Lapangan
-              </span>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col gap-3">
-            <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3.5 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2">
-              <Lock size={16} />
-              Submit & Bekukan Nilai
-            </button>
-            <button className="w-full bg-white border border-slate-200 text-slate-600 font-semibold text-sm py-3.5 rounded-xl hover:bg-slate-50 transition-colors">
-              Simpan Draft
-            </button>
-          </div>
+          ) : (
+            <ModernTable>
+              <ModernTableHeader>
+                <tr className="bg-surface-container-lowest border-b border-outline-variant text-on-surface-variant text-sm font-medium">
+                  <ModernTableTh>Mahasiswa</ModernTableTh>
+                  <ModernTableTh>Status KP</ModernTableTh>
+                  <ModernTableTh>Status Penilaian</ModernTableTh>
+                  <ModernTableTh>Nilai Instansi</ModernTableTh>
+                  <ModernTableTh>Aksi</ModernTableTh>
+                </tr>
+              </ModernTableHeader>
+              <ModernTableBody>
+                {pendaftarans.map((p) => {
+                  return (
+                    <tr key={p.id} className="hover:bg-surface-container-lowest/50 transition-colors">
+                      <ModernTableTd>
+                        <div className="font-medium text-on-surface">{p.mahasiswa.name}</div>
+                        <div className="text-sm text-secondary">{p.mahasiswa.nim}</div>
+                      </ModernTableTd>
+                      <ModernTableTd>
+                        <span className="inline-block px-2.5 py-1 bg-surface-high text-on-surface rounded text-[10px] font-bold uppercase tracking-wider border border-outline-variant">
+                          {p.status_kp?.replace('_', ' ') || 'AKTIF'}
+                        </span>
+                      </ModernTableTd>
+                      <ModernTableTd>
+                        {p.is_dinilai ? (
+                          <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                            <CheckCircle2 size={16} /> Sudah Dinilai
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-sm font-medium text-secondary">
+                            Belum Dinilai
+                          </span>
+                        )}
+                      </ModernTableTd>
+                      <ModernTableTd>
+                        {p.nilai_instansi !== null ? (
+                          <div className="text-xl font-display font-bold text-on-surface">
+                            {Number(p.nilai_instansi).toFixed(1)}
+                          </div>
+                        ) : (
+                          <span className="text-outline">-</span>
+                        )}
+                      </ModernTableTd>
+                      <ModernTableTd>
+                        <button 
+                          onClick={() => openGradingModal(p)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            !p.is_dinilai 
+                              ? 'bg-primary text-on-primary hover:bg-primary/90 shadow-sm'
+                              : 'border border-outline text-secondary hover:bg-surface-container'
+                          }`}
+                        >
+                          {!p.is_dinilai ? 'Beri Nilai' : 'Ubah Nilai'}
+                        </button>
+                      </ModernTableTd>
+                    </tr>
+                  );
+                })}
+              </ModernTableBody>
+            </ModernTable>
+          )}
         </div>
       </div>
-    </main>
+
+      <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
+        <div className="p-0">
+          <div className="p-6 border-b border-outline-variant flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-display font-semibold text-on-surface">Evaluasi Industri (Pembimbing Lapangan)</h2>
+              {selectedPendaftaran && (
+                <p className="text-sm text-on-surface-variant mt-1">
+                  {selectedPendaftaran.mahasiswa.name} ({selectedPendaftaran.mahasiswa.nim})
+                </p>
+              )}
+            </div>
+            <button onClick={closeModal} className="text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors">
+              <X size={20} />
+            </button>
+          </div>
+
+          <form onSubmit={submitGrading} className="p-6">
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 mb-6">
+              <h3 className="text-sm font-display font-semibold text-on-surface mb-4 flex items-center gap-2">
+                <BarChart2 className="w-4 h-4 text-primary" />
+                Parameter Penilaian Kinerja (0-100)
+              </h3>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 'kedisiplinan', label: 'Kedisiplinan & Etika Kerja (30%)', error: errors.kedisiplinan },
+                  { id: 'kerjasama', label: 'Kemampuan Bekerjasama (Tim) (30%)', error: errors.kerjasama },
+                  { id: 'kinerja', label: 'Kinerja Praktis & Pemahaman (40%)', error: errors.kinerja }
+                ].map((param) => (
+                  <div key={param.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <label className="text-sm font-medium text-on-surface-variant sm:w-2/3">{param.label}</label>
+                    <div className="sm:w-1/3 flex flex-col">
+                      <input 
+                        type="number" 
+                        min="0" max="100" 
+                        value={data[param.id as keyof typeof data]}
+                        onChange={(e) => handleScoreChange(param.id as keyof typeof data, e.target.value)}
+                        placeholder="0 - 100"
+                        className="w-full bg-surface border border-outline-variant rounded-lg p-2 text-sm text-center font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow"
+                      />
+                      {param.error && <span className="text-[10px] text-error mt-1">{param.error}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-5 mt-5 border-t border-outline-variant">
+                <div className="flex justify-between items-center bg-surface-low p-4 rounded-xl border border-outline-variant">
+                  <span className="text-sm font-display font-semibold text-on-surface">Agregasi Nilai Instansi</span>
+                  <div className="flex items-end gap-2">
+                    <span className="text-2xl font-display font-bold text-primary">{totalPreview.toFixed(1)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label htmlFor="catatan" className="block text-sm font-medium text-on-surface mb-2">
+                Catatan / Kesan Pesan (Opsional)
+              </label>
+              <textarea
+                id="catatan"
+                rows={3}
+                value={data.catatan}
+                onChange={(e) => handleScoreChange('catatan', e.target.value)}
+                placeholder="Berikan masukan menyeluruh atas hasil kerja praktik mahasiswa..."
+                className="w-full p-3 bg-surface border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y"
+              ></textarea>
+              {errors.catatan && <p className="text-error text-xs mt-1">{errors.catatan}</p>}
+            </div>
+
+            <div className="flex items-center gap-3 bg-secondary-container/30 border border-secondary-container p-4 rounded-xl mb-6">
+              <div className="w-10 h-10 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center shrink-0">
+                <ScanLine className="w-5 h-5" />
+              </div>
+              <div className="text-xs text-on-surface-variant leading-relaxed">
+                <span className="font-semibold block text-on-surface">Otentikasi Digital</span>
+                Penilaian ini merupakan keputusan yang sah dari pihak Instansi/Perusahaan tempat mahasiswa melaksanakan kerja praktik.
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="px-4 py-2 border border-outline text-secondary text-sm font-medium rounded-lg hover:bg-surface-container transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={processing || data.kedisiplinan === '' || data.kerjasama === '' || data.kinerja === ''}
+                className="px-6 py-2 bg-primary text-on-primary text-sm font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm flex items-center gap-2"
+              >
+                <Upload size={16} />
+                {processing ? 'Menyimpan...' : 'Simpan Nilai'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
+    </div>
   );
 }
 
-Evaluation.layout = (page: React.ReactNode) => <InstansiLayout>{page}</InstansiLayout>;
+EvaluationScreen.layout = (page: React.ReactNode) => <InstansiLayout>{page}</InstansiLayout>;

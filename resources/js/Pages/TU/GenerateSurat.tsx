@@ -24,6 +24,8 @@ interface StudentData {
         id: number;
         nomor_surat: string;
         tanggal_terbit: string;
+        file_scan: string | null;
+        status: string;
     } | null;
     docs: Array<{
         name: string;
@@ -64,7 +66,6 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
         if (!selectedStudent) return;
         approveForm.post(`/tu/generate-surat/${selectedStudent.id}/approve`, {
             onSuccess: () => {
-                approveForm.reset();
                 setStep('verifikasi');
             }
         });
@@ -426,7 +427,29 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-secondary text-sm">Tidak ada berkas/dokumen transkrip yang diunggah.</p>
+                                <p className="text-secondary text-sm mb-4">Tidak ada berkas/dokumen transkrip yang diunggah.</p>
+                            )}
+                            
+                            <h2 className="text-xl font-display font-semibold text-on-surface mb-6 mt-8 border-b border-surface-variant pb-3">File Scan Surat Pengantar</h2>
+                            {selectedStudent.surat_pengantar?.file_scan ? (
+                                <div className="mt-2 border border-outline-variant rounded-lg overflow-hidden bg-surface-container-low p-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm font-bold text-on-surface">Surat_Pengantar_Bertanda_Tangan.pdf</span>
+                                        <a
+                                            href={`/storage/${selectedStudent.surat_pengantar.file_scan}`}
+                                            target="_blank"
+                                            className="text-primary hover:underline text-xs font-bold flex items-center gap-1"
+                                        >
+                                            <Download className="w-4 h-4" /> Unduh Dokumen
+                                        </a>
+                                    </div>
+                                    <iframe
+                                        src={`/storage/${selectedStudent.surat_pengantar.file_scan}`}
+                                        className="w-full h-[500px] border border-outline-variant rounded"
+                                    />
+                                </div>
+                            ) : (
+                                <p className="text-secondary text-sm">Tidak ada file scan yang diunggah.</p>
                             )}
 
                             {selectedDocIndex !== null && selectedStudent.docs[selectedDocIndex] && (
@@ -455,15 +478,15 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                         <div className="bg-white rounded-xl border border-outline-variant p-6 shadow-sm sticky top-24">
                             <h2 className="text-xl font-display font-semibold text-on-surface mb-6 border-b border-surface-variant pb-3">Tindakan Verifikasi</h2>
                             
-                            {selectedStudent.status === 'verifikasi_tu' ? (
+                            {selectedStudent.surat_pengantar?.status === 'menunggu_verifikasi' ? (
                                 <div className="space-y-4">
                                     <button
-                                        onClick={() => setStep('pratinjau')}
+                                        onClick={handleApprove}
+                                        disabled={approveForm.processing}
                                         className="w-full bg-primary text-white hover:bg-primary/90 py-3 px-4 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2"
                                     >
                                         <CheckCircle size={20} />
-                                        <span>Verifikasi & Lanjut Pratinjau</span>
-                                        <ArrowRight size={20} />
+                                        <span>Verifikasi File Scan</span>
                                     </button>
                                     <button
                                         onClick={() => setShowFeedback(!showFeedback)}
@@ -476,7 +499,7 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                     </button>
                                 </div>
                             ) : (
-                                <p className="text-secondary text-sm">Status verifikasi saat ini: <strong>{selectedStudent.status.replace(/_/g, ' ').toUpperCase()}</strong>. Tidak ada tindakan verifikasi yang tertunda.</p>
+                                <p className="text-secondary text-sm">Status verifikasi saat ini: <strong>{selectedStudent.surat_pengantar?.status?.replace(/_/g, ' ').toUpperCase() || '-'}</strong>. Tidak ada tindakan verifikasi yang tertunda.</p>
                             )}
 
                             {showFeedback && (
@@ -516,151 +539,7 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                 </div>
             )}
 
-            {step === 'pratinjau' && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    {/* PDF Draft Letter View */}
-                    <div className="lg:col-span-8 bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden flex flex-col h-[850px]">
-                        <div className="bg-surface-container-highest px-6 py-4 border-b border-outline-variant flex justify-between items-center">
-                            <div className="flex items-center gap-2 text-on-surface">
-                                <Eye className="text-primary" size={20} />
-                                <span className="font-medium">Draf Surat Pengantar KP</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <button className="p-2 rounded text-secondary hover:bg-surface-variant transition-colors">
-                                    <ZoomOut size={18} />
-                                </button>
-                                <button className="p-2 rounded text-secondary hover:bg-surface-variant transition-colors">
-                                    <ZoomIn size={18} />
-                                </button>
-                            </div>
-                        </div>
 
-                        <div className="flex-1 bg-surface-variant/30 p-8 overflow-y-auto flex justify-center items-start">
-                            <div className="bg-white w-full max-w-[650px] min-h-[900px] shadow-md p-12 flex flex-col text-sm text-on-surface">
-                                <div className="flex items-center border-b-[3px] border-on-surface pb-6 mb-8">
-                                    <div className="w-16 h-16 bg-surface-container flex items-center justify-center shrink-0">
-                                        <img
-                                            className="w-16 h-16 object-contain"
-                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcYI-cxVibUaX-TsGqqDgu1W0ZAWpp6kbny_PUKWUTQ4IkhlzMU8YocEgbIjortS1a8dmcD6erxZ-uUuIybhKdrrnD_l0cYmKdOB6nBK7B6rCq6e649ycBlDE5EIaZFspiSArmk9WFDyJJYe6EINJi1E2z0H0zPSMMncdw0GdN6GqczG2iM-wfIUatYYqkSrtwhmP8H0fIZkaPOYkleUSN_kwv9TcmuBf5rMW4rgWhlwof4ttnj7rSf0dnIp_BJUE2iNlHJB4PBrw"
-                                            alt="Logo"
-                                        />
-                                    </div>
-                                    <div className="flex-1 text-center px-4">
-                                        <h3 className="font-display font-bold uppercase tracking-wide text-xs">Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi</h3>
-                                        <h2 className="text-base font-display font-extrabold uppercase mt-1">Universitas Teknologi Nasional</h2>
-                                        <h4 className="font-display font-bold uppercase mt-1 text-xs">Fakultas Ilmu Komputer</h4>
-                                        <p className="text-[10px] text-on-surface-variant mt-1">Jl. Pendidikan Raya No. 123, Kota Akademik, 45123</p>
-                                        <p className="text-[10px] text-on-surface-variant">Telp: (021) 555-1234 | Email: dekanat@fik.utn.ac.id | Web: fik.utn.ac.id</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-between mb-8">
-                                    <div>
-                                        <div className="flex gap-4"><span className="w-20">Nomor</span><span>: {approveForm.data.nomor_surat || '____________/UN.XX/AK.KP/2026'}</span></div>
-                                        <div className="flex gap-4"><span className="w-20">Lampiran</span><span>: 1 (satu) berkas proposal</span></div>
-                                        <div className="flex gap-4"><span className="w-20">Perihal</span><span>: Permohonan Kerja Praktik (KP)</span></div>
-                                    </div>
-                                    <div className="text-right">
-                                        <span>{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                                    </div>
-                                </div>
-
-                                <div className="mb-8">
-                                    <p>Yth. Pimpinan HRD / Direktur Utama</p>
-                                    <p className="font-bold">{selectedStudent.perusahaan}</p>
-                                    {selectedStudent.alamat.split('\n').map((line, i) => (
-                                        <p key={i}>{line}</p>
-                                    ))}
-                                </div>
-
-                                <div className="text-justify leading-relaxed flex-1 space-y-4">
-                                    <p>Dengan hormat,</p>
-                                    <p>Dalam rangka memenuhi persyaratan kurikulum akademik dan meningkatkan kompetensi praktis mahasiswa, bersama ini kami memohon kesediaan Bapak/Ibu untuk menerima mahasiswa kami melaksanakan program Kerja Praktik (KP) di instansi/perusahaan yang Bapak/Ibu pimpin.</p>
-                                    <p>Adapun data mahasiswa tersebut adalah sebagai berikut:</p>
-                                    <table className="w-full mt-4 mb-4 border-collapse">
-                                        <tbody>
-                                            <tr><td className="py-1 w-40">Nama Lengkap</td><td>: <strong>{selectedStudent.mahasiswa.name}</strong></td></tr>
-                                            <tr><td className="py-1 w-40">NIM</td><td>: {selectedStudent.mahasiswa.nim}</td></tr>
-                                            <tr><td className="py-1 w-40">Program Studi</td><td>: {selectedStudent.mahasiswa.prodi}</td></tr>
-                                            <tr><td className="py-1 w-40">Semester</td><td>: {selectedStudent.mahasiswa.semester}</td></tr>
-                                        </tbody>
-                                    </table>
-                                    <p>Kerja Praktik ini direncanakan akan dilaksanakan mulai tanggal <strong>{selectedStudent.tanggal_mulai}</strong> s.d <strong>{selectedStudent.tanggal_selesai}</strong>.</p>
-                                    <p>Demikian surat permohonan ini kami sampaikan. Atas perhatian dan kerjasamanya yang baik, kami ucapkan terima kasih.</p>
-                                </div>
-
-                                <div className="flex justify-between items-end mt-12">
-                                    <div className="flex flex-col items-center">
-                                        <div className="w-20 h-20 bg-white border border-outline-variant p-1 mb-2">
-                                            <div
-                                                className="w-full h-full bg-cover bg-center"
-                                                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGhxhznv1Fve27AmCZIFr5wrCClrL2q_cBUqlxiuaTb2Lp-8V1O3x46KoP47ZJwhZdlAiHeA2Fm-UMPE8vx5UEm5WH1W74Mx-S0z4dcTe0gk306ddJUzOCYvcFTX291_CmB93_5l23irdtkGFPTLh0lFSfCKFlJZ27z4yc4jgqRpGzYR26N6UP9hKAEmyPSwkMiUp1W79-ZX0oLoBvPzgq49-dRpO6LPp0CDFTwjoHk_OcqV3-s8yP0VlJ4GRt1jXSenx-BKKc1nI')" }}
-                                            />
-                                        </div>
-                                        <span className="text-[8px] text-on-surface-variant text-center max-w-[100px]">Scan QR untuk validasi</span>
-                                    </div>
-                                    <div className="text-center w-60 text-xs">
-                                        <p className="mb-12">Wakil Dekan Bidang Akademik,</p>
-                                        <div className="border-b border-on-surface pb-0.5 mb-0.5">
-                                            <p className="font-bold">Dr. Budi Santoso, M.Kom.</p>
-                                        </div>
-                                        <p>NIP. 19800101 200501 1 001</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Finalize Sidebar */}
-                    <div className="lg:col-span-4 flex flex-col gap-6">
-                        <form onSubmit={handleApprove} className="bg-white rounded-xl shadow-sm border border-outline-variant p-6 relative overflow-hidden space-y-4">
-                            <h3 className="text-xl font-display font-semibold text-on-surface">Tindakan Akhir</h3>
-                            
-                            <div>
-                                <label className="block text-sm font-semibold text-on-surface mb-2">Input Nomor Surat Resmi <span className="text-error">*</span></label>
-                                <input
-                                    type="text"
-                                    placeholder="Format: 1245/UN.XX/AK.KP/2026"
-                                    className={`w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 ${
-                                        approveForm.errors.nomor_surat ? 'border-error' : 'border-outline-variant focus:border-primary'
-                                    }`}
-                                    value={approveForm.data.nomor_surat}
-                                    onChange={(e) => approveForm.setData('nomor_surat', e.target.value)}
-                                    required
-                                />
-                                {approveForm.errors.nomor_surat && <p className="text-error text-xs mt-1">{approveForm.errors.nomor_surat}</p>}
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => setStep('verifikasi')}
-                                className="w-full bg-surface hover:bg-surface-container border border-outline-variant text-on-surface py-3 px-4 rounded-lg font-medium transition-all shadow-sm flex items-center justify-center gap-2"
-                            >
-                                <ArrowLeft size={18} />
-                                Kembali
-                            </button>
-
-                            <button
-                                type="submit"
-                                disabled={approveForm.processing}
-                                className="w-full bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-sm flex items-center justify-center gap-2"
-                            >
-                                {approveForm.processing ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Menerbitkan...
-                                    </>
-                                ) : (
-                                    <>
-                                        <BadgeCheck size={20} />
-                                        Terbitkan Surat Resmi
-                                    </>
-                                )}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

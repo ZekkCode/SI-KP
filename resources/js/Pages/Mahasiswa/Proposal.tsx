@@ -62,8 +62,8 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             const f = e.dataTransfer.files[0];
             if (f.type === 'application/pdf') {
-                if (f.size > 5 * 1024 * 1024) {
-                    alert('Ukuran file melebihi 5MB!');
+                if (f.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file melebihi 2MB!');
                     return;
                 }
                 setData('file_proposal', f);
@@ -77,8 +77,8 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
         if (e.target.files && e.target.files.length > 0) {
             const f = e.target.files[0];
             if (f.type === 'application/pdf') {
-                if (f.size > 5 * 1024 * 1024) {
-                    alert('Ukuran file melebihi 5MB!');
+                if (f.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file melebihi 2MB!');
                     return;
                 }
                 setData('file_proposal', f);
@@ -194,7 +194,7 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
                                     >
                                         <UploadCloud className="w-12 h-12 text-primary mb-2 group-hover:scale-110 transition-transform" />
                                         <p className="text-label-md text-primary font-bold">Klik atau seret file PDF ke sini</p>
-                                        <p className="text-body-sm text-secondary">Maksimum ukuran file: 5MB</p>
+                                        <p className="text-body-sm text-secondary">Maksimum ukuran file: 2MB</p>
                                         <input type="file" accept=".pdf" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
                                     </label>
                                 ) : data.file_proposal ? (
@@ -228,6 +228,7 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
                                         <input type="file" accept=".pdf" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
                                     </div>
                                 ) : null}
+                                <p className="text-sm text-red-500 mt-1">Batas maksimal file: 2MB (PDF)</p>
                                 {errors.file_proposal && <p className="text-error text-body-sm mt-1">{errors.file_proposal}</p>}
                             </div>
                             

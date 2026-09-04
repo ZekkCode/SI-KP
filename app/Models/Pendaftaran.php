@@ -23,6 +23,7 @@ class Pendaftaran extends Model
         'catatan_tu',
         'diverifikasi_oleh',
         'diverifikasi_pada',
+        'pembimbing_lapangan_id',
     ];
 
     protected function casts(): array
@@ -76,7 +77,7 @@ class Pendaftaran extends Model
 
     public function logbooks(): HasMany
     {
-        return $this->hasMany(Logbook::class);
+        return $this->hasMany(Logbook::class, 'pendaftaran_id');
     }
 
     public function beritaAcara(): HasOne
@@ -97,5 +98,10 @@ class Pendaftaran extends Model
     public function dokumenAkhirs(): HasMany
     {
         return $this->hasMany(DokumenAkhir::class);
+    }
+
+    public function pembimbingLapangan(): BelongsTo
+    {
+        return $this->belongsTo(PembimbingLapangan::class, 'pembimbing_lapangan_id');
     }
 }

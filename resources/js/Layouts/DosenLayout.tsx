@@ -10,24 +10,23 @@ export default function DosenLayout({ children }: PropsWithChildren) {
         { href: '/dosen/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/dosen/review-proposal', label: 'Review Proposal', icon: FileText },
         { href: '/dosen/logbook', label: 'Monitoring', icon: ClipboardList },
-        { href: '/dosen/grading', label: 'Penilaian Akhir', icon: Award },
+        { href: '/dosen/penilaian', label: 'Penilaian Akhir', icon: Award },
     ];
 
     return (
         <div className="min-h-screen bg-surface font-sans text-on-surface flex flex-col md:flex-row">
             {/* Sidebar - Desktop */}
-            <aside className="hidden md:flex flex-col h-screen w-[260px] fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant py-6 z-40">
-                <div className="px-6 mb-8 flex flex-col gap-4">
-                    <div className="font-display text-xl font-bold text-primary">Simpkl Akademik</div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container overflow-hidden">
-                            <UserCircle className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <div className="text-sm font-semibold text-on-surface">{user?.name || 'Dr. Aris Sudarmaji'}</div>
-                            <div className="text-xs text-on-surface-variant">NIP. {user?.nip || '0012038401'}</div>
-                        </div>
+            <aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-white border-r border-outline-variant shadow-sm z-40">
+                <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
+                    <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
+                        {user?.avatar ? (
+                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.name?.substring(0, 2).toUpperCase() || 'DS'
+                        )}
                     </div>
+                    <h2 className="text-xl font-display font-semibold text-primary mb-1 text-center">Dosen Pembimbing</h2>
+                    <p className="text-xs font-medium text-secondary text-center">Teknik Informatika</p>
                 </div>
 
                 <nav className="flex flex-col flex-1 gap-1">
@@ -97,6 +96,10 @@ export default function DosenLayout({ children }: PropsWithChildren) {
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
                         </button>
                         <div className="w-px h-6 bg-outline-variant mx-1"></div>
+                        <Link href={route('profile.edit')} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high rounded-lg transition-colors text-sm font-medium">
+                            <UserCircle className="w-4 h-4" />
+                            <span>Profil</span>
+                        </Link>
                         <Link href="/logout" method="post" as="button" className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high rounded-lg transition-colors text-sm font-medium">
                             <span>Logout</span>
                         </Link>

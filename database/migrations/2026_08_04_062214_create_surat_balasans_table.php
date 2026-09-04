@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('surat_balasans', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('pendaftaran_id')->constrained('pendaftarans')->cascadeOnDelete();
+            $table->string('nomor_surat');
+            $table->date('tanggal_surat');
+            $table->string('path_file');
             $table->timestamps();
         });
     }

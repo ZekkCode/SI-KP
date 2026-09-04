@@ -36,6 +36,7 @@ class TUMahasiswaController extends Controller
                 'semester' => $student->semester ?? '-',
                 'ipk' => $student->ipk ?? '-',
                 'status_pendaftaran' => $latestPendaftaran?->status ?? 'Belum Mendaftar',
+                'status_akun' => $student->status_akun,
             ];
         });
 
@@ -45,5 +46,16 @@ class TUMahasiswaController extends Controller
                 'search' => $search,
             ],
         ]);
+    }
+
+    public function verifyUser($id)
+    {
+        $user = User::where('role', 'mahasiswa')->findOrFail($id);
+        
+        $user->update([
+            'status_akun' => 'aktif'
+        ]);
+
+        return back()->with('success', 'Akun mahasiswa berhasil diverifikasi dan diaktifkan.');
     }
 }

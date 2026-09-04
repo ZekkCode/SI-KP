@@ -95,16 +95,7 @@ class MahasiswaProposalController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
-            ->latest()
-            ->first();
-
-        if (!$pendaftaran) {
-            $pendaftaran = Pendaftaran::create([
-                'mahasiswa_id' => $user->id,
-                'status' => 'draft',
-            ]);
-        }
+        $pendaftaran = \App\Models\Pendaftaran::where('mahasiswa_id', \Illuminate\Support\Facades\Auth::id())->firstOrFail();
 
         DB::transaction(function () use ($pendaftaran, $validated, $user) {
             // Get existing proposal or create new
@@ -151,7 +142,7 @@ class MahasiswaProposalController extends Controller
             'user_id' => $user->id,
             'judul' => 'Proposal KP',
             'pesan' => 'Proposal berhasil dikirim.',
-            'tipe' => 'success',
+            'tipe' => 'info',
             'is_read' => false,
         ]);
 

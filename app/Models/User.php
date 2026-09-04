@@ -24,8 +24,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'google_id',
+        'google_token',
         'password',
         'role',
+        'status_akun',
         'nim',
         'nip',
         'program_studi_id',
@@ -35,7 +38,11 @@ class User extends Authenticatable
         'semester',
         'ipk',
         'foto',
+        'avatar',
         'angkatan',
+        'bidang_keahlian',
+        'must_change_password',
+        'dosen_wali_id',
     ];
 
     /**
@@ -58,6 +65,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'bidang_keahlian' => 'array',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -66,7 +75,7 @@ class User extends Authenticatable
      */
     public function dashboardRoute(): string
     {
-        return match ($this->role) {
+        return match (strtolower($this->role)) {
             'mahasiswa' => '/mahasiswa/dashboard',
             'dosen' => '/dosen/dashboard',
             'tu' => '/tu/dashboard',
@@ -89,6 +98,11 @@ class User extends Authenticatable
     public function instansi(): HasOne
     {
         return $this->hasOne(Instansi::class);
+    }
+
+    public function pembimbingLapangan(): HasOne
+    {
+        return $this->hasOne(PembimbingLapangan::class, 'user_id');
     }
 
     /**
@@ -137,5 +151,30 @@ class User extends Authenticatable
     public function notifikasis(): HasMany
     {
         return $this->hasMany(Notifikasi::class);
+    }
+    /**
+     * Relasi untuk Dosen Pembimbing
+     * Menghubungkan Dosen (User) dengan mahasiswa bimbingannya di tabel pendaftarans
+     */
+    public function dibimbing()
+    {
+        // Sesuaikan 'App\Models\Pendaftaran' jika nama/path model pendaftaran Anda berbeda
+        return $this->hasMany(\App\Models\Pendaftaran::class, 'dosen_pembimbing_id');
+    }
+
+    /**
+     * Relasi untuk Mahasiswa ke Dosen Wali-nya (DPA).
+     */
+    public function dosenWali(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dosen_wali_id');
+    }
+
+    /**
+     * Relasi untuk Dosen ke daftar Mahasiswa perwaliannya.
+     */
+    public function mahasiswaWali(): HasMany
+    {
+        return $this->hasMany(User::class, 'dosen_wali_id');
     }
 }

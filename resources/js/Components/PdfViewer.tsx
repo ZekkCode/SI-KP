@@ -3,9 +3,11 @@ import { Download, Maximize2 } from 'lucide-react';
 
 interface PdfViewerProps {
   title: string;
+  showDummyContent?: boolean;
+  abstract?: string;
 }
 
-export default function PdfViewer({ title }: PdfViewerProps) {
+export default function PdfViewer({ title, showDummyContent = false, abstract }: PdfViewerProps) {
   return (
     <div className="bg-surface-lowest rounded-xl border border-outline-variant p-6 shadow-sm h-[600px] flex flex-col">
       <div className="flex justify-between items-center mb-4">
@@ -28,6 +30,12 @@ export default function PdfViewer({ title }: PdfViewerProps) {
         <p className="font-medium">Pratinjau Dokumen PDF</p>
         <p className="text-sm">Dokumen akan ditampilkan di sini pada mode produksi.</p>
       </div>
+      {abstract && (
+        <div className="mt-4 p-4 bg-surface-low rounded-lg border border-outline-variant">
+          <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Abstrak</p>
+          <p className="text-sm text-on-surface leading-relaxed">{abstract}</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ export interface User {
     role: UserRole;
     nim?: string;
     nip?: string;
+    created_at?: string;
 }
 
 export type PageProps<

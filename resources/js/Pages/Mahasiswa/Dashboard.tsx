@@ -25,6 +25,9 @@ interface DashboardProps extends Record<string, unknown> {
     logbookCount: number;
     logbookTarget: number;
     hasPendaftaran: boolean;
+    dosenPembimbing?: string;
+    instansi?: string;
+    pembimbingLapangan?: string;
 }
 
 function getNotifIcon(tipe: string) {
@@ -44,7 +47,7 @@ function getNotifIcon(tipe: string) {
 
 import { PageProps } from '@/types';
 
-export default function Dashboard({ userName, userProdi, userAngkatan, userKonsentrasi, statusInfo, currentStep, notifications, logbookCount, logbookTarget, hasPendaftaran }: PageProps<DashboardProps>) {
+export default function Dashboard({ userName, userProdi, userAngkatan, userKonsentrasi, statusInfo, currentStep, notifications, logbookCount, logbookTarget, hasPendaftaran, dosenPembimbing, instansi, pembimbingLapangan }: PageProps<DashboardProps>) {
 
     return (
         <div className="p-6 max-w-[1280px] mx-auto w-full flex-1 space-y-8">
@@ -62,13 +65,13 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                             Sistem Informasi Kerja Praktik (SI-KP) membantu Anda mengelola tahapan pelaksanaan KP mulai dari pendaftaran, proposal, hingga penilaian akhir secara terstruktur.
                         </p>
                         <div className="flex flex-wrap gap-3 pt-2">
-                            <button className="bg-primary text-white px-4 py-2.5 rounded-lg text-label-md hover:shadow-md transition-all flex items-center space-x-2">
+                            <a href="/dokumen/buku_panduan_kp.pdf" download className="bg-primary text-white px-4 py-2.5 rounded-lg text-label-md hover:shadow-md transition-all flex items-center space-x-2">
                                 <BookOpen className="w-4 h-4" />
                                 <span>Unduh Buku Panduan</span>
-                            </button>
-                            <button className="border border-primary text-primary px-4 py-2.5 rounded-lg text-label-md hover:bg-primary-container/10 transition-all">
+                            </a>
+                            <a href="mailto:emailprodi@utm.ac.id" className="border border-primary text-primary px-4 py-2.5 rounded-lg text-label-md hover:bg-primary-container/10 transition-all flex items-center">
                                 Hubungi Koordinator
-                            </button>
+                            </a>
                         </div>
                     </div>
                     <div className="w-full md:w-48 h-32 md:h-40 rounded-xl overflow-hidden shadow-sm relative flex-shrink-0">
@@ -89,59 +92,16 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                         <p className="text-body-sm mt-1 opacity-90">{statusInfo.description}</p>
                     </div>
                     <div className="mt-6 z-10">
-                        <button className="bg-white text-primary px-6 py-2 rounded-full font-bold text-label-md hover:bg-opacity-90 transition-all flex items-center space-x-2 w-max">
+                        <Link href="/mahasiswa/status-pengajuan" className="bg-white text-primary px-6 py-2 rounded-full font-bold text-label-md hover:bg-opacity-90 transition-all flex items-center space-x-2 w-max">
                             <span>Detail Status</span>
                             <ArrowRight className="w-5 h-5" />
-                        </button>
+                        </Link>
                     </div>
                     <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
             </div>
 
-            {/* Infografis Tahapan KP */}
-            <div className="bg-white border border-outline-variant rounded-xl p-6 shadow-sm space-y-6">
-                <div className="flex items-center space-x-2">
-                    <span className="w-2 h-6 bg-primary rounded-full"></span>
-                    <h3 className="text-title-lg font-bold text-on-surface">Infografis Tahapan KP</h3>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-6">
-                    <div className="flex flex-col items-center text-center group">
-                        <div className="w-12 h-12 rounded-full bg-primary-container text-white flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                            <Edit3 className="w-6 h-6" />
-                        </div>
-                        <h4 className="text-label-sm text-primary font-bold">Tahap 1</h4>
-                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Pengajuan & Persetujuan Judul</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center group">
-                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                            <Mail className="w-6 h-6" />
-                        </div>
-                        <h4 className="text-label-sm text-primary font-bold">Tahap 2</h4>
-                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Penerbitan Surat Pengantar</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center group">
-                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                            <Briefcase className="w-6 h-6" />
-                        </div>
-                        <h4 className="text-label-sm text-primary font-bold">Tahap 3</h4>
-                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Pelaksanaan di Instansi</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center group">
-                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                            <FileText className="w-6 h-6" />
-                        </div>
-                        <h4 className="text-label-sm text-primary font-bold">Tahap 4</h4>
-                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Penyusunan Laporan Akhir</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center group">
-                        <div className="w-12 h-12 rounded-full bg-white border border-primary text-primary flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                            <Verified className="w-6 h-6" />
-                        </div>
-                        <h4 className="text-label-sm text-primary font-bold">Tahap 5</h4>
-                        <p className="text-body-xs text-secondary mt-1 px-2 font-medium">Sidang & Penilaian Akhir</p>
-                    </div>
-                </div>
-            </div>
+
 
             {/* SOP & Persyaratan Dokumen */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -227,6 +187,21 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
             {/* Quick Links & Notifications */}
             <div className="grid grid-cols-12 gap-6">
                 {/* Notifications Panel */}
+                {/* Info Pembimbing & Instansi */}
+                {hasPendaftaran && (
+                    <div className="col-span-12 bg-white border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col md:flex-row gap-6">
+                        <div className="flex-1 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                            <h4 className="text-label-md font-bold text-primary mb-1 uppercase tracking-wider">Dosen Pembimbing</h4>
+                            <p className="text-title-md font-bold text-on-surface">{dosenPembimbing || 'Belum Ditentukan'}</p>
+                        </div>
+                        <div className="flex-1 p-4 bg-secondary-container/20 border border-secondary-container/50 rounded-lg">
+                            <h4 className="text-label-md font-bold text-secondary mb-1 uppercase tracking-wider">Instansi KP</h4>
+                            <p className="text-title-md font-bold text-on-surface">{instansi || 'Belum Ditentukan'}</p>
+                            <p className="text-body-sm text-secondary mt-1">{pembimbingLapangan ? `Pembimbing: ${pembimbingLapangan}` : 'Pembimbing Lapangan: Belum Ditentukan'}</p>
+                        </div>
+                    </div>
+                )}
+
                 <div className="col-span-12 lg:col-span-7 bg-white border border-outline-variant rounded-xl shadow-sm flex flex-col overflow-hidden">
                     <div className="p-6 border-b border-outline-variant flex justify-between items-center">
                         <h3 className="text-title-lg font-bold">Notifikasi Terbaru</h3>
@@ -269,7 +244,8 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                             <p className="text-body-sm text-secondary mb-4">Unduh dokumen panduan resmi untuk kelancaran pelaksanaan Kerja Praktik Anda.</p>
                             <div className="space-y-3">
                                 <a
-                                    href="#"
+                                    href="/dokumen/buku_panduan_kp.pdf"
+                                    download
                                     className="flex items-center justify-between p-3 bg-white border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all group"
                                 >
                                     <div className="flex items-center space-x-3">
@@ -285,7 +261,8 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                                 </a>
 
                                 <a
-                                    href="#"
+                                    href="/dokumen/template_proposal.docx"
+                                    download
                                     className="flex items-center justify-between p-3 bg-white border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all group"
                                 >
                                     <div className="flex items-center space-x-3">
@@ -301,7 +278,8 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                                 </a>
 
                                 <a
-                                    href="#"
+                                    href="/dokumen/template_berita_acara.docx"
+                                    download
                                     className="flex items-center justify-between p-3 bg-white border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all group"
                                 >
                                     <div className="flex items-center space-x-3">
@@ -309,7 +287,7 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                                             <FileText className="w-5 h-5 text-primary" />
                                         </div>
                                         <div className="text-left">
-                                            <p className="text-label-md font-bold text-on-surface">Template Laporan Akhir</p>
+                                            <p className="text-label-md font-bold text-on-surface">Template Berita Acara</p>
                                             <p className="text-body-xs text-secondary">DOCX • 1.5 MB</p>
                                         </div>
                                     </div>

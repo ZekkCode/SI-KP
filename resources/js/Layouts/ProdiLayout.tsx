@@ -1,119 +1,173 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
-    LayoutDashboard, Users, ListOrdered, UserPlus, ClipboardCheck,
+    LayoutDashboard, Users, ListOrdered, ClipboardCheck,
     BarChart3, Settings, LogOut, Menu, Bell, HelpCircle, Search, Plus, CalendarDays,
-    FileText
+    FileText, UserCircle, BellRing, Building2
 } from 'lucide-react';
 
 export default function ProdiLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
     const user = (props as any).auth?.user;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const notifications = (props as any).auth?.notifications || [];
+    const unreadCount = notifications.filter((n: any) => !n.is_read).length;
 
-    const menuItems = [
-        { href: '/prodi/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/prodi/periode', label: 'Pendaftaran & Surat', icon: FileText },
-        { href: '/prodi/verification', label: 'Verifikasi Mahasiswa', icon: ClipboardCheck },
-        { href: '/prodi/plotting', label: 'Pembagian Dosbing', icon: UserPlus },
-        { href: '/prodi/lecturers', label: 'Daftar Dosen Pembimbing', icon: ListOrdered },
-        { href: '/prodi/mahasiswa', label: 'Mahasiswa', icon: Users },
-        { href: '/prodi/reports', label: 'Berita Acara', icon: ClipboardCheck },
+    const navItems = [
+        { href: route('prodi.dashboard'), label: 'Dashboard', icon: LayoutDashboard },
+        { href: route('prodi.periode'), label: 'Pendaftaran & Surat', icon: FileText },
+        { href: route('prodi.dosen.index'), label: 'Daftar Dosen Pembimbing', icon: ListOrdered },
+        { href: route().has('prodi.instansi.index') ? route('prodi.instansi.index') : '#', label: 'Instansi & Pembimbing Lapangan', icon: Building2 },
+        { href: route('prodi.berita-acara.index'), label: 'Berita Acara', icon: ClipboardCheck },
     ];
 
     return (
-        <div className="flex h-screen bg-surface overflow-hidden">
-            {/* Mobile Overlay */}
+        <div className="flex bg-background min-h-screen font-sans">
+            {/* Mobile overlay */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-30 md:hidden"
+                    className="fixed inset-0 bg-on-surface/20 z-40 md:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed md:sticky top-0 left-0 h-screen w-[260px] bg-surface-container-lowest border-r border-outline-variant z-40 flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-                <div className="p-4 flex items-center gap-3 bg-[#0091d5] text-white select-none">
-                    <div className="shrink-0 bg-white rounded-full p-1 shadow-sm">
-                        <img src="/images/Logo UTM terbaru_berwarna (1).png" alt="Logo UTM" className="w-9 h-9 object-contain" />
+            <aside className={`fixed left-0 top-0 h-screen w-64 bg-white border-r border-outline-variant z-50 flex flex-col shadow-sm transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
+                    <button className="absolute top-4 right-4 md:hidden text-secondary" onClick={() => setIsSidebarOpen(false)}>✕</button>
+                    <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
+                        {user?.avatar ? (
+                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.name?.substring(0, 2).toUpperCase() || 'KP'
+                        )}
                     </div>
-                    <div>
-                        <h1 className="text-label-lg font-bold tracking-wider leading-tight">TEKNIK INFORMATIKA</h1>
-                    </div>
+                    <h2 className="text-xl font-display font-semibold text-primary mb-1 text-center">Koordinator Prodi</h2>
+                    <p className="text-xs font-medium text-secondary text-center">Teknik Informatika</p>
                 </div>
 
-
-                <nav className="flex-1 px-4 mt-6 space-y-1 overflow-y-auto">
-                    {menuItems.map((item) => {
-                        const isActive = url.startsWith(item.href);
+                <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
+                    {navItems.map((item) => {
+                        const itemUrl = item.href !== '#' ? new URL(item.href, window.location.origin).pathname : '#';
+                        const isActive = item.href !== '#' && url.startsWith(itemUrl);
                         const Icon = item.icon;
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setIsSidebarOpen(false)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer border-l-4 ${
+                                className={`w-full flex items-center space-x-4 px-3 py-3 rounded-lg transition-all duration-200 ${
                                     isActive
-                                        ? 'border-primary bg-primary-container text-on-primary-container font-semibold'
-                                        : 'text-secondary hover:bg-surface-container-high hover:pl-5 border-transparent'
+                                        ? 'text-primary font-bold border-l-4 border-primary bg-primary-container/10'
+                                        : 'text-secondary hover:bg-secondary-container/20 hover:text-primary'
                                 }`}
                             >
-                                <Icon size={20} className={isActive ? 'text-primary' : 'text-secondary'} />
-                                <span className="font-body-md text-body-md">{item.label}</span>
+                                <Icon className="w-5 h-5" />
+                                <span className="text-label-md">{item.label}</span>
                             </Link>
                         );
                     })}
-                </nav>
-
-                <div className="px-4 mt-auto py-4 border-t border-outline-variant space-y-1">
-                    <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-secondary hover:bg-surface-container-high hover:pl-5 transition-all duration-200 cursor-pointer border-l-4 border-transparent">
-                        <Settings size={20} />
-                        <span className="font-body-md text-body-md">Pengaturan</span>
-                    </button>
                     <Link
                         href="/logout"
                         method="post"
                         as="button"
-                        className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-error hover:bg-error-container hover:text-on-error-container hover:pl-5 transition-all duration-200 cursor-pointer border-l-4 border-transparent"
+                        className="w-full flex items-center space-x-4 px-3 py-3 rounded-lg transition-all duration-200 text-secondary hover:bg-red-50 hover:text-red-600 text-left outline-none"
                     >
-                        <LogOut size={20} />
-                        <span className="font-body-md text-body-md">Keluar</span>
+                        <LogOut className="w-5 h-5" />
+                        <span className="text-label-md">Keluar</span>
                     </Link>
-                </div>
+                </nav>
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                {/* TopNav */}
-                <nav className="bg-surface-container-lowest flex justify-between items-center px-4 md:px-6 h-16 w-full sticky top-0 z-30 border-b border-outline-variant shadow-sm">
+            <div className="flex-1 flex flex-col md:ml-64 min-h-screen relative w-full overflow-hidden">
+                {/* Top App Bar */}
+                <header className="sticky top-0 z-40 flex justify-between items-center w-full px-6 py-4 bg-surface border-b border-outline-variant">
                     <div className="flex items-center gap-4">
-                        <button className="md:hidden text-on-surface-variant p-2" onClick={() => setIsSidebarOpen(true)}>
-                            <Menu size={24} />
+                        <button className="md:hidden text-primary hover:bg-surface-container p-2 rounded-full" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+                            <Menu className="w-5 h-5" />
                         </button>
-                        <div className="font-headline-md text-headline-md text-primary tracking-tight hidden sm:block">
-                            UTM Internship Hub
-                        </div>
+                        <h2 className="text-title-lg font-bold text-primary">Kerja Praktik Teknik Informatika</h2>
                     </div>
-
-                    <div className="flex items-center gap-4 md:gap-6">
-                        <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-surface-container rounded-full text-on-surface-variant focus-within:ring-2 focus-within:ring-primary/20">
-                            <Search size={18} />
-                            <input type="text" placeholder="Cari..." className="bg-transparent border-none focus:outline-none text-body-md font-body-md w-48" />
-                        </div>
-
-                        <div className="flex items-center gap-2 md:gap-4">
-                            <button className="text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95 duration-150">
-                                <Bell size={20} />
+                    <div className="flex items-center space-x-4">
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                                className="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant relative"
+                            >
+                                <Bell className="w-5 h-5" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-error rounded-full">
+                                        {unreadCount}
+                                    </span>
+                                )}
                             </button>
-                            <button className="hidden sm:block text-on-surface-variant hover:bg-surface-container-highest transition-colors p-2 rounded-full active:scale-95 duration-150">
-                                <HelpCircle size={20} />
-                            </button>
+                            {isNotifOpen && (
+                                <div className="absolute right-0 mt-2 w-80 bg-white border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="p-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                                        <h3 className="text-title-md font-bold text-on-surface">Notifikasi</h3>
+                                        <span className="text-label-sm text-primary cursor-pointer hover:underline">Tandai semua dibaca</span>
+                                    </div>
+                                    <div className="max-h-96 overflow-y-auto">
+                                        {notifications.length > 0 ? (
+                                            notifications.map((notif: any) => (
+                                                <div key={notif.id} className={`p-4 border-b border-outline-variant hover:bg-surface-container-lowest transition-colors cursor-pointer ${!notif.is_read ? 'bg-primary/5' : ''}`}>
+                                                    <div className="flex gap-3">
+                                                        <div className={`p-2 rounded-full flex-shrink-0 ${notif.tipe === 'info' ? 'bg-blue-100 text-blue-600' : notif.tipe === 'warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
+                                                            <BellRing className="w-4 h-4" />
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="text-label-md font-bold text-on-surface mb-1">{notif.judul}</h4>
+                                                            <p className="text-body-sm text-secondary line-clamp-2">{notif.pesan}</p>
+                                                            <span className="text-[10px] text-outline mt-1 block">{new Date(notif.created_at).toLocaleDateString()}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-6 text-center text-secondary">
+                                                <p className="text-body-md">Tidak ada notifikasi baru.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-2 border-t border-outline-variant text-center bg-surface-container-lowest">
+                                        <Link href="#" className="text-label-sm text-primary hover:underline">Lihat semua notifikasi</Link>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+                        <Link
+                            href={route('profile.edit')}
+                            className="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+                            title="Profil Saya"
+                        >
+                            <UserCircle className="w-5 h-5" />
+                        </Link>
+                        <Link
+                            href="/logout"
+                            method="post"
+                            as="button"
+                            className="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+                        >
+                            <LogOut className="w-5 h-5" />
+                            <span className="text-label-md hidden sm:inline">Keluar</span>
+                        </Link>
                     </div>
-                </nav>
+                </header>
 
-                <main className="flex-1 overflow-y-auto">
+                <main className="flex-1 flex flex-col w-full h-full overflow-y-auto overflow-x-hidden relative">
                     {children}
+                    {/* Footer */}
+                    <footer className="w-full py-4 px-6 flex flex-col md:flex-row justify-between items-center mt-auto border-t border-outline-variant bg-surface-container-low">
+                        <span className="text-body-sm text-secondary mb-2 md:mb-0">
+                            © 2024 University Academic Internship System. All rights reserved.
+                        </span>
+                        <div className="flex space-x-6">
+                            <a href="#" className="text-label-sm text-secondary hover:text-primary underline opacity-80 hover:opacity-100 transition-all">Support Center</a>
+                            <a href="#" className="text-label-sm text-secondary hover:text-primary underline opacity-80 hover:opacity-100 transition-all">Contact Info</a>
+                        </div>
+                    </footer>
                 </main>
             </div>
         </div>

@@ -42,7 +42,7 @@ export default function Registration() {
           <div className="w-full md:w-7/12 p-8 md:p-12 bg-surface-container-lowest">
             <form 
               className="space-y-6" 
-              onSubmit={(e) => { e.preventDefault(); onComplete(); }}
+              onSubmit={(e) => e.preventDefault()}
             >
               <div className="space-y-4">
                 <h2 className="text-headline-sm text-on-surface border-b border-outline-variant pb-2 mb-4">Personal Details</h2>

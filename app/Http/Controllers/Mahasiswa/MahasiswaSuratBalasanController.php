@@ -18,22 +18,50 @@ class MahasiswaSuratBalasanController extends Controller
             'mahasiswa_id',
             $request->user()->id
         )
-        ->with('suratBalasan')
+        ->with(['suratBalasan', 'instansi'])
         ->latest()
         ->first();
 
-        return Inertia::render('Mahasiswa/SuratBalasan', [
+        return Inertia::render('Mahasiswa/SuratBalasan/Index', [
             'pendaftaran' => $pendaftaran ? [
                 'id' => $pendaftaran->id,
                 'status' => $pendaftaran->status,
-                'catatan_tu' => $$pendaftaran->catatan_tu,
+                'catatan_tu' => $pendaftaran->catatan_tu,
+                'instansi' => $pendaftaran->instansi ? [
+                    'nama' => $pendaftaran->instansi->nama,
+                    'alamat' => $pendaftaran->instansi->alamat ?? null,
+                ] : null,
                 'surat_balasan' => $pendaftaran->suratBalasan ? [
                     'nomor_surat' => $pendaftaran->suratBalasan->nomor_surat,
                     'tanggal_surat' => $pendaftaran->suratBalasan->tanggal_surat?->format('Y-m-d'),
                     'path_file' => $pendaftaran->suratBalasan->path_file,
+                ] : null,
             ] : null,
-        ] : null,
-    ]);
+        ]);
+    }
+
+    public function show(Request $request): Response
+    {
+        $pendaftaran = Pendaftaran::where(
+            'mahasiswa_id',
+            $request->user()->id
+        )
+        ->with(['suratBalasan', 'instansi'])
+        ->latest()
+        ->first();
+
+        return Inertia::render('Mahasiswa/SuratBalasan/Show', [
+            'pendaftaran' => $pendaftaran ? [
+                'id' => $pendaftaran->id,
+                'status' => $pendaftaran->status,
+                'tanggal_mulai' => $pendaftaran->tanggal_mulai?->format('Y-m-d'),
+                'tanggal_selesai' => $pendaftaran->tanggal_selesai?->format('Y-m-d'),
+                'instansi' => $pendaftaran->instansi ? [
+                    'nama' => $pendaftaran->instansi->nama,
+                    'alamat' => $pendaftaran->instansi->alamat ?? null,
+                ] : null,
+            ] : null,
+        ]);
     }
 
     public function store(Request $request)
