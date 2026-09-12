@@ -80,6 +80,27 @@ class RegisteredUserController extends Controller
     }
 
     /**
+     * Cancel a pending registration application so the student can re-register.
+     */
+    public function cancelApplication(Request $request): JsonResponse
+    {
+        $request->validate([
+            'nim' => ['required', 'string'],
+        ]);
+
+        $nim = trim($request->nim);
+
+        PermohonanAkun::where('nim', $nim)
+            ->where('status', 'menunggu_verifikasi')
+            ->delete();
+
+        return response()->json([
+            'status' => 'cancelled',
+            'message' => 'Permohonan berhasil dibatalkan. Anda dapat memeriksa NIM dan mengajukan ulang pendaftaran.',
+        ]);
+    }
+
+    /**
      * Handle an incoming account application request.
      *
      * @throws ValidationException

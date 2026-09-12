@@ -20,6 +20,9 @@ Route::middleware('guest')->group(function () {
     Route::post('register/check-nim', [RegisteredUserController::class, 'checkNim'])
         ->name('register.check-nim');
 
+    Route::post('register/cancel', [RegisteredUserController::class, 'cancelApplication'])
+        ->name('register.cancel');
+
     Route::post('register', [RegisteredUserController::class, 'store']);
 
     Route::get('register/pembimbing-lapangan', [PembimbingLapanganAuthController::class, 'create'])

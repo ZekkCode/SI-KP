@@ -4,6 +4,7 @@ namespace App\Http\Controllers\TU;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasterMahasiswa;
+use App\Models\PermohonanAkun;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class TUMasterMahasiswaController extends Controller
     {
         $search = $request->query('search', '');
         $angkatanFilter = $request->query('angkatan', 'all');
+        $sumberDataFilter = $request->query('sumber_data', 'all');
 
         $query = MasterMahasiswa::with('dosenWali:id,name,nip');
 
@@ -39,10 +41,16 @@ class TUMasterMahasiswaController extends Controller
             $query->where('angkatan', $angkatanFilter);
         }
 
+        if ($sumberDataFilter && $sumberDataFilter !== 'all') {
+            $query->where('sumber_data', $sumberDataFilter);
+        }
+
         $masterMahasiswas = $query->orderBy('angkatan', 'desc')->orderBy('nim', 'asc')->paginate(15)->withQueryString();
 
-        // Get registered NIMs to highlight students who already have an account
+        // Get registered and pending NIMs to display real-time student account status
         $registeredNims = User::whereNotNull('nim')->pluck('nim')->toArray();
+        $pendingNims    = PermohonanAkun::where('status', 'menunggu_verifikasi')->pluck('nim')->toArray();
+        $rejectedNims   = PermohonanAkun::where('status', 'ditolak')->pluck('nim')->toArray();
 
         $angkatanList = MasterMahasiswa::select('angkatan')
             ->distinct()
@@ -51,21 +59,72 @@ class TUMasterMahasiswaController extends Controller
             ->toArray();
 
         $stats = [
-            'total' => MasterMahasiswa::count(),
-            'registered' => MasterMahasiswa::whereIn('nim', $registeredNims)->count(),
+            'total'          => MasterMahasiswa::count(),
+            'registered'     => MasterMahasiswa::whereIn('nim', $registeredNims)->count(),
+            'pending'        => MasterMahasiswa::whereIn('nim', $pendingNims)->count(),
             'angkatan_count' => count($angkatanList),
+            'from_manual'    => MasterMahasiswa::where('sumber_data', 'manual')->count(),
+            'from_import'    => MasterMahasiswa::where('sumber_data', 'import_excel')->count(),
         ];
 
         return Inertia::render('TU/MasterMahasiswa/Index', [
             'masterMahasiswas' => $masterMahasiswas,
-            'registeredNims' => $registeredNims,
-            'angkatanList' => $angkatanList,
-            'stats' => $stats,
-            'filters' => [
-                'search' => $search,
-                'angkatan' => $angkatanFilter,
+            'registeredNims'   => $registeredNims,
+            'pendingNims'      => $pendingNims,
+            'rejectedNims'     => $rejectedNims,
+            'angkatanList'     => $angkatanList,
+            'stats'            => $stats,
+            'filters'          => [
+                'search'       => $search,
+                'angkatan'     => $angkatanFilter,
+                'sumber_data'  => $sumberDataFilter,
             ],
         ]);
+    }
+
+    /**
+     * Store a new master student record manually.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'nim'           => ['required', 'string', 'unique:master_mahasiswas,nim'],
+            'nama'          => ['required', 'string', 'max:255'],
+            'email'         => ['required', 'email', 'unique:master_mahasiswas,email'],
+            'program_studi' => ['nullable', 'string', 'max:255'],
+            'angkatan'      => ['required', 'string', 'max:10'],
+            'nip_dosen_wali'=> ['nullable', 'string', 'max:50'],
+        ], [
+            'nim.required'   => 'NIM wajib diisi.',
+            'nim.unique'     => 'NIM sudah terdaftar di data master.',
+            'nama.required'  => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email'    => 'Format email tidak valid.',
+            'email.unique'   => 'Email sudah terdaftar di data master.',
+            'angkatan.required' => 'Angkatan wajib diisi.',
+        ]);
+
+        $cleanNipWali = $request->nip_dosen_wali ? trim($request->nip_dosen_wali) : null;
+
+        $mhs = MasterMahasiswa::create([
+            'nim'            => trim($request->nim),
+            'nama'           => trim($request->nama),
+            'email'          => trim($request->email),
+            'program_studi'  => $request->program_studi ? trim($request->program_studi) : 'Teknik Informatika',
+            'angkatan'       => trim($request->angkatan),
+            'nip_dosen_wali' => $cleanNipWali,
+            'sumber_data'    => 'manual',
+        ]);
+
+        // Auto-link dosen wali jika sudah terdaftar di sistem
+        if ($cleanNipWali) {
+            $dosenUser = User::where('nip', $cleanNipWali)->where('role', 'dosen')->first();
+            if ($dosenUser) {
+                User::where('nim', $mhs->nim)->update(['dosen_wali_id' => $dosenUser->id]);
+            }
+        }
+
+        return back()->with('success', "Data master mahasiswa {$mhs->nama} ({$mhs->nim}) berhasil ditambahkan.");
     }
 
     /**
@@ -202,15 +261,24 @@ class TUMasterMahasiswaController extends Controller
                                 'angkatan' => $angkatan,
                                 'nip_dosen_wali' => $cleanNipWali,
                             ]);
+                            // Sinkronkan data permohonan akun yang menunggu verifikasi jika ada
+                            PermohonanAkun::where('nim', $nim)->where('status', 'menunggu_verifikasi')->update([
+                                'nama'           => $nama,
+                                'email'          => $email,
+                                'program_studi'  => $prodi,
+                                'angkatan'       => $angkatan,
+                                'nip_dosen_wali' => $cleanNipWali,
+                            ]);
                             $updated++;
                         } else {
                             MasterMahasiswa::create([
-                                'nim' => $nim,
-                                'nama' => $nama,
-                                'email' => $email,
-                                'program_studi' => $prodi,
-                                'angkatan' => $angkatan,
+                                'nim'            => $nim,
+                                'nama'           => $nama,
+                                'email'          => $email,
+                                'program_studi'  => $prodi,
+                                'angkatan'       => $angkatan,
                                 'nip_dosen_wali' => $cleanNipWali,
+                                'sumber_data'    => 'import_excel',
                             ]);
                             $imported++;
                         }
@@ -326,15 +394,24 @@ class TUMasterMahasiswaController extends Controller
                             'angkatan' => $angkatan,
                             'nip_dosen_wali' => $cleanNipWali,
                         ]);
+                        // Sinkronkan data permohonan akun yang menunggu verifikasi jika ada
+                        PermohonanAkun::where('nim', $nim)->where('status', 'menunggu_verifikasi')->update([
+                            'nama'           => $nama,
+                            'email'          => $email,
+                            'program_studi'  => $prodi,
+                            'angkatan'       => $angkatan,
+                            'nip_dosen_wali' => $cleanNipWali,
+                        ]);
                         $updated++;
                     } else {
                         MasterMahasiswa::create([
-                            'nim' => $nim,
-                            'nama' => $nama,
-                            'email' => $email,
-                            'program_studi' => $prodi,
-                            'angkatan' => $angkatan,
+                            'nim'            => $nim,
+                            'nama'           => $nama,
+                            'email'          => $email,
+                            'program_studi'  => $prodi,
+                            'angkatan'       => $angkatan,
                             'nip_dosen_wali' => $cleanNipWali,
+                            'sumber_data'    => 'import_excel',
                         ]);
                         $imported++;
                     }
@@ -425,24 +502,65 @@ class TUMasterMahasiswaController extends Controller
     }
 
     /**
-     * Delete a single master student record.
+     * Delete a single master student record along with their account and all related KP data.
      */
     public function destroy(MasterMahasiswa $masterMahasiswa): RedirectResponse
     {
-        $nim = $masterMahasiswa->nim;
+        $nim  = $masterMahasiswa->nim;
         $nama = $masterMahasiswa->nama;
-        $masterMahasiswa->delete();
 
-        return back()->with('success', "Data master mahasiswa {$nama} ({$nim}) telah dihapus.");
+        DB::beginTransaction();
+        try {
+            // 1. Hapus permohonan akun berdasarkan NIM
+            \App\Models\PermohonanAkun::where('nim', $nim)->delete();
+
+            // 2. Hapus akun User mahasiswa (cascade ke pendaftaran, logbook, proposal, dll)
+            User::where('nim', $nim)->where('role', 'mahasiswa')->each(function ($user) {
+                $user->delete();
+            });
+
+            // 3. Hapus data master
+            $masterMahasiswa->delete();
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('error', "Gagal menghapus data: " . $e->getMessage());
+        }
+
+        return back()->with('success', "Data mahasiswa {$nama} ({$nim}) beserta akun dan seluruh data KP-nya telah dihapus.");
     }
 
     /**
-     * Truncate/clear all master data.
+     * Truncate/clear all master data along with all related accounts and KP data.
      */
     public function truncate(): RedirectResponse
     {
-        MasterMahasiswa::truncate();
+        DB::beginTransaction();
+        try {
+            // Ambil semua NIM yang ada di master
+            $nims = MasterMahasiswa::pluck('nim')->toArray();
 
-        return back()->with('success', "Seluruh Data Master Mahasiswa berhasil dikosongkan.");
+            if (!empty($nims)) {
+                // 1. Hapus semua permohonan akun yang NIM-nya ada di master
+                \App\Models\PermohonanAkun::whereIn('nim', $nims)->delete();
+
+                // 2. Hapus semua akun User mahasiswa yang NIM-nya ada di master
+                //    (cascade ke pendaftaran, logbook, proposal, dll)
+                User::whereIn('nim', $nims)->where('role', 'mahasiswa')->each(function ($user) {
+                    $user->delete();
+                });
+            }
+
+            // 3. Kosongkan tabel master
+            MasterMahasiswa::truncate();
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('error', "Gagal mengosongkan data: " . $e->getMessage());
+        }
+
+        return back()->with('success', "Seluruh Data Master Mahasiswa beserta akun dan data KP terkait berhasil dikosongkan.");
     }
 }

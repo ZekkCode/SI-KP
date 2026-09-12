@@ -107,16 +107,12 @@ class TUPersetujuanAkunController extends Controller
             'dosen_wali_id' => $dosenWali?->id,
         ]);
 
-        // Update status permohonan menjadi disetujui
-        $permohonan->update([
-            'status' => 'disetujui',
-            'diverifikasi_oleh' => Auth::id(),
-            'diverifikasi_pada' => now(),
-        ]);
-
         Log::info("KREDENSIAL MAHASISWA DIBUAT - NIM: {$permohonan->nim} | Email: {$permohonan->email} | Password Sementara: {$tempPassword}");
 
         // Kirim email kredensial ke email resmi mahasiswa
+        $emailStatus = 'terkirim';
+        $emailError = null;
+
         try {
             Mail::to($permohonan->email)->send(new AkunMahasiswaDisetujuiMail(
                 nama: $permohonan->nama,
@@ -125,10 +121,77 @@ class TUPersetujuanAkunController extends Controller
             ));
             Log::info("Email aktivasi berhasil dikirim ke {$permohonan->email}");
         } catch (\Throwable $e) {
+            $emailStatus = 'gagal';
+            $emailError = $e->getMessage();
             Log::error("Gagal mengirim email kredensial mahasiswa: {$e->getMessage()}");
         }
 
-        return back()->with('success', "Permohonan akun {$permohonan->nama} ({$permohonan->nim}) berhasil disetujui! Password sementara: {$tempPassword} (Kredensial dikirimkan ke {$permohonan->email})");
+        // Update status permohonan menjadi disetujui beserta kredensial sementara dan status email
+        $permohonan->update([
+            'status'             => 'disetujui',
+            'password_sementara' => $tempPassword,
+            'status_email'       => $emailStatus,
+            'error_email'        => $emailError,
+            'diverifikasi_oleh'  => Auth::id(),
+            'diverifikasi_pada'  => now(),
+        ]);
+
+        if ($emailStatus === 'gagal') {
+            return back()->with('warning', "Akun {$permohonan->nama} ({$permohonan->nim}) BERHASIL dibuat, TETAPI email GAGAL terkirim ke {$permohonan->email} karena kendala teknis ({$emailError}). Password sementara tersimpan di sistem: {$tempPassword}. Silakan berikan langsung kepada mahasiswa atau klik 'Kirim Ulang Email'.");
+        }
+
+        return back()->with('success', "Permohonan akun {$permohonan->nama} ({$permohonan->nim}) berhasil disetujui! Email kredensial berhasil dikirimkan ke {$permohonan->email}. Password sementara tersimpan di TU: {$tempPassword}");
+    }
+
+    /**
+     * Resend student account credentials email.
+     */
+    public function resendEmail(PermohonanAkun $permohonan): RedirectResponse
+    {
+        if ($permohonan->status !== 'disetujui') {
+            return back()->with('error', 'Hanya permohonan yang sudah disetujui yang dapat dikirimi ulang email.');
+        }
+
+        $user = User::where('nim', $permohonan->nim)->first();
+        if (! $user) {
+            return back()->with('error', "User dengan NIM {$permohonan->nim} tidak ditemukan di sistem.");
+        }
+
+        // Generate password baru jika belum diubah, atau perbarui
+        $tempPassword = Str::random(8);
+
+        $user->update([
+            'password' => Hash::make($tempPassword),
+            'must_change_password' => true,
+        ]);
+
+        $emailStatus = 'terkirim';
+        $emailError = null;
+
+        try {
+            Mail::to($permohonan->email)->send(new AkunMahasiswaDisetujuiMail(
+                nama: $permohonan->nama,
+                nim: $permohonan->nim,
+                tempPassword: $tempPassword
+            ));
+            Log::info("Email kredensial berhasil dikirim ulang ke {$permohonan->email}");
+        } catch (\Throwable $e) {
+            $emailStatus = 'gagal';
+            $emailError = $e->getMessage();
+            Log::error("Gagal mengirim ulang email kredensial ke {$permohonan->email}: {$e->getMessage()}");
+        }
+
+        $permohonan->update([
+            'password_sementara' => $tempPassword,
+            'status_email'       => $emailStatus,
+            'error_email'        => $emailError,
+        ]);
+
+        if ($emailStatus === 'gagal') {
+            return back()->with('warning', "Password sementara diperbarui menjadi '{$tempPassword}', TETAPI email GAGAL terkirim ke {$permohonan->email} karena kendala teknis ({$emailError}). Password telah disimpan di TU agar dapat diberikan langsung ke mahasiswa.");
+        }
+
+        return back()->with('success', "Email kredensial berhasil dikirim ulang ke {$permohonan->email}! Password sementara baru: {$tempPassword}");
     }
 
     /**
@@ -152,5 +215,17 @@ class TUPersetujuanAkunController extends Controller
         ]);
 
         return back()->with('success', "Permohonan akun {$permohonan->nama} ({$permohonan->nim}) telah ditolak.");
+    }
+
+    /**
+     * Delete a permohonan akun record.
+     */
+    public function destroy(PermohonanAkun $permohonan): RedirectResponse
+    {
+        $nama = $permohonan->nama;
+        $nim = $permohonan->nim;
+        $permohonan->delete();
+
+        return back()->with('success', "Permohonan akun {$nama} ({$nim}) berhasil dihapus.");
     }
 }

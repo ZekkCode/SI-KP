@@ -192,9 +192,12 @@ Route::middleware(['auth', 'role:tu'])->prefix('tu')->name('tu.')->group(functio
     Route::get('/persetujuan-akun', [App\Http\Controllers\TU\TUPersetujuanAkunController::class, 'index'])->name('persetujuan-akun');
     Route::post('/persetujuan-akun/{permohonan}/approve', [App\Http\Controllers\TU\TUPersetujuanAkunController::class, 'approve'])->name('persetujuan-akun.approve');
     Route::post('/persetujuan-akun/{permohonan}/reject', [App\Http\Controllers\TU\TUPersetujuanAkunController::class, 'reject'])->name('persetujuan-akun.reject');
+    Route::post('/persetujuan-akun/{permohonan}/resend-email', [App\Http\Controllers\TU\TUPersetujuanAkunController::class, 'resendEmail'])->name('persetujuan-akun.resend-email');
+    Route::delete('/persetujuan-akun/{permohonan}', [App\Http\Controllers\TU\TUPersetujuanAkunController::class, 'destroy'])->name('persetujuan-akun.destroy');
 
     // Master Mahasiswa (Import & Kelola Data Master)
     Route::get('/master-mahasiswa', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'index'])->name('master-mahasiswa');
+    Route::post('/master-mahasiswa', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'store'])->name('master-mahasiswa.store');
     Route::post('/master-mahasiswa/import', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'import'])->name('master-mahasiswa.import');
     Route::get('/master-mahasiswa/template', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'downloadTemplate'])->name('master-mahasiswa.template');
     Route::put('/master-mahasiswa/{masterMahasiswa}', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'update'])->name('master-mahasiswa.update');
