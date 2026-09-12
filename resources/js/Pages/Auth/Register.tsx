@@ -13,7 +13,8 @@ import {
     Calendar, 
     Loader2, 
     ShieldAlert, 
-    Building2 
+    Building2,
+    RotateCcw
 } from 'lucide-react';
 
 interface StudentData {
@@ -27,6 +28,7 @@ interface StudentData {
 export default function Register() {
     const [nimInput, setNimInput] = useState('');
     const [isChecking, setIsChecking] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
     const [checkError, setCheckError] = useState<string | null>(null);
     const [checkErrorType, setCheckErrorType] = useState<string | null>(null);
     const [studentData, setStudentData] = useState<StudentData | null>(null);
@@ -34,10 +36,10 @@ export default function Register() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Fungsi cek NIM ke server
-    const handleCheckNim = async (e?: React.FormEvent) => {
+    const handleCheckNim = async (e?: React.FormEvent, customNim?: string) => {
         if (e) e.preventDefault();
 
-        const trimmedNim = nimInput.trim();
+        const trimmedNim = (customNim !== undefined ? customNim : nimInput).trim();
         if (!trimmedNim) {
             setCheckError('Silakan masukkan NIM Anda terlebih dahulu.');
             setCheckErrorType('validation');
@@ -74,6 +76,43 @@ export default function Register() {
             setCheckErrorType('network');
         } finally {
             setIsChecking(false);
+        }
+    };
+
+    const handleCancelPending = async () => {
+        const trimmedNim = nimInput.trim();
+        if (!trimmedNim) return;
+
+        if (!confirm('Apakah Anda ingin membatalkan permohonan akun yang sedang menunggu verifikasi ini dan mengajukan ulang?')) {
+            return;
+        }
+
+        setIsCancelling(true);
+        try {
+            const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
+            const res = await fetch(route('register.cancel'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ nim: trimmedNim }),
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                setCheckError(null);
+                setCheckErrorType(null);
+                // Langsung periksa ulang NIM agar form pendaftaran siap diisi
+                await handleCheckNim(undefined, trimmedNim);
+            } else {
+                alert(result.message || 'Gagal membatalkan permohonan.');
+            }
+        } catch (error) {
+            alert('Gagal terhubung ke server saat membatalkan permohonan.');
+        } finally {
+            setIsCancelling(false);
         }
     };
 
@@ -249,7 +288,7 @@ export default function Register() {
                                         ) : (
                                             <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600 mt-0.5" />
                                         )}
-                                        <div className="space-y-1">
+                                        <div className="space-y-1 w-full">
                                             <p className="font-bold">
                                                 {checkErrorType === 'already_has_account'
                                                     ? 'Akun Sudah Terdaftar'
@@ -262,6 +301,29 @@ export default function Register() {
                                                 <Link href="/login?role=mahasiswa" className="inline-block font-bold text-blue-600 hover:underline mt-1">
                                                     Masuk ke Akun Anda →
                                                 </Link>
+                                            )}
+                                            {checkErrorType === 'pending_verification' && (
+                                                <div className="pt-2.5 mt-2 border-t border-blue-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                    <span className="text-[11px] text-blue-800 font-medium">Data keliru atau ingin mengajukan ulang?</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleCancelPending}
+                                                        disabled={isCancelling}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-[11px] transition-colors shadow-sm cursor-pointer disabled:opacity-50 shrink-0"
+                                                    >
+                                                        {isCancelling ? (
+                                                            <>
+                                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                                                <span>Membatalkan...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <RotateCcw className="w-3 h-3" />
+                                                                <span>Batalkan & Ajukan Ulang</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                     </div>

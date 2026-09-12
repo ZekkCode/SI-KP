@@ -70,6 +70,13 @@ class ForceChangePasswordController extends Controller
             'must_change_password' => false,
         ]);
 
+        // Hapus rekaman password sementara di permohonan karena mahasiswa sudah mengatur password pribadinya
+        if ($user->nim) {
+            \App\Models\PermohonanAkun::where('nim', $user->nim)->update([
+                'password_sementara' => null,
+            ]);
+        }
+
         return redirect($user->dashboardRoute())->with('success', 'Password Anda berhasil diperbarui! Selamat datang di Sistem Informasi Kerja Praktik.');
     }
 }

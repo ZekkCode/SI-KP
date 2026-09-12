@@ -19,6 +19,9 @@ class PermohonanAkun extends Model
         'nip_dosen_wali',
         'status',
         'catatan_tu',
+        'password_sementara',
+        'status_email',
+        'error_email',
         'diverifikasi_oleh',
         'diverifikasi_pada',
     ];

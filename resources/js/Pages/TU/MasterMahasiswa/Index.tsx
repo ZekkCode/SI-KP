@@ -18,7 +18,11 @@ import {
     X, 
     Loader2, 
     Info, 
-    FileUp 
+    FileUp,
+    UserPlus,
+    Clock,
+    XCircle,
+    Calendar
 } from 'lucide-react';
 
 interface MasterMahasiswa {
@@ -28,6 +32,7 @@ interface MasterMahasiswa {
     email: string;
     program_studi: string;
     angkatan: string;
+    sumber_data: 'manual' | 'import_excel';
     created_at: string;
 }
 
@@ -40,27 +45,35 @@ interface Props {
         total: number;
     };
     registeredNims: string[];
+    pendingNims?: string[];
+    rejectedNims?: string[];
     angkatanList: string[];
     stats: {
         total: number;
         registered: number;
+        pending?: number;
         angkatan_count: number;
+        from_manual: number;
+        from_import: number;
     };
     filters: {
         search: string;
         angkatan: string;
+        sumber_data: string;
     };
 }
 
-export default function Index({ masterMahasiswas, registeredNims, angkatanList, stats, filters }: Props) {
+export default function Index({ masterMahasiswas, registeredNims, pendingNims = [], rejectedNims = [], angkatanList, stats, filters }: Props) {
     const { flash } = usePage().props as any;
 
     // Filters state
     const [search, setSearch] = useState(filters.search || '');
     const [angkatan, setAngkatan] = useState(filters.angkatan || 'all');
+    const [sumberData, setSumberData] = useState(filters.sumber_data || 'all');
 
     // Modals
     const [importModalOpen, setImportModalOpen] = useState(false);
+    const [addModalOpen, setAddModalOpen] = useState(false);
     const [editModalData, setEditModalData] = useState<MasterMahasiswa | null>(null);
     const [deleteConfirmData, setDeleteConfirmData] = useState<MasterMahasiswa | null>(null);
     const [truncateConfirmOpen, setTruncateConfirmOpen] = useState(false);
@@ -77,6 +90,17 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
     });
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+    const defaultAddForm = {
+        nim: '',
+        nama: '',
+        email: '',
+        program_studi: 'Teknik Informatika',
+        angkatan: new Date().getFullYear().toString(),
+        nip_dosen_wali: '',
+    };
+    const [addFormData, setAddFormData] = useState(defaultAddForm);
+    const [addFormErrors, setAddFormErrors] = useState<Record<string, string>>({});
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleSearch = (e: React.FormEvent) => {
@@ -84,6 +108,7 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
         router.get(route('tu.master-mahasiswa'), {
             search,
             angkatan,
+            sumber_data: sumberData,
         }, { preserveState: true });
     };
 
@@ -92,6 +117,16 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
         router.get(route('tu.master-mahasiswa'), {
             search,
             angkatan: val,
+            sumber_data: sumberData,
+        }, { preserveState: true });
+    };
+
+    const handleSumberDataChange = (val: string) => {
+        setSumberData(val);
+        router.get(route('tu.master-mahasiswa'), {
+            search,
+            angkatan,
+            sumber_data: val,
         }, { preserveState: true });
     };
 
@@ -165,6 +200,32 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
         });
     };
 
+    // Add Mahasiswa Submit
+    const handleAddSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setAddFormErrors({});
+
+        router.post(route('tu.master-mahasiswa.store'), addFormData, {
+            onError: (errs) => {
+                setAddFormErrors(errs);
+            },
+            onSuccess: () => {
+                setAddModalOpen(false);
+                setAddFormData(defaultAddForm);
+            },
+            onFinish: () => {
+                setIsSubmitting(false);
+            },
+        });
+    };
+
+    const openAddModal = () => {
+        setAddFormData(defaultAddForm);
+        setAddFormErrors({});
+        setAddModalOpen(true);
+    };
+
     const openEditModal = (mhs: MasterMahasiswa) => {
         setEditModalData(mhs);
         setFormData({
@@ -184,7 +245,7 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
             <div className="space-y-6">
                 
                 {/* Header Title & Actions */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2.5">
                             <Database className="w-6 h-6 text-blue-600" />
@@ -195,25 +256,35 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                         {/* Download Template Excel */}
                         <a
                             href={route('tu.master-mahasiswa.template')}
-                            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center gap-1.5"
+                            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
                             title="Unduh Format File Excel (.xlsx)"
                         >
                             <Download className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Download Template Excel (.xlsx)</span>
+                            <span>Template Excel</span>
                         </a>
+
+                        {/* Tambah Mahasiswa Manual */}
+                        <button
+                            type="button"
+                            onClick={openAddModal}
+                            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
+                        >
+                            <UserPlus className="w-3.5 h-3.5" />
+                            <span>Tambah Mahasiswa</span>
+                        </button>
 
                         {/* Import Excel Button */}
                         <button
                             type="button"
                             onClick={() => setImportModalOpen(true)}
-                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
                         >
                             <FileSpreadsheet className="w-3.5 h-3.5" />
-                            <span>Import File Excel</span>
+                            <span>Import Excel</span>
                         </button>
 
                         {/* Kosongkan Data (Opsional jika ingin reset) */}
@@ -221,10 +292,11 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                             <button
                                 type="button"
                                 onClick={() => setTruncateConfirmOpen(true)}
-                                className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition-colors cursor-pointer"
+                                className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
                                 title="Kosongkan Semua Data Master"
                             >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Kosongkan</span>
                             </button>
                         )}
                     </div>
@@ -245,7 +317,7 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                 )}
 
                 {/* Stats Widget */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3.5">
                         <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                             <GraduationCap className="w-5 h-5" />
@@ -262,49 +334,102 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                         </div>
                         <div>
                             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Akun Telah Aktif</span>
-                            <span className="text-xl font-black text-emerald-600">{stats.registered} Akun</span>
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                                <span className="text-xl font-black text-emerald-600">{stats.registered} Akun</span>
+                                {(stats.pending ?? 0) > 0 && (
+                                    <Link
+                                        href={route('tu.persetujuan-akun.index')}
+                                        className="text-[11px] font-bold text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200"
+                                        title="Ada permohonan akun yang menunggu verifikasi TU"
+                                    >
+                                        <Clock className="w-3 h-3 animate-pulse" />
+                                        <span>{stats.pending} Menunggu</span>
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                            <UserPlus className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Tambah Manual</span>
+                            <span className="text-xl font-black text-violet-600">{stats.from_manual} Mahasiswa</span>
                         </div>
                     </div>
 
                     <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3.5">
                         <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                            <Users className="w-5 h-5" />
+                            <FileSpreadsheet className="w-5 h-5" />
                         </div>
                         <div>
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Belum Terdaftar Akun</span>
-                            <span className="text-xl font-black text-amber-600">{Math.max(0, stats.total - stats.registered)} Mahasiswa</span>
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Import Excel</span>
+                            <span className="text-xl font-black text-amber-600">{stats.from_import} Mahasiswa</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Filters & Search */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
-                    {/* Filter Angkatan */}
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Angkatan:</span>
-                        <select
-                            value={angkatan}
-                            onChange={(e) => handleAngkatanChange(e.target.value)}
-                            className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50"
-                        >
-                            <option value="all">Semua Angkatan</option>
-                            {angkatanList.map((thn) => (
-                                <option key={thn} value={thn}>Angkatan {thn}</option>
-                            ))}
-                        </select>
+                <div className="flex flex-col gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        {/* Filter Angkatan */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Angkatan:</span>
+                            <select
+                                value={angkatan}
+                                onChange={(e) => handleAngkatanChange(e.target.value)}
+                                className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50"
+                            >
+                                <option value="all">Semua Angkatan</option>
+                                {angkatanList.map((thn) => (
+                                    <option key={thn} value={thn}>Angkatan {thn}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Search Bar */}
+                        <form onSubmit={handleSearch} className="relative min-w-[280px]">
+                            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Cari NIM, Nama, atau Email..."
+                                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            />
+                        </form>
                     </div>
 
-                    {/* Search Bar */}
-                    <form onSubmit={handleSearch} className="relative min-w-[280px]">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Cari NIM, Nama, atau Email..."
-                            className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                        />
-                    </form>
+                    {/* Filter Sumber Data */}
+                    <div className="flex items-center gap-2 border-t border-slate-100 pt-3">
+                        <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Sumber Data:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                            {[
+                                { value: 'all', label: 'Semua' },
+                                { value: 'manual', label: '✏️ Tambah Manual' },
+                                { value: 'import_excel', label: '📊 Import Excel' },
+                            ].map((opt) => (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => handleSumberDataChange(opt.value)}
+                                    className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
+                                        sumberData === opt.value
+                                            ? opt.value === 'manual'
+                                                ? 'bg-violet-600 text-white shadow-sm'
+                                                : opt.value === 'import_excel'
+                                                    ? 'bg-amber-500 text-white shadow-sm'
+                                                    : 'bg-slate-700 text-white shadow-sm'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                                >
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Table Records */}
@@ -319,13 +444,15 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                                     <th className="px-6 py-4">Program Studi</th>
                                     <th className="px-6 py-4 text-center">Angkatan</th>
                                     <th className="px-6 py-4 text-center">Status Akun</th>
+                                    <th className="px-6 py-4 text-center">Sumber Data</th>
+                                    <th className="px-6 py-4 text-center">Waktu Ditambahkan</th>
                                     <th className="px-6 py-4 text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                                 {masterMahasiswas.data.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                                        <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
                                             <FileSpreadsheet className="w-10 h-10 mx-auto text-slate-300 mb-2" />
                                             <p className="text-sm font-semibold">Data Master Mahasiswa Kosong</p>
                                             <p className="text-xs mt-1">Silakan klik "Import File Excel" untuk mengunggah file data master mahasiswa (.xlsx).</p>
@@ -334,6 +461,8 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                                 ) : (
                                     masterMahasiswas.data.map((item) => {
                                         const hasAccount = registeredNims.includes(item.nim);
+                                        const isPending  = pendingNims.includes(item.nim);
+                                        const isRejected = rejectedNims.includes(item.nim);
                                         return (
                                             <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
                                                 <td className="px-6 py-4 font-mono font-bold text-slate-900">
@@ -363,11 +492,56 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                                                             <CheckCircle2 className="w-3 h-3" />
                                                             Sudah Berakun
                                                         </span>
+                                                    ) : isPending ? (
+                                                        <Link
+                                                            href={route('tu.persetujuan-akun.index', { search: item.nim })}
+                                                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
+                                                            title="Permohonan akun sedang menunggu verifikasi TU. Klik untuk memverifikasi."
+                                                        >
+                                                            <Clock className="w-3 h-3 animate-pulse text-amber-600" />
+                                                            Menunggu Verifikasi
+                                                        </Link>
+                                                    ) : isRejected ? (
+                                                        <Link
+                                                            href={route('tu.persetujuan-akun.index', { search: item.nim, status: 'ditolak' })}
+                                                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors"
+                                                            title="Permohonan ditolak TU. Klik untuk melihat riwayat."
+                                                        >
+                                                            <XCircle className="w-3 h-3 text-rose-600" />
+                                                            Ditolak
+                                                        </Link>
                                                     ) : (
                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">
                                                             Belum Mendaftar
                                                         </span>
                                                     )}
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    {item.sumber_data === 'import_excel' ? (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                            <FileSpreadsheet className="w-3 h-3" />
+                                                            Import Excel
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                                                            <UserPlus className="w-3 h-3" />
+                                                            Manual
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-center whitespace-nowrap">
+                                                    <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                                        <span>
+                                                            {item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', {
+                                                                day: 'numeric',
+                                                                month: 'short',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                            }) : '-'}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-1.5">
@@ -422,6 +596,137 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                         </div>
                     )}
                 </div>
+
+                {/* MODAL: TAMBAH MAHASISWA MANUAL */}
+                {addModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+                        <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                                    <UserPlus className="w-5 h-5 text-blue-600" />
+                                    Tambah Data Mahasiswa Manual
+                                </h3>
+                                <button onClick={() => setAddModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleAddSubmit} className="space-y-3.5 text-xs">
+                                {/* NIM */}
+                                <div className="space-y-1">
+                                    <label className="font-bold text-slate-700 block">NIM <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={addFormData.nim}
+                                        onChange={(e) => setAddFormData({ ...addFormData, nim: e.target.value })}
+                                        placeholder="Contoh: 230411100001"
+                                        className="w-full p-2.5 rounded-xl border border-slate-200 font-mono focus:ring-1 focus:ring-blue-500 outline-none"
+                                        required
+                                    />
+                                    {addFormErrors.nim && <p className="text-red-500 text-[11px]">{addFormErrors.nim}</p>}
+                                </div>
+
+                                {/* Nama */}
+                                <div className="space-y-1">
+                                    <label className="font-bold text-slate-700 block">Nama Lengkap <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={addFormData.nama}
+                                        onChange={(e) => setAddFormData({ ...addFormData, nama: e.target.value })}
+                                        placeholder="Nama lengkap sesuai KTP"
+                                        className="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-1 focus:ring-blue-500 outline-none"
+                                        required
+                                    />
+                                    {addFormErrors.nama && <p className="text-red-500 text-[11px]">{addFormErrors.nama}</p>}
+                                </div>
+
+                                {/* Email */}
+                                <div className="space-y-1">
+                                    <label className="font-bold text-slate-700 block">Email Resmi Kampus <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="email"
+                                        value={addFormData.email}
+                                        onChange={(e) => setAddFormData({ ...addFormData, email: e.target.value })}
+                                        placeholder="nim@student.trunojoyo.ac.id"
+                                        className="w-full p-2.5 rounded-xl border border-slate-200 font-mono focus:ring-1 focus:ring-blue-500 outline-none"
+                                        required
+                                    />
+                                    {addFormErrors.email && <p className="text-red-500 text-[11px]">{addFormErrors.email}</p>}
+                                </div>
+
+                                {/* Program Studi & Angkatan */}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="space-y-1">
+                                        <label className="font-bold text-slate-700 block">Program Studi</label>
+                                        <input
+                                            type="text"
+                                            value={addFormData.program_studi}
+                                            onChange={(e) => setAddFormData({ ...addFormData, program_studi: e.target.value })}
+                                            placeholder="Teknik Informatika"
+                                            className="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-1 focus:ring-blue-500 outline-none"
+                                        />
+                                        {addFormErrors.program_studi && <p className="text-red-500 text-[11px]">{addFormErrors.program_studi}</p>}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="font-bold text-slate-700 block">Angkatan <span className="text-red-500">*</span></label>
+                                        <input
+                                            type="text"
+                                            value={addFormData.angkatan}
+                                            onChange={(e) => setAddFormData({ ...addFormData, angkatan: e.target.value })}
+                                            placeholder="2023"
+                                            className="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-1 focus:ring-blue-500 outline-none"
+                                            required
+                                        />
+                                        {addFormErrors.angkatan && <p className="text-red-500 text-[11px]">{addFormErrors.angkatan}</p>}
+                                    </div>
+                                </div>
+
+                                {/* NIP Dosen Wali (opsional) */}
+                                <div className="space-y-1">
+                                    <label className="font-bold text-slate-700 block">
+                                        NIP Dosen Wali
+                                        <span className="ml-1 text-slate-400 font-normal">(opsional)</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={addFormData.nip_dosen_wali}
+                                        onChange={(e) => setAddFormData({ ...addFormData, nip_dosen_wali: e.target.value })}
+                                        placeholder="Contoh: 198501012010121001"
+                                        className="w-full p-2.5 rounded-xl border border-slate-200 font-mono focus:ring-1 focus:ring-blue-500 outline-none"
+                                    />
+                                    {addFormErrors.nip_dosen_wali && <p className="text-red-500 text-[11px]">{addFormErrors.nip_dosen_wali}</p>}
+                                </div>
+
+                                <div className="flex items-center gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setAddModalOpen(false)}
+                                        className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md shadow-blue-600/20 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Menyimpan...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <UserPlus className="w-4 h-4" />
+                                                <span>Tambah Mahasiswa</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
 
                 {/* MODAL: IMPORT EXCEL */}
                 {importModalOpen && (
@@ -618,10 +923,13 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                             </div>
 
                             <div className="space-y-1">
-                                <h3 className="text-base font-bold text-slate-900">Hapus Data Master?</h3>
+                                <h3 className="text-base font-bold text-slate-900">Hapus Semua Data Mahasiswa?</h3>
                                 <p className="text-xs text-slate-500 leading-relaxed">
                                     Apakah Anda yakin ingin menghapus mahasiswa <strong className="text-slate-800">{deleteConfirmData.nama}</strong> ({deleteConfirmData.nim}) dari Data Master?
                                 </p>
+                                <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 leading-relaxed">
+                                    ⚠️ Akun login, permohonan akun, dan <strong>seluruh data KP</strong> mahasiswa ini (pendaftaran, logbook, proposal, dll) akan <strong>ikut terhapus permanen</strong>.
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-2">
@@ -656,8 +964,11 @@ export default function Index({ masterMahasiswas, registeredNims, angkatanList, 
                             <div className="space-y-1">
                                 <h3 className="text-base font-bold text-slate-900">Kosongkan Semua Data Master?</h3>
                                 <p className="text-xs text-slate-500 leading-relaxed">
-                                    Tindakan ini akan menghapus <strong>seluruh {masterMahasiswas.total} data master mahasiswa</strong> yang tersimpan saat ini.
+                                    Tindakan ini akan menghapus <strong>{masterMahasiswas.total} data master mahasiswa</strong> yang tersimpan saat ini.
                                 </p>
+                                <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 leading-relaxed">
+                                    ⚠️ Seluruh akun login, permohonan akun, dan <strong>semua data KP</strong> dari mahasiswa tersebut (pendaftaran, logbook, proposal, dll) akan <strong>ikut terhapus permanen</strong>.
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-2">
