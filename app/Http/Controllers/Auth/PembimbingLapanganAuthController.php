@@ -27,7 +27,7 @@ class PembimbingLapanganAuthController extends Controller
             'nama' => 'required|string|max:255',
             'instansi_id' => 'required|exists:instansis,id',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|max:128|confirmed',
         ]);
 
         DB::beginTransaction();

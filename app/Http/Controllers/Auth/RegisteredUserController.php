@@ -29,7 +29,7 @@ class RegisteredUserController extends Controller
     public function checkNim(Request $request): JsonResponse
     {
         $request->validate([
-            'nim' => ['required', 'string'],
+            'nim' => ['required', 'string', 'max:30'],
         ]);
 
         $nim = trim($request->nim);
@@ -85,7 +85,7 @@ class RegisteredUserController extends Controller
     public function cancelApplication(Request $request): JsonResponse
     {
         $request->validate([
-            'nim' => ['required', 'string'],
+            'nim' => ['required', 'string', 'max:30'],
         ]);
 
         $nim = trim($request->nim);
@@ -108,7 +108,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nim' => ['required', 'string'],
+            'nim' => ['required', 'string', 'max:30'],
         ]);
 
         $nim = trim($request->nim);
@@ -151,6 +151,6 @@ class RegisteredUserController extends Controller
             'status' => 'menunggu_verifikasi',
         ]);
 
-        return redirect()->route('login', ['role' => 'mahasiswa'])->with('status', 'Permohonan akun Anda berhasil diajukan dan sedang menunggu verifikasi Tata Usaha (TU). Kredensial sementara akan dikirimkan ke email resmi Anda setelah disetujui.');
+        return redirect()->route('login')->with('status', 'Permohonan akun Anda berhasil diajukan dan sedang menunggu verifikasi Tata Usaha (TU). Kredensial sementara akan dikirimkan ke email resmi Anda setelah disetujui.');
     }
 }

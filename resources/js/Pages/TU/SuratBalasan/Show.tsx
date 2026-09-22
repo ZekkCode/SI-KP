@@ -64,12 +64,12 @@ export default function Show({ pendaftaran }: Props) {
             </h1>
 
             {/* Info Card */}
-            <div className="bg-surface-container-low rounded-2xl border border-outline-variant p-6 space-y-5 mb-6">
+            <div className="bg-surface-container-low rounded-xl border border-outline-variant p-6 space-y-5 mb-6">
                 <div className="flex items-start gap-3">
                     <User className="w-5 h-5 text-primary mt-0.5" />
                     <div>
                         <p className="text-sm text-on-surface-variant">Mahasiswa</p>
-                        <p className="font-medium text-on-surface">
+                        <p className="font-semibold text-on-surface">
                             {pendaftaran.mahasiswa?.name ?? '-'}
                         </p>
                     </div>
@@ -79,7 +79,7 @@ export default function Show({ pendaftaran }: Props) {
                     <Building2 className="w-5 h-5 text-primary mt-0.5" />
                     <div>
                         <p className="text-sm text-on-surface-variant">Instansi</p>
-                        <p className="font-medium text-on-surface">
+                        <p className="font-semibold text-on-surface">
                             {pendaftaran.instansi?.nama ?? '-'}
                         </p>
                         {pendaftaran.instansi?.alamat && (
@@ -96,7 +96,7 @@ export default function Show({ pendaftaran }: Props) {
                         <p className="text-sm text-on-surface-variant">
                             Surat Pengantar
                         </p>
-                        <p className="font-medium text-on-surface">
+                        <p className="font-semibold text-on-surface">
                             {pendaftaran.surat_pengantar?.nomor_surat ?? 'Belum ada'}
                         </p>
                     </div>
@@ -104,7 +104,7 @@ export default function Show({ pendaftaran }: Props) {
             </div>
 
             {/* Actions */}
-            <div className="bg-surface-container-low rounded-2xl border border-outline-variant p-6 space-y-4">
+            <div className="bg-surface-container-low rounded-xl border border-outline-variant p-6 space-y-4">
                 <h2 className="text-lg font-semibold text-on-surface mb-2">
                     Tindakan
                 </h2>
@@ -113,16 +113,16 @@ export default function Show({ pendaftaran }: Props) {
                     <button
                         onClick={handleApprove}
                         disabled={processing}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary font-semibold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 shadow-sm"
                     >
                         <CheckCircle className="w-4 h-4" />
-                        Setujui
+                        Setujui Surat Balasan
                     </button>
 
                     <button
                         onClick={() => setShowRevisi(!showRevisi)}
                         disabled={processing}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-error-container text-on-error-container font-medium hover:bg-error-container/80 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-error-container text-on-error-container font-semibold text-sm hover:bg-error-container/80 transition-colors disabled:opacity-50"
                     >
                         <Undo2 className="w-4 h-4" />
                         Minta Revisi
@@ -136,7 +136,7 @@ export default function Show({ pendaftaran }: Props) {
                         </label>
                         <textarea
                             rows={4}
-                            className="w-full rounded-xl border border-outline-variant bg-surface p-3 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
+                            className="w-full rounded-lg border border-outline-variant bg-surface p-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
                             placeholder="Tuliskan catatan revisi untuk mahasiswa..."
                             value={catatan}
                             onChange={(e) => setCatatan(e.target.value)}
@@ -144,9 +144,9 @@ export default function Show({ pendaftaran }: Props) {
                         <button
                             onClick={handleRevisi}
                             disabled={processing || !catatan.trim()}
-                            className="px-5 py-2.5 rounded-xl bg-error text-on-error font-medium hover:bg-error/90 transition-colors disabled:opacity-50"
+                            className="px-5 py-2.5 rounded-lg bg-error text-on-error font-semibold text-sm hover:bg-error/90 transition-colors disabled:opacity-50 shadow-sm"
                         >
-                            Kirim Revisi
+                            Kirim Catatan Revisi
                         </button>
                     </div>
                 )}

@@ -38,12 +38,12 @@ export default function TUDashboard({ stats }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
         {kpiCards.map((card, idx) => (
           <Link key={idx} href={card.link} className="block group">
-            <div className="bg-surface-lowest rounded-2xl p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all h-full relative overflow-hidden flex flex-col justify-between">
+            <div className="bg-surface-lowest rounded-xl p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all h-full relative overflow-hidden flex flex-col justify-between">
               <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${card.color}`}>
+                <div className={`p-3 rounded-lg ${card.color}`}>
                   {card.icon}
                 </div>
               </div>
@@ -58,15 +58,68 @@ export default function TUDashboard({ stats }: Props) {
         ))}
       </div>
 
-      <div className="bg-surface-lowest rounded-2xl border border-outline-variant shadow-sm p-8 mt-4">
-        <div className="flex items-center gap-4 text-on-surface-variant mb-4">
-          <Clock size={24} className="text-primary" />
-          <h2 className="text-xl font-display font-semibold text-on-surface">Pusat Bantuan Cepat</h2>
+      {/* Aksi Cepat Layanan */}
+      <div className="bg-surface-lowest rounded-xl border border-outline-variant shadow-sm p-6 mt-2">
+        <div className="flex items-center justify-between mb-4 border-b border-outline-variant pb-3">
+          <div>
+            <h2 className="text-lg font-display font-semibold text-on-surface">Aksi Cepat Layanan TU</h2>
+            <p className="text-xs text-secondary mt-0.5">Pintasan menu administrasi dan pemrosesan berkas mahasiswa.</p>
+          </div>
         </div>
-        <p className="text-secondary leading-relaxed max-w-3xl">
-          Sebagai staf Tata Usaha, peran utama Anda adalah memverifikasi pendaftaran awal mahasiswa dan menerbitkan dokumen-dokumen legal (seperti Surat Pengantar). 
-          Pastikan untuk rutin mengecek "Antrean Surat Pengantar" agar proses administrasi Kerja Praktik mahasiswa tidak terhambat.
-        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link 
+            href={route('tu.verifikasi-pendaftaran')}
+            className="p-4 rounded-lg border border-outline-variant hover:border-primary hover:bg-surface-container-low transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="p-2.5 bg-blue-50 text-primary rounded-md w-fit mb-3">
+                <CheckCircle size={20} />
+              </div>
+              <h4 className="font-semibold text-sm text-on-surface group-hover:text-primary transition-colors">Verifikasi Pendaftaran</h4>
+              <p className="text-xs text-secondary mt-1">Validasi berkas registrasi awal mahasiswa.</p>
+            </div>
+          </Link>
+
+          <Link 
+            href={route('tu.generate')}
+            className="p-4 rounded-lg border border-outline-variant hover:border-primary hover:bg-surface-container-low transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="p-2.5 bg-amber-50 text-amber-700 rounded-md w-fit mb-3">
+                <FileText size={20} />
+              </div>
+              <h4 className="font-semibold text-sm text-on-surface group-hover:text-primary transition-colors">Surat Pengantar</h4>
+              <p className="text-xs text-secondary mt-1">Penerbitan dan verifikasi nomor surat legal.</p>
+            </div>
+          </Link>
+
+          <Link 
+            href={route('tu.surat-balasan')}
+            className="p-4 rounded-lg border border-outline-variant hover:border-primary hover:bg-surface-container-low transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-md w-fit mb-3">
+                <FileText size={20} />
+              </div>
+              <h4 className="font-semibold text-sm text-on-surface group-hover:text-primary transition-colors">Surat Balasan</h4>
+              <p className="text-xs text-secondary mt-1">Konfirmasi penerimaan dari instansi mitra.</p>
+            </div>
+          </Link>
+
+          <Link 
+            href={route('tu.persetujuan-akun')}
+            className="p-4 rounded-lg border border-outline-variant hover:border-primary hover:bg-surface-container-low transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="p-2.5 bg-purple-50 text-purple-700 rounded-md w-fit mb-3">
+                <Users size={20} />
+              </div>
+              <h4 className="font-semibold text-sm text-on-surface group-hover:text-primary transition-colors">Persetujuan Akun</h4>
+              <p className="text-xs text-secondary mt-1">Aktivasi akun registrasi mahasiswa baru.</p>
+            </div>
+          </Link>
+        </div>
       </div>
     </div>
   );

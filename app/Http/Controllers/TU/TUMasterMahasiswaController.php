@@ -451,13 +451,14 @@ class TUMasterMahasiswaController extends Controller
 
         // Sample Data Rows
         $writer->addRow(Row::fromValues([
-            '230411100092',
-            'Nabiilah Rizqi Amalia',
-            '230411100092@student.trunojoyo.ac.id',
+            '230411100001',
+            'Nama Mahasiswa Contoh',
+            '230411100001@student.trunojoyo.ac.id',
             'Teknik Informatika',
             '2023',
             '198501012010121001',
         ]));
+
 
         $writer->close();
 

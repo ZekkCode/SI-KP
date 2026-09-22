@@ -33,6 +33,12 @@ export default function Authenticated({
                                 >
                                     Dashboard
                                 </NavLink>
+                                <NavLink
+                                    href="/panduan"
+                                    active={window.location.pathname === '/panduan'}
+                                >
+                                    Panduan & Dokumen
+                                </NavLink>
                             </div>
                         </div>
 
@@ -136,6 +142,12 @@ export default function Authenticated({
                             active={route().current('dashboard')}
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href="/panduan"
+                            active={window.location.pathname === '/panduan'}
+                        >
+                            Panduan & Dokumen
                         </ResponsiveNavLink>
                     </div>
 

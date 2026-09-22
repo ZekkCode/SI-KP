@@ -140,7 +140,8 @@ export default function PendaftaranScreen({ pendaftarans, error }: Props) {
                         <div className="text-xs text-secondary mt-2">Diajukan pada: {p.tanggal_pengajuan}</div>
                       </td>
                       <td className="py-4 px-5 align-top">
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${statusUi.color}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border ${statusUi.color}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                           {statusUi.label}
                         </span>
                       </td>
@@ -176,10 +177,10 @@ export default function PendaftaranScreen({ pendaftarans, error }: Props) {
       <Modal show={isModalOpen} onClose={closeModal} maxWidth="md">
         <form onSubmit={submitAction} className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 mb-4 ${actionType === 'diterima_instansi' ? 'bg-primary-container text-primary' : 'bg-error-container text-error'}`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 mb-4 ${actionType === 'diterima_instansi' ? 'bg-primary-container text-primary' : 'bg-error-container text-error'}`}>
               {actionType === 'diterima_instansi' ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
             </div>
-            <button type="button" onClick={closeModal} className="text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors">
+            <button type="button" onClick={closeModal} className="text-on-surface-variant hover:bg-surface-container p-1.5 rounded-lg transition-colors">
               <X size={20} />
             </button>
           </div>

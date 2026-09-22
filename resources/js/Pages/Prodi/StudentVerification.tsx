@@ -1,4 +1,4 @@
-﻿import ProdiLayout from '@/Layouts/ProdiLayout';
+import ProdiLayout from '@/Layouts/ProdiLayout';
 import { Search, CheckCircle, XCircle, FileText, Filter, Eye } from 'lucide-react';
 
 const DUMMY_STUDENTS = [
@@ -72,25 +72,26 @@ export default function StudentVerification() {
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md font-label-md border whitespace-nowrap
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border whitespace-nowrap
                       ${student.status === 'Menunggu' ? 'bg-secondary-container text-on-secondary-container border-secondary-container' : 
                         student.status === 'Disetujui' ? 'bg-[#e6f4ea] text-[#137333] border-[#ceead6]' : 
                         'bg-error-container/50 text-error border-error-container'}`}
                     >
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                       {student.status}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-1">
-                      <button className="text-secondary hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-highest" title="Lihat Detail">
+                      <button className="text-secondary hover:text-primary transition-colors p-2 rounded-lg hover:bg-surface-container-highest" title="Lihat Detail">
                         <Eye size={18} />
                       </button>
                       {student.status === 'Menunggu' && (
                         <>
-                          <button className="text-[#137333] hover:bg-[#e6f4ea] transition-colors p-2 rounded-full" title="Setujui">
+                          <button className="text-[#137333] hover:bg-[#e6f4ea] transition-colors p-2 rounded-lg" title="Setujui">
                             <CheckCircle size={18} />
                           </button>
-                          <button className="text-error hover:bg-error-container/50 transition-colors p-2 rounded-full" title="Tolak">
+                          <button className="text-error hover:bg-error-container/50 transition-colors p-2 rounded-lg" title="Tolak">
                             <XCircle size={18} />
                           </button>
                         </>

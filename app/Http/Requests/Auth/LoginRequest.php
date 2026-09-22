@@ -28,8 +28,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string'],
-            'password' => ['required', 'string'],
+            'email' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'max:128'],
             'role' => ['nullable', 'string', 'in:mahasiswa,dosen,prodi,tu,instansi'],
         ];
     }
@@ -45,65 +45,47 @@ class LoginRequest extends FormRequest
 
         $input = trim($this->input('email'));
         $isEmail = filter_var($input, FILTER_VALIDATE_EMAIL);
-        $role = $this->filled('role') ? strtolower($this->string('role')) : null;
 
         $loginField = 'email';
         if (! $isEmail) {
-            if ($role === 'dosen' || $role === 'tu' || $role === 'prodi') {
-                $loginField = 'nip';
-            } elseif ($role === 'mahasiswa') {
-                $loginField = 'nim';
+            $foundUser = \App\Models\User::where('nip', $input)->orWhere('nim', $input)->first();
+            if ($foundUser) {
+                $loginField = ($foundUser->nip === $input) ? 'nip' : 'nim';
             } else {
-                $foundUser = \App\Models\User::where('nip', $input)->orWhere('nim', $input)->first();
-                $loginField = ($foundUser && $foundUser->nip === $input) ? 'nip' : 'nim';
+                $loginField = (strlen($input) > 14) ? 'nip' : 'nim';
             }
         }
 
-        if (! Auth::attempt([$loginField => $input, 'password' => $this->string('password')], $this->boolean('remember'))) {
+        $credentials = [$loginField => $input, 'password' => $this->string('password')];
+        $authenticated = Auth::attempt($credentials, $this->boolean('remember'));
+
+        // Fallback jika bukan email dan belum berhasil, coba field alternatif (nip atau nim)
+        if (! $authenticated && ! $isEmail) {
+            $altField = ($loginField === 'nim') ? 'nip' : 'nim';
+            $authenticated = Auth::attempt([$altField => $input, 'password' => $this->string('password')], $this->boolean('remember'));
+        }
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Kredensial yang Anda masukkan tidak sesuai dengan data kami.',
             ]);
         }
 
         $user = Auth::user();
 
-        // Validasi kesesuaian role jika role dikirim dari pilihan form login
-        if ($this->filled('role')) {
-            $expectedRole = strtolower($this->string('role'));
-            $actualRole = strtolower($user->role ?? '');
-
-            if ($actualRole !== $expectedRole) {
-                Auth::logout();
-                $roleLabels = [
-                    'mahasiswa' => 'Mahasiswa',
-                    'dosen' => 'Dosen Pembimbing',
-                    'prodi' => 'Koordinator Kerja Praktik (KP)',
-                    'tu' => 'Tata Usaha (TU)',
-                    'instansi' => 'Pembimbing Lapangan (Instansi)',
-                ];
-
-                $actualLabel = $roleLabels[$actualRole] ?? strtoupper($actualRole);
-                $expectedLabel = $roleLabels[$expectedRole] ?? strtoupper($expectedRole);
-
-                throw ValidationException::withMessages([
-                    'email' => "Akun ini terdaftar sebagai {$actualLabel}, bukan {$expectedLabel}. Silakan masuk melalui menu kotak login {$actualLabel}.",
-                ]);
-            }
-        }
-
         if ($user && $user->status_akun === 'pending') {
             Auth::logout();
             throw ValidationException::withMessages([
-                'email' => 'Akun Anda sedang menunggu verifikasi dari Admin TU.',
+                'email' => 'Akun Anda sedang menunggu verifikasi dari Tata Usaha (TU).',
             ]);
         }
         
         if ($user && $user->status_akun === 'ditolak') {
             Auth::logout();
             throw ValidationException::withMessages([
-                'email' => 'Akun Anda telah ditolak oleh Admin TU.',
+                'email' => 'Akun Anda telah ditolak oleh pihak program studi / TU.',
             ]);
         }
 

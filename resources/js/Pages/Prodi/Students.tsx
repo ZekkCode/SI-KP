@@ -66,7 +66,7 @@ export default function Students({ initialStudents = [] }: Props) {
               <span className="text-5xl font-extrabold text-blue-600">{countSedangKP}</span>
               <p className="text-sm font-medium text-slate-500 mt-2">Mahasiswa aktif melakukan kerja praktek</p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
               <Clock size={24} />
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function Students({ initialStudents = [] }: Props) {
               <span className="text-5xl font-extrabold text-green-600">{countSelesaiKP}</span>
               <p className="text-sm font-medium text-slate-500 mt-2">Mahasiswa telah menyelesaikan kerja praktek</p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
               <CheckCircle size={24} />
             </div>
           </div>
@@ -160,17 +160,18 @@ export default function Students({ initialStudents = [] }: Props) {
                 filteredStudents.map((student, index) => (
                   <tr key={student.nim} className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
                     <ModernTableTd>{index + 1}</ModernTableTd>
-                    <ModernTableTd>{student.nim}</ModernTableTd>
-                    <ModernTableTd>{student.mahasiswa?.name ?? 'Nama Tidak Ditemukan'}</ModernTableTd>
-                    <ModernTableTd>{student.semester}</ModernTableTd>
+                    <ModernTableTd className="font-mono text-xs">{student.nim}</ModernTableTd>
+                    <ModernTableTd className="font-semibold text-sm">{student.mahasiswa?.name ?? 'Nama Tidak Ditemukan'}</ModernTableTd>
+                    <ModernTableTd className="text-xs">{student.semester}</ModernTableTd>
                     <ModernTableTd>
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${
                         student.status_asli === 'selesai' 
                           ? 'bg-emerald-100 text-emerald-800' 
                           : student.status_asli === 'sedang_kp'
                             ? 'bg-blue-100 text-blue-800'
                             : 'bg-surface-variant text-on-surface-variant'
                       }`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                         {student.status}
                       </span>
                     </ModernTableTd>
@@ -178,12 +179,12 @@ export default function Students({ initialStudents = [] }: Props) {
                 ))
               ) : (
                 <tr>
-                  <ModernTableTd>
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-outline">
+                  <ModernTableTd colSpan={5}>
+                    <div className="flex flex-col items-center justify-center gap-3 py-6">
+                      <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-outline">
                         <Users size={24} />
                       </div>
-                      <p>Tidak ada data mahasiswa untuk filter ini.</p>
+                      <p className="text-sm text-secondary">Tidak ada data mahasiswa untuk filter ini.</p>
                     </div>
                   </ModernTableTd>
                 </tr>

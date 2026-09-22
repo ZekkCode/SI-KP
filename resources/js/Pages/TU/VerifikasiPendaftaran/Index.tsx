@@ -101,11 +101,13 @@ export default function Index({ pendaftarans }: Props) {
                                         <ModernTableTd>
                                             <div className="flex items-center justify-center gap-2">
                                                 {p.status === 'plotting_dosen' || p.status === 'aktif' || p.status === 'selesai' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
                                                         Disetujui
                                                     </span>
                                                 ) : p.status === 'perlu_perbaikan' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-100 text-amber-800">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
                                                         Perlu Perbaikan
                                                     </span>
                                                 ) : (

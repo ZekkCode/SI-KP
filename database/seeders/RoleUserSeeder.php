@@ -17,11 +17,13 @@ class RoleUserSeeder extends Seeder
         // Ensure ProgramStudi exists (SikpSeeder runs first)
         $prodiId = ProgramStudi::first()?->id ?? 1;
 
+        $defaultPassword = Hash::make(env('INITIAL_DEMO_PASSWORD', 'password'));
+
         $users = [
             [
                 'name' => 'Mahasiswa User',
                 'email' => 'mahasiswa@sikp.test',
-                'password' => Hash::make('password'),
+                'password' => $defaultPassword,
                 'role' => 'mahasiswa',
                 'nim' => '123456789',
                 'program_studi_id' => $prodiId,
@@ -34,7 +36,7 @@ class RoleUserSeeder extends Seeder
             [
                 'name' => 'Dr. Aris Sudarmaji',
                 'email' => 'dosen@sikp.test',
-                'password' => Hash::make('password'),
+                'password' => $defaultPassword,
                 'role' => 'dosen',
                 'nip' => '0012038401',
                 'program_studi_id' => $prodiId,
@@ -43,20 +45,20 @@ class RoleUserSeeder extends Seeder
             [
                 'name' => 'Staff Tata Usaha',
                 'email' => 'tu@sikp.test',
-                'password' => Hash::make('password'),
+                'password' => $defaultPassword,
                 'role' => 'tu',
                 'nip' => '198501012010',
             ],
             [
                 'name' => 'PT Pertamina (Persero)',
                 'email' => 'instansi@sikp.test',
-                'password' => Hash::make('password'),
+                'password' => $defaultPassword,
                 'role' => 'instansi',
             ],
             [
                 'name' => 'Koordinator Prodi',
                 'email' => 'prodi@sikp.test',
-                'password' => Hash::make('password'),
+                'password' => $defaultPassword,
                 'role' => 'prodi',
                 'nip' => '197801012005',
             ],
@@ -72,7 +74,8 @@ class RoleUserSeeder extends Seeder
         $this->command->info('✅ Demo users created for all 5 roles:');
         $this->command->table(
             ['Email', 'Role', 'Password'],
-            collect($users)->map(fn ($u) => [$u['email'], $u['role'], 'password'])->toArray()
+            collect($users)->map(fn ($u) => [$u['email'], $u['role'], env('INITIAL_DEMO_PASSWORD', 'password')])->toArray()
         );
+
     }
 }

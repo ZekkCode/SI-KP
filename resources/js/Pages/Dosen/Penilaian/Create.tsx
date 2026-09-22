@@ -77,7 +77,7 @@ export default function Create({ pendaftaran, nilai_sebelumnya, flash }: CreateP
                 </div>
             )}
 
-            <div className="bg-white rounded-2xl shadow-sm border border-outline-variant overflow-hidden mb-8">
+            <div className="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden mb-8">
                 <div className="p-6 bg-surface-container-lowest border-b border-outline-variant">
                     <h2 className="text-title-md font-bold mb-1">Identitas Mahasiswa</h2>
                     <p className="text-secondary">{pendaftaran.mahasiswa.nim} - {pendaftaran.mahasiswa.name}</p>

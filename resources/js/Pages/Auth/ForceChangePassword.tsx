@@ -1,6 +1,6 @@
 import { FormEventHandler, useState } from 'react';
-import { Head, useForm } from '@inertiajs/react';
-import { ShieldAlert, KeyRound, Lock, Eye, EyeOff, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Head, useForm, Link, usePage } from '@inertiajs/react';
+import { KeyRound, Lock, Eye, EyeOff, CheckCircle2, ArrowRight, ShieldAlert, MapPin, Phone, Mail, BookOpen, ExternalLink, LogOut } from 'lucide-react';
 
 interface Props {
     user: {
@@ -11,6 +11,13 @@ interface Props {
 }
 
 export default function ForceChangePassword({ user }: Props) {
+    const { props } = usePage();
+    const campus = (props as any)?.campus;
+    const campusAddress = campus?.address || 'Jl. Raya Telang, PO BOX 2 Kamal, Bangkalan';
+    const campusPhone = campus?.phone || '031-3011147';
+    const campusEmail = campus?.email || 'tif@trunojoyo.ac.id';
+    const cleanPhone = campusPhone.replace(/[^0-9]/g, '');
+
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -30,93 +37,166 @@ export default function ForceChangePassword({ user }: Props) {
 
     return (
         <>
-            <Head title="Ganti Password Pertama Kali - SI-KP UTM" />
+            <Head title="Perbarui Kata Sandi - SI-KP UTM" />
 
-            <main className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-slate-950 font-sans text-slate-100">
-                {/* Glowing Mesh */}
-                <div className="absolute -top-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-amber-600/25 to-orange-500/5 blur-[140px] pointer-events-none" />
-                <div className="absolute -bottom-[20%] -right-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-blue-600/20 to-indigo-500/5 blur-[140px] pointer-events-none" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none opacity-60" />
-
-                <div className="w-full max-w-[480px] space-y-6 relative z-10">
-                    
-                    {/* Header */}
-                    <div className="text-center space-y-2">
-                        <div className="flex justify-center">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-xl shadow-amber-500/20">
-                                <KeyRound className="w-7 h-7" />
-                            </div>
+            <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-[#00288e] selection:text-white">
+                {/* Top Contact Bar */}
+                <header className="bg-white border-b border-slate-200 py-1.5 text-xs text-slate-600 hidden md:block w-full">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-y-1">
+                        <div className="flex items-center gap-6">
+                            <a 
+                                href="https://maps.google.com/?q=Universitas+Trunojoyo+Madura" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title="Buka Lokasi Kampus UTM di Google Maps"
+                            >
+                                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusAddress}</span>
+                            </a>
+                            <a 
+                                href={`tel:${cleanPhone}`} 
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title={`Hubungi Telepon Kampus: ${campusPhone}`}
+                            >
+                                <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusPhone}</span>
+                            </a>
+                            <a 
+                                href={`mailto:${campusEmail}`} 
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title={`Kirim Email ke ${campusEmail}`}
+                            >
+                                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusEmail}</span>
+                            </a>
                         </div>
-                        <div className="space-y-1">
-                            <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-100 to-white tracking-tight">
-                                Ganti Password Akun
-                            </h1>
-                            <p className="text-xs text-amber-400 font-bold tracking-widest uppercase">
-                                Login Pertama Kali Mahasiswa
-                            </p>
+
+                        <div className="flex items-center gap-4 text-slate-500 font-medium">
+                            <a 
+                                href="https://trunojoyo.ac.id" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="hover:text-[#00288e] transition cursor-pointer"
+                                title="Portal Resmi Universitas Trunojoyo Madura"
+                            >
+                                <span>SI-KP TEKNIK INFORMATIKA &bull; UNIVERSITAS TRUNOJOYO MADURA</span>
+                            </a>
                         </div>
                     </div>
+                </header>
 
-                    {/* Card */}
-                    <div className="bg-white rounded-3xl p-7 sm:p-9 shadow-2xl border border-slate-100 text-slate-800 space-y-5">
+                {/* Navbar */}
+                <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+                    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-13 sm:h-15 flex items-center justify-between gap-2">
+                        <Link href="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+                            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                                <img 
+                                    src="/images/Logo UTM terbaru_berwarna (1).png" 
+                                    alt="Logo UTM" 
+                                    className="h-7 sm:h-9 w-auto object-contain" 
+                                />
+                                <img 
+                                    src="/images/tekfor-logo.png" 
+                                    alt="Logo Teknik Informatika" 
+                                    className="h-6 sm:h-8 w-auto object-contain" 
+                                />
+                            </div>
+                            <div className="border-l border-slate-200 pl-2 sm:pl-2.5 min-w-0">
+                                <div className="text-xs sm:text-sm font-bold text-[#00288e] tracking-tight leading-tight truncate">
+                                    SI-KP • TEKNIK INFORMATIKA
+                                </div>
+                                <div className="text-[10px] sm:text-xs font-medium text-slate-500 leading-tight truncate">
+                                    Program Studi S1 Teknik Informatika • Fakultas Teknik UTM
+                                </div>
+                            </div>
+                        </Link>
+
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            <Link 
+                                href="/panduan" 
+                                className="inline-flex items-center justify-center gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer shadow-xs"
+                                title="Panduan"
+                            >
+                                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0" />
+                                <span className="hidden sm:inline">Panduan</span>
+                            </Link>
+                        </div>
+                    </div>
+                </nav>
+
+                {/* Main Content */}
+                <main className="flex-1 flex flex-col justify-center items-center px-4 py-8 sm:py-12">
+                    <div className="w-full max-w-lg bg-white border border-slate-200 rounded-xl shadow-xs p-6 sm:p-8 space-y-5">
                         
-                        {/* Security Notice */}
-                        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-3">
-                            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-amber-600 mt-0.5" />
-                            <div className="space-y-1">
-                                <p className="font-bold">Keamanan Akun Diperlukan</p>
-                                <p className="leading-relaxed text-amber-800">
-                                    Halo <strong>{user.name}</strong>, Anda masuk menggunakan password sementara. Silakan buat password baru pribadi Anda untuk melanjutkan ke dashboard.
-                                </p>
+                        {/* Header Box */}
+                        <div className="space-y-1 text-center sm:text-left">
+                            <div className="inline-flex p-2.5 rounded-lg bg-amber-50 text-amber-700 mb-2">
+                                <KeyRound className="w-5 h-5" />
+                            </div>
+                            <h1 className="text-lg font-bold text-slate-900 tracking-tight">
+                                Perbarui Kata Sandi Akun
+                            </h1>
+                            <p className="text-xs text-slate-500 leading-relaxed">
+                                Anda saat ini menggunakan kata sandi sementara. Tetapkan kata sandi baru sebelum masuk ke dashboard.
+                            </p>
+                        </div>
+
+                        {/* User Identity Banner */}
+                        <div className="p-3.5 rounded-lg bg-blue-50/70 border border-blue-100 text-xs text-slate-700 flex items-start gap-2.5">
+                            <ShieldAlert className="w-4 h-4 text-[#00288e] shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-slate-900">{user.name}</span>
+                                {user.nim && <span className="text-slate-500"> ({user.nim})</span>}
+                                <p className="text-[11px] text-slate-500 mt-0.5">{user.email}</p>
                             </div>
                         </div>
 
                         {/* Form */}
                         <form onSubmit={submit} className="space-y-4">
-                            
                             {/* Current / Temporary Password */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block" htmlFor="current_password">
-                                    Password Sementara / Saat Ini
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5" htmlFor="current_password">
+                                    Kata Sandi Sementara
                                 </label>
-                                <div className="relative group">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-amber-600 transition-colors" />
+                                <div className="relative">
                                     <input
-                                        className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-slate-50/50 hover:bg-white text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 ${
-                                            errors.current_password ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200'
+                                        className={`w-full pl-9 pr-10 py-2.5 rounded-lg border bg-white text-slate-800 focus:ring-2 focus:ring-[#00288e]/20 focus:border-[#00288e] outline-none transition-all text-sm placeholder:text-slate-400 ${
+                                            errors.current_password ? 'border-red-500' : 'border-slate-200'
                                         }`}
                                         id="current_password"
                                         name="current_password"
-                                        placeholder="Masukkan password dari email"
+                                        placeholder="Masukkan kata sandi dari email"
                                         type={showCurrentPassword ? 'text' : 'password'}
                                         value={data.current_password}
                                         onChange={(e) => setData('current_password', e.target.value)}
                                         required
                                         autoFocus
+                                        autoComplete="current-password"
                                     />
+                                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                     <button
                                         type="button"
                                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
                                     >
-                                        {showCurrentPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
                                 {errors.current_password && (
-                                    <p className="text-xs font-semibold text-red-500 mt-1">{errors.current_password}</p>
+                                    <p className="text-xs font-medium text-red-600 mt-1">{errors.current_password}</p>
                                 )}
                             </div>
 
                             {/* New Password */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block" htmlFor="password">
-                                    Password Baru
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5" htmlFor="password">
+                                    Kata Sandi Baru
                                 </label>
-                                <div className="relative group">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                <div className="relative">
                                     <input
-                                        className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-slate-50/50 hover:bg-white text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 ${
-                                            errors.password ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200'
+                                        className={`w-full pl-9 pr-10 py-2.5 rounded-lg border bg-white text-slate-800 focus:ring-2 focus:ring-[#00288e]/20 focus:border-[#00288e] outline-none transition-all text-sm placeholder:text-slate-400 ${
+                                            errors.password ? 'border-red-500' : 'border-slate-200'
                                         }`}
                                         id="password"
                                         name="password"
@@ -125,87 +205,94 @@ export default function ForceChangePassword({ user }: Props) {
                                         value={data.password}
                                         onChange={(e) => setData('password', e.target.value)}
                                         required
+                                        autoComplete="new-password"
                                     />
+                                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                     <button
                                         type="button"
                                         onClick={() => setShowNewPassword(!showNewPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
                                     >
-                                        {showNewPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
                                 {errors.password && (
-                                    <p className="text-xs font-semibold text-red-500 mt-1">{errors.password}</p>
+                                    <p className="text-xs font-medium text-red-600 mt-1">{errors.password}</p>
                                 )}
                             </div>
 
-                            {/* Confirm New Password */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block" htmlFor="password_confirmation">
-                                    Konfirmasi Password Baru
+                            {/* Confirm Password */}
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5" htmlFor="password_confirmation">
+                                    Konfirmasi Kata Sandi Baru
                                 </label>
-                                <div className="relative group">
-                                    <CheckCircle2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                <div className="relative">
                                     <input
-                                        className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-slate-50/50 hover:bg-white text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 ${
-                                            errors.password_confirmation ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200'
+                                        className={`w-full pl-9 pr-10 py-2.5 rounded-lg border bg-white text-slate-800 focus:ring-2 focus:ring-[#00288e]/20 focus:border-[#00288e] outline-none transition-all text-sm placeholder:text-slate-400 ${
+                                            errors.password_confirmation ? 'border-red-500' : 'border-slate-200'
                                         }`}
                                         id="password_confirmation"
                                         name="password_confirmation"
-                                        placeholder="Ulangi password baru"
+                                        placeholder="Ketik ulang kata sandi baru"
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         value={data.password_confirmation}
                                         onChange={(e) => setData('password_confirmation', e.target.value)}
                                         required
+                                        autoComplete="new-password"
                                     />
+                                    <CheckCircle2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
                                     >
-                                        {showConfirmPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
                                 {errors.password_confirmation && (
-                                    <p className="text-xs font-semibold text-red-500 mt-1">{errors.password_confirmation}</p>
+                                    <p className="text-xs font-medium text-red-600 mt-1">{errors.password_confirmation}</p>
                                 )}
                             </div>
 
-                            {/* Submit Button */}
-                            <div className="pt-3">
+                            <div className="pt-2">
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                                    className="w-full bg-[#00288e] hover:bg-[#001f70] text-white py-2.5 px-4 rounded-lg font-semibold text-xs transition duration-150 ease-in-out shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
-                                    <span>{processing ? 'Menyimpan Password...' : 'Simpan Password & Masuk Dashboard'}</span>
+                                    <span>{processing ? 'Menyimpan Kata Sandi...' : 'Simpan Kata Sandi & Lanjutkan'}</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </button>
                             </div>
                         </form>
 
                         {/* Logout Option */}
-                        <div className="pt-4 border-t border-slate-100 text-center">
-                            <form action={route('logout')} method="POST">
-                                <input type="hidden" name="_token" value={(document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''} />
-                                <button
-                                    type="submit"
-                                    className="text-xs font-bold text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
-                                >
-                                    Keluar dari Sesi (Logout)
-                                </button>
-                            </form>
+                        <div className="pt-3 border-t border-slate-100 text-center">
+                            <Link
+                                href={route('logout')}
+                                method="post"
+                                as="button"
+                                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-red-600 transition"
+                            >
+                                <LogOut className="w-3.5 h-3.5" />
+                                <span>Keluar dari Sesi</span>
+                            </Link>
                         </div>
                     </div>
-                </div>
+                </main>
 
                 {/* Footer */}
-                <footer className="mt-8 text-center space-y-1 relative z-10">
-                    <p className="text-[11px] text-slate-500 font-medium">
-                        © 2026 Teknik Informatika, Fakultas Teknik, Universitas Trunodjoyo Madura.
-                    </p>
+                <footer className="bg-white border-t border-slate-200 py-3.5 text-xs text-slate-500">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+                        <div>
+                            <span className="font-semibold text-slate-700">&copy; 2024 - 2026 SI-KP TEKNIK INFORMATIKA.</span> All Rights Reserved.
+                        </div>
+                        <div>
+                            Program Studi S1 Teknik Informatika - <span className="font-semibold text-slate-700">Universitas Trunojoyo Madura</span>
+                        </div>
+                    </div>
                 </footer>
-            </main>
+            </div>
         </>
     );
 }

@@ -38,16 +38,41 @@ class HandleInertiaRequests extends Middleware
             $user->load('notifikasis');
         }
 
+        $locale = $request->session()->get('locale')
+            ?? $request->cookie('locale')
+            ?? config('app.locale', 'id');
+
+        if (! in_array($locale, ['id', 'en'])) {
+            $locale = 'id';
+        }
+
+        app()->setLocale($locale);
+
+
+        $translations = trans('app', [], $locale);
+        if (! is_array($translations)) {
+            $translations = [];
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
                 'notifications' => $user ? $user->notifikasis()->latest()->take(5)->get() : [],
             ],
+            'locale' => $locale,
+            'translations' => $translations,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'campus' => [
+                'name' => config('app.campus_name'),
+                'address' => config('app.campus_address'),
+                'phone' => config('app.campus_phone'),
+                'email' => config('app.campus_email'),
+            ],
         ];
     }
+
 }

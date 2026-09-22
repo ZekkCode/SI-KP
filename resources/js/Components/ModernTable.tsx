@@ -26,9 +26,9 @@ export function ModernTableHeader({ children, className = '' }: { children: Reac
     );
 }
 
-export function ModernTableTh({ children, className = '' }: { children: ReactNode, className?: string }) {
+export function ModernTableTh({ children, className = '', colSpan }: { children: ReactNode, className?: string, colSpan?: number }) {
     return (
-        <th className={`px-4 py-3 font-semibold align-middle ${className}`}>
+        <th colSpan={colSpan} className={`px-4 py-3 font-semibold align-middle ${className}`}>
             {children}
         </th>
     );
@@ -42,9 +42,9 @@ export function ModernTableBody({ children, className = '' }: { children: ReactN
     );
 }
 
-export function ModernTableTd({ children, className = '' }: { children: ReactNode, className?: string }) {
+export function ModernTableTd({ children, className = '', colSpan }: { children: ReactNode, className?: string, colSpan?: number }) {
     return (
-        <td className={`px-4 py-3 text-sm text-gray-700 align-middle ${className}`}>
+        <td colSpan={colSpan} className={`px-4 py-3 text-sm text-gray-700 align-middle ${className}`}>
             {children}
         </td>
     );

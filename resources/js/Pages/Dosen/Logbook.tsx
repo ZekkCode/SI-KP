@@ -107,26 +107,27 @@ export default function LogbookScreen({ logbooks }: Props) {
                       {entry.deskripsi}
                     </div>
                     {entry.path_foto && (
-                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-blue-600 font-semibold bg-blue-50 w-fit px-2 py-0.5 rounded">
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-blue-700 font-semibold bg-blue-50 w-fit px-2 py-0.5 rounded-md border border-blue-100">
                         <ImageIcon size={12} /> FOTO TERLAMPIR
                       </div>
                     )}
                   </ModernTableTd>
                   <ModernTableTd>
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusUi.color}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${statusUi.color}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                       {statusUi.label}
                     </span>
                   </ModernTableTd>
                   <ModernTableTd className="text-center">
                     <Link 
                       href={route('dosen.logbook.review', entry.id)}
-                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                         entry.status_dosen === 'menunggu' 
                           ? 'bg-primary text-white hover:bg-primary/90 shadow-sm'
                           : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
                       }`}
                     >
-                      {entry.status_dosen === 'menunggu' ? 'Validasi' : 'Detail'}
+                      {entry.status_dosen === 'menunggu' ? 'Validasi Kegiatan' : 'Lihat Detail'}
                     </Link>
                   </ModernTableTd>
                 </tr>

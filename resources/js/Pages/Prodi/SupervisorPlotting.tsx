@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import PageHeader from '@/Components/PageHeader';
 import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
+import { AlertCircle, Check } from 'lucide-react';
 
 interface Mahasiswa {
   id: number;
@@ -61,7 +62,11 @@ export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = []
       {/* Plotting Table Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-bold text-gray-800 mb-2">Daftar Antrean Mahasiswa</h2>
-        <p className="text-sm text-red-500 italic mb-6">* nb : prodi tidak dapat menghapus atau menambah dosbing jika tgl pengajuan surat sudah lewat lebih dari 2 hari</p>
+        
+        <div className="mb-6 flex items-start gap-2.5 p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs">
+          <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+          <span>Ketentuan: Alokasi atau penyesuaian Dosen Pembimbing hanya dapat dilakukan maksimal 2 hari kalender setelah tanggal pengajuan surat.</span>
+        </div>
         
         <ModernTable className="border-gray-200 shadow-none">
           <ModernTableHeader>
@@ -74,8 +79,8 @@ export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = []
             {mahasiswaQueue.length > 0 ? (
               mahasiswaQueue.map((mhs) => (
                 <tr key={mhs.id} className="hover:bg-slate-50 transition-colors">
-                  <ModernTableTd>{mhs.mahasiswa.nim}</ModernTableTd>
-                  <ModernTableTd>{mhs.mahasiswa.name}</ModernTableTd>
+                  <ModernTableTd className="font-mono text-xs">{mhs.mahasiswa.nim}</ModernTableTd>
+                  <ModernTableTd className="font-semibold text-sm">{mhs.mahasiswa.name}</ModernTableTd>
                   <ModernTableTd>
                     <select
                       value={selections[mhs.id] || ''}
@@ -98,9 +103,10 @@ export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = []
                     <button
                       onClick={() => handleSave(mhs.id)}
                       disabled={!selections[mhs.id] || processingId === mhs.id}
-                      className="text-white font-medium text-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                      className="text-white font-semibold text-xs px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5 shadow-sm"
                     >
-                      {processingId === mhs.id ? 'Menyimpan...' : 'Simpan'}
+                      <Check size={14} />
+                      {processingId === mhs.id ? 'Menyimpan...' : 'Simpan Plotting'}
                     </button>
                   </ModernTableTd>
                 </tr>
@@ -135,7 +141,7 @@ export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = []
                   <ModernTableTd>{h.mahasiswa?.name}</ModernTableTd>
                   <ModernTableTd>{h.dosen_pembimbing?.name || '-'}</ModernTableTd>
                   <ModernTableTd>
-                    <button className="text-blue-600 hover:text-blue-800 font-medium text-sm px-3 py-1 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors">
+                    <button className="text-blue-600 hover:text-blue-800 font-semibold text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                       Edit
                     </button>
                   </ModernTableTd>

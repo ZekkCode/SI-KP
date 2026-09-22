@@ -43,7 +43,7 @@ class SikpSeeder extends Seeder
         // ═══════════════════════════════════════════════════════════
         // 2. Users — Multiple roles
         // ═══════════════════════════════════════════════════════════
-        $password = Hash::make('password');
+        $password = Hash::make(env('INITIAL_DEMO_PASSWORD', 'password'));
 
         // --- Mahasiswa (30 users) ---
         $mahasiswaNames = [

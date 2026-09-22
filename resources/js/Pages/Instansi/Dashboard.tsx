@@ -49,8 +49,9 @@ export default function DashboardScreen({ mahasiswaBimbingan, error }: Props) {
             <Users size={20} className="text-primary" />
             Mahasiswa Bimbingan Aktif
           </h2>
-          <span className="bg-primary/10 text-primary py-1 px-3 rounded-full text-xs font-bold">
-            Total: {mahasiswaBimbingan?.length || 0}
+          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary py-1 px-2.5 rounded-md text-xs font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            Total: {mahasiswaBimbingan?.length || 0} Mahasiswa
           </span>
         </div>
         

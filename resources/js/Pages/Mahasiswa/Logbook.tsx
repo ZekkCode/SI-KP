@@ -143,27 +143,31 @@ export default function Logbook({
             {/* ── Header ── */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1">
-                    <h1 className="text-headline-md text-on-surface">Monitoring Kegiatan</h1>
-                    <p className="text-body-md text-secondary mt-1">
-                        Catat kegiatan harian Kerja Praktik Anda.
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
+                        <BookOpen className="w-3.5 h-3.5" />
+                        Tahap 4: Logbook Harian
+                    </span>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Logbook Kegiatan Harian</h1>
+                    <p className="text-sm text-slate-500 mt-1">
+                        Catat aktivitas harian, jam kerja, dan dokumentasi kegiatan Kerja Praktik.
                     </p>
                     
-                    <div className="flex flex-col sm:flex-row gap-4 mt-4 bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-4 bg-slate-50/80 p-4 rounded-xl border border-slate-200">
                         <div className="flex-1">
-                            <span className="text-label-sm text-secondary block">Pembimbing Lapangan</span>
-                            <span className="text-body-md font-semibold text-on-surface">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Pembimbing Lapangan</span>
+                            <span className="text-sm font-bold text-slate-900">
                                 {pembimbingLapangan?.nama ?? 'Belum ditentukan'}
                             </span>
                         </div>
                         <div className="flex-1">
-                            <span className="text-label-sm text-secondary block">Instansi</span>
-                            <span className="text-body-md font-semibold text-on-surface">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Instansi Mitra</span>
+                            <span className="text-sm font-bold text-slate-900">
                                 {pembimbingLapangan?.instansi?.nama ?? 'Belum ditentukan'}
                             </span>
                         </div>
                         <div className="flex-1">
-                            <span className="text-label-sm text-secondary block">Dosen Pembimbing</span>
-                            <span className="text-body-md font-semibold text-on-surface">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Dosen Pembimbing</span>
+                            <span className="text-sm font-bold text-slate-900">
                                 {dosenPembimbing?.name ?? 'Belum ditentukan'}
                             </span>
                         </div>
@@ -173,21 +177,23 @@ export default function Logbook({
                 {hasPendaftaran && (
                     <Link
                         href="/mahasiswa/logbook/create"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-sm hover:bg-primary/90 active:scale-[0.98] transition-all shadow-md shadow-primary/20"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm transition shadow-xs cursor-pointer"
                     >
                         <Plus className="w-4 h-4" />
-                        Tambah Catatan
+                        <span>Tambah Kegiatan</span>
                     </Link>
                 )}
             </div>
 
             {/* ── No Pendaftaran guard ── */}
             {!hasPendaftaran && (
-                <div className="bg-surface-container-low border border-outline-variant rounded-2xl p-12 text-center">
-                    <BookOpen className="w-12 h-12 text-on-surface-variant/40 mx-auto mb-4" />
-                    <h3 className="text-title-lg text-on-surface mb-2">Belum Ada Pendaftaran</h3>
-                    <p className="text-body-md text-on-surface-variant max-w-md mx-auto">
-                        Anda perlu mendaftar Kerja Praktik terlebih dahulu sebelum dapat mengisi logbook.
+                <div className="bg-white border border-slate-200 rounded-xl p-8 sm:p-12 text-center shadow-xs">
+                    <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center mx-auto mb-3">
+                        <BookOpen className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 mb-1">Belum Terdaftar KP</h3>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                        Silakan selesaikan pendaftaran Kerja Praktik dan verifikasi berkas sebelum mengisi logbook kegiatan harian.
                     </p>
                 </div>
             )}
@@ -197,16 +203,16 @@ export default function Logbook({
                     {/* ── Stats Cards ── */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {[
-                            { label: 'Total Entri', value: stats.total, color: 'text-primary', bg: 'bg-primary-fixed' },
-                            { label: 'Menunggu', value: stats.menunggu, color: 'text-amber-700', bg: 'bg-amber-50' },
-                            { label: 'Disetujui', value: stats.disetujui, color: 'text-green-700', bg: 'bg-green-50' },
-                            { label: 'Revisi', value: stats.revisi, color: 'text-red-700', bg: 'bg-red-50' },
+                            { label: 'Total Entri', value: stats.total, color: 'text-blue-700', bg: 'bg-blue-50/70 border-blue-200' },
+                            { label: 'Menunggu', value: stats.menunggu, color: 'text-amber-700', bg: 'bg-amber-50/70 border-amber-200' },
+                            { label: 'Disetujui', value: stats.disetujui, color: 'text-emerald-700', bg: 'bg-emerald-50/70 border-emerald-200' },
+                            { label: 'Perlu Revisi', value: stats.revisi, color: 'text-red-700', bg: 'bg-red-50/70 border-red-200' },
                         ].map((s) => (
                             <div
                                 key={s.label}
-                                className={`${s.bg} rounded-xl p-4 border border-outline-variant/50`}
+                                className={`${s.bg} rounded-xl p-4 border`}
                             >
-                                <p className="text-label-sm text-on-surface-variant uppercase tracking-wider">{s.label}</p>
+                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">{s.label}</p>
                                 <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
                             </div>
                         ))}
@@ -215,27 +221,27 @@ export default function Logbook({
                     {/* ── Search & Filter Bar ── */}
                     <div className="flex flex-col sm:flex-row gap-3">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder="Cari berdasarkan deskripsi atau tanggal..."
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm"
+                                placeholder="Cari kegiatan atau tanggal..."
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition text-sm"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0">
                             {(['semua', 'menunggu', 'disetujui', 'revisi'] as const).map((s) => (
                                 <button
                                     key={s}
                                     onClick={() => setFilterStatus(s)}
-                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0 ${
                                         filterStatus === s
-                                            ? 'bg-primary text-on-primary shadow-sm'
-                                            : 'bg-surface-container-low text-on-surface-variant border border-outline-variant hover:bg-surface-container'
+                                            ? 'bg-blue-700 text-white shadow-xs'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                                     }`}
                                 >
-                                    {s === 'semua' ? 'Semua' : statusConfig[s].label}
+                                    {s === 'semua' ? 'Semua Status' : statusConfig[s].label}
                                 </button>
                             ))}
                         </div>
@@ -243,13 +249,15 @@ export default function Logbook({
 
                     {/* ── Logbook List ── */}
                     {filtered.length === 0 ? (
-                        <div className="bg-surface-container-low border border-outline-variant rounded-2xl p-12 text-center">
-                            <Calendar className="w-12 h-12 text-on-surface-variant/40 mx-auto mb-4" />
-                            <h3 className="text-title-lg text-on-surface mb-2">Belum Ada Catatan Kegiatan</h3>
-                            <p className="text-body-md text-on-surface-variant max-w-md mx-auto">
+                        <div className="bg-white border border-slate-200 rounded-xl p-8 sm:p-12 text-center shadow-xs">
+                            <div className="w-12 h-12 rounded-lg bg-slate-50 text-slate-400 border border-slate-200 flex items-center justify-center mx-auto mb-3">
+                                <Calendar className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-base font-bold text-slate-900 mb-1">Tidak Ada Catatan Ditemukan</h3>
+                            <p className="text-xs text-slate-500 max-w-md mx-auto">
                                 {searchQuery || filterStatus !== 'semua'
-                                    ? 'Tidak ada catatan yang cocok dengan filter.'
-                                    : 'Mulai catat kegiatan harian Anda dengan menekan tombol "Tambah Catatan".'}
+                                    ? 'Coba sesuaikan kata kunci pencarian atau filter status yang dipilih.'
+                                    : 'Mulai dokumentasikan kegiatan harian Anda dengan tombol "Tambah Kegiatan".'}
                             </p>
                         </div>
                     ) : (
@@ -258,58 +266,60 @@ export default function Logbook({
                                 return (
                                     <div
                                         key={entry.id}
-                                        className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
+                                        className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs hover:border-blue-300 transition group"
                                     >
                                         <div className="p-5 sm:p-6">
                                             {/* Top row: date + status + actions */}
                                             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center shrink-0">
-                                                        <Calendar className="w-5 h-5 text-primary" />
+                                                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
+                                                        <Calendar className="w-5 h-5" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-label-md text-on-surface font-semibold">
+                                                        <p className="text-sm font-bold text-slate-900">
                                                             {formatDate(entry.tanggal)}
                                                         </p>
-                                                        <p className="text-label-sm text-on-surface-variant">
+                                                        <p className="text-xs text-slate-500">
                                                             {entry.jam_mulai && entry.jam_selesai
-                                                                ? `${entry.jam_mulai} - ${entry.jam_selesai}`
-                                                                : 'Waktu tidak diatur'}
+                                                                ? `${entry.jam_mulai} - ${entry.jam_selesai} WIB`
+                                                                : 'Waktu belum diatur'}
                                                         </p>
                                                     </div>
                                                 </div>
 
                                                 <div className="flex flex-col items-end gap-2">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-medium text-on-surface-variant w-14 text-right">Dosen:</span>
-                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusConfig[entry.status_dosen].badge}`}>
-                                                            {React.createElement(statusConfig[entry.status_dosen].icon, { className: "w-3.5 h-3.5" })}
+                                                        <span className="text-xs font-semibold text-slate-500">Dosen:</span>
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold border ${statusConfig[entry.status_dosen].badge}`}>
+                                                            {React.createElement(statusConfig[entry.status_dosen].icon, { className: "w-3 h-3" })}
                                                             {statusConfig[entry.status_dosen].label}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-medium text-on-surface-variant w-14 text-right">Instansi:</span>
-                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusConfig[entry.status_instansi].badge}`}>
-                                                            {React.createElement(statusConfig[entry.status_instansi].icon, { className: "w-3.5 h-3.5" })}
+                                                        <span className="text-xs font-semibold text-slate-500">Instansi:</span>
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold border ${statusConfig[entry.status_instansi].badge}`}>
+                                                            {React.createElement(statusConfig[entry.status_instansi].icon, { className: "w-3 h-3" })}
                                                             {statusConfig[entry.status_instansi].label}
                                                         </span>
                                                     </div>
 
                                                     {!(entry.status_dosen === 'disetujui' || entry.status_instansi === 'disetujui') && (
-                                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-2">
+                                                        <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity mt-1">
                                                             <Link
                                                                 href={`/mahasiswa/logbook/${entry.id}/edit`}
-                                                                className="p-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary-container/60 transition-all"
-                                                                title="Edit"
+                                                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50 border border-slate-200 transition"
+                                                                title="Edit Catatan"
                                                             >
-                                                                <Pencil className="w-4 h-4" />
+                                                                <Pencil className="w-3.5 h-3.5" />
+                                                                <span>Edit</span>
                                                             </Link>
                                                             <button
                                                                 onClick={() => setDeleteConfirmId(entry.id)}
-                                                                className="p-2 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/60 transition-all"
-                                                                title="Hapus"
+                                                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-red-700 hover:bg-red-50 border border-slate-200 transition cursor-pointer"
+                                                                title="Hapus Catatan"
                                                             >
-                                                                <Trash2 className="w-4 h-4" />
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                                <span>Hapus</span>
                                                             </button>
                                                         </div>
                                                     )}

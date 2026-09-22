@@ -93,42 +93,42 @@ export default function DokumenAkhirIndex({ dokumen, pendaftaran, flash }: Props
       )}
 
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-semibold text-on-surface mb-2">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-800 mb-1">
           Laporan Akhir Kerja Praktik
         </h1>
-        <p className="text-on-surface-variant max-w-2xl">
-          Unggah Laporan Akhir Kerja Praktik Anda di sini. Pastikan format file adalah PDF dan ukuran maksimal 5MB. Laporan ini akan ditinjau oleh Dosen Pembimbing dan Pembimbing Lapangan.
+        <p className="text-sm text-slate-500 max-w-2xl">
+          Unggah berkas laporan akhir Kerja Praktik berformat PDF (maksimal 5MB) untuk peninjauan dosen pembimbing dan pembimbing lapangan.
         </p>
       </div>
 
       {!pendaftaran ? (
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-12 text-center">
-          <FileText className="w-12 h-12 text-outline mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-on-surface mb-2">Pendaftaran Tidak Aktif</h3>
-          <p className="text-on-surface-variant">
-            Anda belum memiliki pendaftaran Kerja Praktik yang aktif.
+        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-sm">
+          <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800 mb-1">Pendaftaran Tidak Aktif</h3>
+          <p className="text-xs text-slate-500">
+            Anda belum memiliki pendaftaran Kerja Praktik yang aktif pada periode ini.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Form Upload */}
           <div className="lg:col-span-1">
-            <div className="bg-surface-lowest rounded-2xl border border-outline-variant shadow-sm overflow-hidden p-6 relative">
-              <div className="flex items-center gap-2 mb-4">
-                <Upload size={20} className="text-primary" />
-                <h2 className="text-lg font-semibold text-on-surface">Unggah Dokumen</h2>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 relative">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+                <Upload size={18} className="text-blue-700" />
+                <h2 className="text-sm font-bold text-slate-800">Unggah Laporan</h2>
               </div>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div 
-                  className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                  className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all ${
                     dragActive 
-                      ? 'border-primary bg-primary/5' 
+                      ? 'border-blue-600 bg-blue-50/50' 
                       : data.file 
-                        ? 'border-green-400 bg-green-50' 
-                        : 'border-outline-variant bg-surface hover:bg-surface-container-lowest'
+                        ? 'border-emerald-400 bg-emerald-50/30' 
+                        : 'border-slate-300 bg-slate-50/50 hover:bg-slate-50'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -143,35 +143,35 @@ export default function DokumenAkhirIndex({ dokumen, pendaftaran, flash }: Props
                     disabled={processing}
                   />
                   
-                  <div className="flex flex-col items-center justify-center gap-3 pointer-events-none">
+                  <div className="flex flex-col items-center justify-center gap-2.5 pointer-events-none">
                     {data.file ? (
                       <>
-                        <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-1">
-                          <CheckCircle2 size={24} />
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 mb-0.5">
+                          <CheckCircle2 size={20} />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-900 truncate max-w-[200px]">{data.file.name}</p>
-                          <p className="text-xs text-gray-500 mt-1">{(data.file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                          <p className="text-xs font-semibold text-slate-800 truncate max-w-[200px]">{data.file.name}</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">{(data.file.size / (1024 * 1024)).toFixed(2)} MB</p>
                         </div>
                       </>
                     ) : (
                       <>
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-1">
-                          <FileText size={24} />
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700 mb-0.5">
+                          <FileText size={20} />
                         </div>
-                        <p className="text-sm font-medium text-gray-700">Tarik file ke sini, atau klik untuk memilih</p>
-                        <p className="text-xs text-gray-500 mt-1">Hanya file PDF (Maks. 5MB)</p>
+                        <p className="text-xs font-semibold text-slate-700">Tarik berkas atau klik di sini</p>
+                        <p className="text-[11px] text-slate-500">Format .PDF (Maks. 5MB)</p>
                       </>
                     )}
                   </div>
                 </div>
 
-                {errors.file && <p className="text-error text-sm font-medium">{errors.file}</p>}
+                {errors.file && <p className="text-red-600 text-xs font-medium">{errors.file}</p>}
 
                 {progress && (
-                  <div className="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+                  <div className="w-full bg-slate-100 rounded-lg h-2 overflow-hidden">
                     <div 
-                      className="bg-primary h-2.5 rounded-full transition-all duration-300" 
+                      className="bg-blue-700 h-2 rounded-lg transition-all duration-300" 
                       style={{ width: `${progress.percentage}%` }}
                     ></div>
                   </div>
@@ -180,7 +180,7 @@ export default function DokumenAkhirIndex({ dokumen, pendaftaran, flash }: Props
                 <button
                   type="submit"
                   disabled={!data.file || processing}
-                  className="w-full py-3 px-4 bg-primary text-on-primary font-bold text-sm rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex justify-center items-center gap-2"
+                  className="w-full py-2.5 px-4 bg-[#00288e] hover:bg-blue-800 text-white font-semibold text-xs rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex justify-center items-center gap-2"
                 >
                   {processing ? 'Mengunggah...' : 'Unggah Laporan'}
                 </button>
@@ -190,48 +190,48 @@ export default function DokumenAkhirIndex({ dokumen, pendaftaran, flash }: Props
 
           {/* Riwayat Dokumen */}
           <div className="lg:col-span-2">
-            <div className="bg-surface-lowest rounded-2xl border border-outline-variant shadow-sm overflow-hidden flex flex-col h-full">
-              <div className="p-6 border-b border-outline-variant">
-                <h2 className="text-lg font-semibold text-on-surface">Riwayat Laporan Akhir</h2>
-                <p className="text-sm text-on-surface-variant mt-1">
-                  Daftar laporan akhir yang telah Anda unggah.
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
+              <div className="p-5 border-b border-slate-100">
+                <h2 className="text-sm font-bold text-slate-800">Riwayat Laporan Akhir</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Daftar laporan akhir yang telah Anda serahkan.
                 </p>
               </div>
 
-              <div className="p-6 flex-1 bg-surface-container-lowest/30">
+              <div className="p-5 flex-1 bg-slate-50/40">
                 {dokumen.length === 0 ? (
-                  <div className="h-full min-h-[250px] flex flex-col items-center justify-center text-center p-6">
-                    <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-outline mb-4">
-                      <File size={32} />
+                  <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6">
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                      <File size={24} />
                     </div>
-                    <p className="text-on-surface font-medium">Belum Ada Dokumen</p>
-                    <p className="text-sm text-on-surface-variant mt-1">Anda belum mengunggah laporan akhir.</p>
+                    <p className="text-slate-700 font-semibold text-sm">Belum Ada Dokumen</p>
+                    <p className="text-xs text-slate-500 mt-1">Anda belum mengunggah laporan akhir Kerja Praktik.</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {dokumen.map((doc, index) => (
                       <div 
                         key={doc.id} 
-                        className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-all hover:shadow-sm bg-white ${
-                          index === 0 ? 'border-primary/30 ring-1 ring-primary/5' : 'border-outline-variant'
+                        className={`p-3.5 rounded-xl border flex items-center justify-between gap-4 transition-all hover:shadow-sm bg-white ${
+                          index === 0 ? 'border-blue-200 ring-1 ring-blue-50' : 'border-slate-200'
                         }`}
                       >
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${
-                            index === 0 ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                            index === 0 ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-500'
                           }`}>
-                            <FileText size={24} />
+                            <FileText size={20} />
                           </div>
                           <div className="min-w-0">
-                            <h4 className="text-sm font-semibold text-on-surface truncate">{doc.nama_file}</h4>
+                            <h4 className="text-xs font-bold text-slate-800 truncate">{doc.nama_file}</h4>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">
+                              <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
                                 {new Date(doc.uploaded_at).toLocaleString('id-ID', {
                                   day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
                                 })}
                               </span>
                               {index === 0 && (
-                                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
                                   Terbaru
                                 </span>
                               )}
@@ -243,10 +243,10 @@ export default function DokumenAkhirIndex({ dokumen, pendaftaran, flash }: Props
                           href={`/storage/${doc.path}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 px-4 py-2 border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded-lg text-sm font-medium transition-colors shrink-0"
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg text-xs font-semibold transition-colors shrink-0"
                         >
-                          <Download size={16} />
-                          <span className="hidden sm:inline">Unduh</span>
+                          <Download size={14} />
+                          <span>Unduh</span>
                         </a>
                       </div>
                     ))}
