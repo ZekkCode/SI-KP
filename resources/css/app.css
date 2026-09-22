@@ -172,6 +172,8 @@ body {
   font-family: var(--font-inter);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: auto;
+  user-select: auto;
 }
 
 /* === Scrollbar === */

@@ -26,6 +26,22 @@ Route::get('/', function (Illuminate\Http\Request $request) {
     return redirect()->route('login');
 });
 
+// Halaman Panduan & Berkas Resmi KP
+Route::get('/panduan', function () {
+    return Inertia::render('Panduan');
+})->name('panduan');
+
+// Switch Language / Ganti Bahasa
+Route::get('/locale/{locale}', function (string $locale) {
+    if (in_array($locale, ['id', 'en'])) {
+        session(['locale' => $locale]);
+        app()->setLocale($locale);
+        return back()->withCookie(cookie('locale', $locale, 60 * 24 * 365));
+    }
+    return back();
+})->name('locale.switch');
+
+
 // ============================================================
 // MAHASISWA ROUTES
 // ============================================================

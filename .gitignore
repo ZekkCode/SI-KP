@@ -1,27 +1,74 @@
+# -----------------------------------------------------------------------------
+# Logs & Environment Files
+# -----------------------------------------------------------------------------
 *.log
-.DS_Store
 .env
+.env.*
+!.env.example
+!.env.vault
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.codex
-/.cursor/
+
+# -----------------------------------------------------------------------------
+# OS & System Files
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------------------------------------------------------
+# IDEs & Editor Configuration
+# -----------------------------------------------------------------------------
 /.idea
-/.nova
-/.phpunit.cache
 /.vscode
+/.cursor/
+/.codex
+/.nova
 /.zed
-/auth.json
-/node_modules
-/public/build
-/public/fonts-manifest.dev.json
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
-_ide_helper.php
+/.agents/
+.phpactor.json
 Homestead.json
 Homestead.yaml
-Thumbs.db
+_ide_helper.php
+
+# -----------------------------------------------------------------------------
+# Test & Coverage Caches
+# -----------------------------------------------------------------------------
+.phpunit.result.cache
+/.phpunit.cache
+
+# -----------------------------------------------------------------------------
+# Composer & Node Dependencies
+# -----------------------------------------------------------------------------
+/vendor
+/node_modules
+/auth.json
+
+# -----------------------------------------------------------------------------
+# Frontend Build Artifacts
+# -----------------------------------------------------------------------------
+/public/build
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+
+# -----------------------------------------------------------------------------
+# Laravel Storage & Keys
+# -----------------------------------------------------------------------------
+/storage/*.key
+/storage/pail
+
+# -----------------------------------------------------------------------------
+# Local Scratch Scripts & Temporary Tools
+# -----------------------------------------------------------------------------
+refactor.py
+test_routes.php
+temp_php84/
+*.zip
+*.tar.gz
+*.rar
+
+# -----------------------------------------------------------------------------
+# Raw Master Spreadsheets (Personal Data & Local Seeds)
+# -----------------------------------------------------------------------------
+master_*.xlsx
+*.xlsx

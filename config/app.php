@@ -78,9 +78,10 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'id'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'id'),
+
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
@@ -123,4 +124,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Campus & Contact Information
+    |--------------------------------------------------------------------------
+    */
+    'campus_name' => env('CAMPUS_NAME', 'Teknik Informatika Universitas Trunojoyo Madura'),
+    'campus_address' => env('CAMPUS_ADDRESS', 'Jl. Raya Telang, PO BOX 2 Kamal, Bangkalan'),
+    'campus_phone' => env('CAMPUS_PHONE', '031-3011147'),
+    'campus_email' => env('CAMPUS_EMAIL', 'tif@trunojoyo.ac.id'),
+
 ];
+

@@ -60,8 +60,8 @@ export default function Index({ pendaftarans }: Props) {
                     </p>
                 </div>
 
-                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-secondary-container text-on-secondary-container">
-                    <span className="w-2 h-2 rounded-full bg-primary mr-2"></span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-secondary-container text-on-secondary-container">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>
                     {pendaftarans.length} Pendaftaran
                 </span>
             </div>
@@ -72,7 +72,7 @@ export default function Index({ pendaftarans }: Props) {
                 <input
                     type="text"
                     placeholder="Cari mahasiswa atau instansi..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
@@ -84,14 +84,14 @@ export default function Index({ pendaftarans }: Props) {
                     <h3 className="text-lg font-medium text-on-surface mb-1">
                         Tidak ada data
                     </h3>
-                    <p className="text-on-surface-variant">
+                    <p className="text-on-surface-variant text-sm">
                         {search
                             ? 'Tidak ditemukan hasil untuk pencarian tersebut.'
                             : 'Belum ada pendaftaran yang menunggu surat balasan.'}
                     </p>
                 </div>
             ) : (
-                <div className="bg-surface-container-low rounded-2xl border border-outline-variant overflow-hidden">
+                <div className="bg-surface-container-low rounded-xl border border-outline-variant overflow-hidden">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="border-b border-outline-variant bg-surface-container">
@@ -121,26 +121,27 @@ export default function Index({ pendaftarans }: Props) {
                                         className="hover:bg-surface-container-highest/40 transition-colors"
                                     >
                                         <td className="px-6 py-4">
-                                            <p className="font-medium text-on-surface">
+                                            <p className="font-semibold text-on-surface text-sm">
                                                 {p.mahasiswa?.name ?? '-'}
                                             </p>
                                         </td>
-                                        <td className="px-6 py-4 text-on-surface-variant">
+                                        <td className="px-6 py-4 text-on-surface-variant text-sm">
                                             {p.instansi?.nama ?? '-'}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span
-                                                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${badge.className}`}
+                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${badge.className}`}
                                             >
+                                                <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                                                 {badge.text}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <Link
                                                 href={`/tu/surat-balasan/${p.id}`}
-                                                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
                                             >
-                                                <Eye className="w-4 h-4" />
+                                                <Eye className="w-3.5 h-3.5" />
                                                 Detail
                                             </Link>
                                         </td>

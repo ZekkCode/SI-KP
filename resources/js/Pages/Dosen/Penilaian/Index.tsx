@@ -30,12 +30,12 @@ export default function Index({ auth, pendaftarans }: PageProps<{ pendaftarans: 
                         Daftar mahasiswa bimbingan yang telah masuk tahap penilaian Kerja Praktik.
                     </p>
                 </div>
-                <div className="bg-primary/10 p-3 rounded-full">
+                <div className="bg-primary/10 p-3 rounded-xl">
                     <ClipboardList className="w-8 h-8 text-primary" />
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -52,17 +52,17 @@ export default function Index({ auth, pendaftarans }: PageProps<{ pendaftarans: 
                                 pendaftarans.map((p, index) => (
                                     <tr key={p.id} className="hover:bg-surface-container-lowest transition-colors">
                                         <td className="px-6 py-4 text-body-md text-on-surface">{index + 1}</td>
-                                        <td className="px-6 py-4 text-body-md text-on-surface font-medium">{p.mahasiswa?.nim}</td>
-                                        <td className="px-6 py-4 text-body-md text-on-surface">{p.mahasiswa?.name}</td>
+                                        <td className="px-6 py-4 text-body-md text-on-surface font-mono text-sm">{p.mahasiswa?.nim}</td>
+                                        <td className="px-6 py-4 text-body-md text-on-surface font-semibold">{p.mahasiswa?.name}</td>
                                         <td className="px-6 py-4">
                                             {p.is_dinilai ? (
-                                                <div className="flex items-center gap-2 text-green-600 bg-green-50 w-fit px-3 py-1 rounded-full text-label-sm font-bold">
-                                                    <CheckCircle className="w-4 h-4" />
+                                                <div className="inline-flex items-center gap-1.5 text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-md text-xs font-semibold">
+                                                    <CheckCircle className="w-3.5 h-3.5" />
                                                     Sudah Dinilai ({p.nilai_pembimbing})
                                                 </div>
                                             ) : (
-                                                <div className="flex items-center gap-2 text-yellow-600 bg-yellow-50 w-fit px-3 py-1 rounded-full text-label-sm font-bold">
-                                                    <Clock className="w-4 h-4" />
+                                                <div className="inline-flex items-center gap-1.5 text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md text-xs font-semibold">
+                                                    <Clock className="w-3.5 h-3.5" />
                                                     Belum Dinilai
                                                 </div>
                                             )}

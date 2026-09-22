@@ -178,51 +178,51 @@ class MahasiswaDashboardController extends Controller
     {
         if (!$pendaftaran) {
             return [
-                'label' => 'Belum Mendaftar',
-                'description' => 'Anda belum melakukan pendaftaran Kerja Praktik. Silakan mulai proses pendaftaran.',
+                'label' => __('app.status.none.label'),
+                'description' => __('app.status.none.description'),
             ];
         }
 
         return match ($pendaftaran->status) {
             'draft' => [
-                'label' => 'Draft Pendaftaran',
-                'description' => 'Pendaftaran Anda masih dalam bentuk draft. Lengkapi dan kirimkan untuk diproses.',
+                'label' => __('app.status.draft.label'),
+                'description' => __('app.status.draft.description'),
             ],
             'diajukan' => [
-                'label' => 'Menunggu Verifikasi Prodi',
-                'description' => 'Pendaftaran telah diajukan dan sedang menunggu verifikasi dari Koordinator Program Studi.',
+                'label' => __('app.status.diajukan.label'),
+                'description' => __('app.status.diajukan.description'),
             ],
             'verifikasi_tu' => [
-                'label' => 'Menunggu Surat Pengantar',
-                'description' => 'Pendaftaran telah disetujui Prodi. Menunggu penerbitan Surat Pengantar oleh Tata Usaha.',
+                'label' => __('app.status.verifikasi_tu.label'),
+                'description' => __('app.status.verifikasi_tu.description'),
             ],
             'perlu_perbaikan' => [
-                'label' => 'Perlu Perbaikan',
-                'description' => 'Berkas pendaftaran memerlukan perbaikan. Periksa catatan penolakan.',
+                'label' => __('app.status.perlu_perbaikan.label'),
+                'description' => __('app.status.perlu_perbaikan.description'),
             ],
             'disetujui_tu' => [
-                'label' => 'Menunggu Surat Pengantar',
-                'description' => 'Dokumen pendaftaran Anda telah disetujui. Menunggu penerbitan surat pengantar.',
+                'label' => __('app.status.disetujui_tu.label'),
+                'description' => __('app.status.disetujui_tu.description'),
             ],
             'surat_terbit' => [
-                'label' => 'Surat Pengantar Terbit',
-                'description' => 'Surat pengantar telah diterbitkan. Silakan unduh dan ajukan ke instansi tujuan.',
+                'label' => __('app.status.surat_terbit.label'),
+                'description' => __('app.status.surat_terbit.description'),
             ],
             'diterima_instansi' => [
-                'label' => 'Diterima Instansi',
-                'description' => 'Selamat! Anda telah diterima di instansi. Silakan upload proposal KP.',
+                'label' => __('app.status.diterima_instansi.label'),
+                'description' => __('app.status.diterima_instansi.description'),
             ],
             'aktif' => [
-                'label' => 'Sedang Berlangsung',
-                'description' => 'Kerja Praktik sedang berjalan. Jangan lupa mengisi logbook harian.',
+                'label' => __('app.status.aktif.label'),
+                'description' => __('app.status.aktif.description'),
             ],
             'selesai' => [
-                'label' => 'Selesai',
-                'description' => 'Kerja Praktik telah selesai. Periksa penilaian akhir Anda.',
+                'label' => __('app.status.selesai.label'),
+                'description' => __('app.status.selesai.description'),
             ],
             default => [
-                'label' => 'Status Tidak Diketahui',
-                'description' => 'Hubungi koordinator KP untuk informasi lebih lanjut.',
+                'label' => __('app.status.default.label'),
+                'description' => __('app.status.default.description'),
             ],
         };
     }

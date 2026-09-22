@@ -1,11 +1,14 @@
 import { FormEventHandler, useState, useEffect } from 'react';
 import { Head, useForm, Link, usePage } from '@inertiajs/react';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import InterfaceTour from '@/Components/InterfaceTour';
+import { useTranslation } from '@/hooks/useTranslation';
 import { 
     GraduationCap, 
     Award, 
-    ShieldCheck, 
     Building, 
     Briefcase, 
+    ShieldCheck, 
     User, 
     Lock, 
     Eye, 
@@ -13,28 +16,33 @@ import {
     LogIn, 
     ArrowLeft, 
     ArrowRight, 
-    Sparkles, 
     Info, 
-    Building2 
+    MapPin,
+    Phone,
+    Mail,
+    BookOpen,
+    ExternalLink,
+    Building2,
+    Compass
 } from 'lucide-react';
 
-type RoleId = 'mahasiswa' | 'dosen' | 'prodi' | 'tu' | 'instansi';
+
+export type RoleId = 'mahasiswa' | 'dosen' | 'tu' | 'instansi' | 'prodi';
 
 interface RoleConfig {
     id: RoleId;
     title: string;
     badge: string;
-    description: string;
     portalName: string;
+    description: string;
+    labelInput: string;
     placeholder: string;
     icon: typeof GraduationCap;
-    accentColor: string;
-    accentGradient: string;
-    buttonGradient: string;
-    borderHover: string;
-    glowColor: string;
     badgeBg: string;
+    badgeBorder: string;
     badgeText: string;
+    iconBg: string;
+    iconColor: string;
 }
 
 const ROLES: RoleConfig[] = [
@@ -43,80 +51,75 @@ const ROLES: RoleConfig[] = [
         title: 'Mahasiswa',
         badge: 'S1 Informatika',
         portalName: 'Portal Mahasiswa',
-        description: 'Pendaftaran KP, pengisian logbook mingguan, bimbingan dosen, hingga pengajuan seminar.',
-        placeholder: 'Contoh: 230411100092',
+        description: 'Ajukan pendaftaran KP, isi catatan harian logbook, pantau bimbingan, dan daftar seminar hasil.',
+        labelInput: 'NIM atau Email Kampus',
+        placeholder: 'Masukkan NIM atau email @student.trunojoyo.ac.id',
         icon: GraduationCap,
-        accentColor: 'blue',
-        accentGradient: 'from-blue-600 to-indigo-600',
-        buttonGradient: 'from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-blue-600/30',
-        borderHover: 'hover:border-blue-500/60 hover:shadow-blue-500/10',
-        glowColor: 'bg-blue-500/15',
-        badgeBg: 'bg-blue-500/10 border-blue-500/20',
-        badgeText: 'text-blue-400',
+        badgeBg: 'bg-blue-50',
+        badgeBorder: 'border-blue-200',
+        badgeText: 'text-blue-700',
+        iconBg: 'bg-blue-50/90',
+        iconColor: 'text-[#00288e]',
     },
     {
         id: 'dosen',
         title: 'Dosen Pembimbing',
         badge: 'Tenaga Pengajar',
         portalName: 'Portal Dosen Pembimbing',
-        description: 'Monitoring progres kerja praktik, review catatan logbook harian, dan penilaian seminar KP.',
-        placeholder: 'Masukkan NIP atau Email Dosen',
+        description: 'Pantau progres bimbingan, tinjau logbook kegiatan mahasiswa, dan berikan penilaian seminar.',
+        labelInput: 'NIP atau Email Dosen',
+        placeholder: 'Masukkan NIP atau email @trunojoyo.ac.id',
         icon: Award,
-        accentColor: 'emerald',
-        accentGradient: 'from-emerald-500 to-teal-600',
-        buttonGradient: 'from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/30',
-        borderHover: 'hover:border-emerald-500/60 hover:shadow-emerald-500/10',
-        glowColor: 'bg-emerald-500/15',
-        badgeBg: 'bg-emerald-500/10 border-emerald-500/20',
-        badgeText: 'text-emerald-400',
-    },
-    {
-        id: 'prodi',
-        title: 'Koordinator KP',
-        badge: 'Koordinator',
-        portalName: 'Portal Koordinator Kerja Praktik',
-        description: 'Verifikasi pendaftaran KP, plotting dosen pembimbing, monitoring kuota, dan berita acara.',
-        placeholder: 'koordinatorkp@utm.ac.id / admin',
-        icon: ShieldCheck,
-        accentColor: 'purple',
-        accentGradient: 'from-purple-600 to-indigo-600',
-        buttonGradient: 'from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-600/30',
-        borderHover: 'hover:border-purple-500/60 hover:shadow-purple-500/10',
-        glowColor: 'bg-purple-500/15',
-        badgeBg: 'bg-purple-500/10 border-purple-500/20',
-        badgeText: 'text-purple-400',
+        badgeBg: 'bg-emerald-50',
+        badgeBorder: 'border-emerald-200',
+        badgeText: 'text-emerald-700',
+        iconBg: 'bg-emerald-50/90',
+        iconColor: 'text-emerald-700',
     },
     {
         id: 'tu',
         title: 'Tata Usaha (TU)',
         badge: 'Administrasi Fakultas',
         portalName: 'Portal Tata Usaha',
-        description: 'Penerbitan surat pengantar, verifikasi berkas legalitas, dan validasi akun mitra instansi.',
-        placeholder: 'tu@admin.com',
+        description: 'Verifikasi berkas persyaratan, terbitkan surat pengantar, dan kelola administrasi resmi.',
+        labelInput: 'Email atau Nama Pengguna TU',
+        placeholder: 'Masukkan email atau username staf TU',
         icon: Building,
-        accentColor: 'amber',
-        accentGradient: 'from-amber-500 to-orange-600',
-        buttonGradient: 'from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-amber-600/30',
-        borderHover: 'hover:border-amber-500/60 hover:shadow-amber-500/10',
-        glowColor: 'bg-amber-500/15',
-        badgeBg: 'bg-amber-500/10 border-amber-500/20',
-        badgeText: 'text-amber-400',
+        badgeBg: 'bg-amber-50',
+        badgeBorder: 'border-amber-200',
+        badgeText: 'text-amber-700',
+        iconBg: 'bg-amber-50/90',
+        iconColor: 'text-amber-700',
     },
     {
         id: 'instansi',
         title: 'Pembimbing Lapangan',
         badge: 'Mitra & Instansi',
         portalName: 'Portal Pembimbing Lapangan',
-        description: 'Evaluasi langsung kinerja mahasiswa di instansi kerja praktik dan pengisian nilai lapangan.',
-        placeholder: 'pembimbing@instansi.com',
+        description: 'Pantau aktivitas mahasiswa di instansi mitra dan berikan evaluasi nilai kinerja lapangan.',
+        labelInput: 'Email Pembimbing Lapangan',
+        placeholder: 'Masukkan alamat email pembimbing lapangan',
         icon: Briefcase,
-        accentColor: 'rose',
-        accentGradient: 'from-rose-500 to-pink-600',
-        buttonGradient: 'from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 shadow-rose-600/30',
-        borderHover: 'hover:border-rose-500/60 hover:shadow-rose-500/10',
-        glowColor: 'bg-rose-500/15',
-        badgeBg: 'bg-rose-500/10 border-rose-500/20',
-        badgeText: 'text-rose-400',
+        badgeBg: 'bg-rose-50',
+        badgeBorder: 'border-rose-200',
+        badgeText: 'text-rose-700',
+        iconBg: 'bg-rose-50/90',
+        iconColor: 'text-rose-700',
+    },
+    {
+        id: 'prodi',
+        title: 'Koordinator KP',
+        badge: 'Koordinator Prodi',
+        portalName: 'Portal Koordinator KP',
+        description: 'Verifikasi pendaftaran, tetapkan dosen pembimbing, atur kuota, dan terbitkan berita acara.',
+        labelInput: 'Email atau Nama Pengguna Koordinator',
+        placeholder: 'Masukkan email atau username koordinator',
+        icon: ShieldCheck,
+        badgeBg: 'bg-indigo-50',
+        badgeBorder: 'border-indigo-200',
+        badgeText: 'text-indigo-700',
+        iconBg: 'bg-indigo-50/90',
+        iconColor: 'text-indigo-700',
     },
 ];
 
@@ -128,9 +131,11 @@ interface LoginProps {
 
 export default function Login({ status, canResetPassword = true, initialRole }: LoginProps) {
     const { props } = usePage();
+    const { t } = useTranslation();
+    const [isTourOpen, setIsTourOpen] = useState(false);
     const pageErrors = props.errors as Record<string, string>;
 
-    // Cek apakah ada query param ?role=... dari URL jika initialRole kosong
+
     const getInitialRole = (): RoleId | null => {
         if (initialRole && ROLES.some(r => r.id === initialRole)) {
             return initialRole;
@@ -148,6 +153,8 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
     const [selectedRole, setSelectedRole] = useState<RoleId | null>(getInitialRole);
     const [showPassword, setShowPassword] = useState(false);
 
+    const activeRole = ROLES.find((r) => r.id === selectedRole);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -155,24 +162,22 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
         role: selectedRole || '',
     });
 
-    // Update role form saat role berubah
     useEffect(() => {
         if (selectedRole) {
             setData('role', selectedRole);
         }
     }, [selectedRole]);
 
-    const activeRole = ROLES.find((r) => r.id === selectedRole);
     const emailError = errors.email || pageErrors?.email;
     const passwordError = errors.password || pageErrors?.password;
 
     const handleSelectRole = (roleId: RoleId) => {
         setSelectedRole(roleId);
         setData('role', roleId);
-        // Update URL tanpa reload
         if (typeof window !== 'undefined') {
             const url = new URL(window.location.href);
             url.searchParams.set('role', roleId);
+            url.searchParams.delete('prodi');
             window.history.replaceState({}, '', url.toString());
         }
     };
@@ -183,6 +188,7 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
         if (typeof window !== 'undefined') {
             const url = new URL(window.location.href);
             url.searchParams.delete('role');
+            url.searchParams.delete('prodi');
             window.history.replaceState({}, '', url.toString());
         }
     };
@@ -194,73 +200,154 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
         });
     };
 
+    const campus = (props as any)?.campus;
+    const campusAddress = campus?.address || 'Jl. Raya Telang, PO BOX 2 Kamal, Bangkalan';
+    const campusPhone = campus?.phone || '031-3011147';
+    const campusEmail = campus?.email || 'tif@trunojoyo.ac.id';
+    const cleanPhone = campusPhone.replace(/[^0-9]/g, '');
+
     return (
+
         <>
-            <Head title={activeRole ? `Login ${activeRole.title} - SI-KP UTM` : 'Pilih Portal Masuk - SI-KP UTM'} />
+            <Head 
+                title={
+                    activeRole 
+                        ? `Masuk ${activeRole.title} - SI-KP TEKNIK INFORMATIKA` 
+                        : 'Pilih Peran Masuk - SI-KP TEKNIK INFORMATIKA'
+                } 
+            />
 
-            <main className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden bg-slate-950 font-sans text-slate-100">
+            <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased w-full overflow-x-hidden">
                 
-                {/* 1. Glowing Radial Gradients (Mesh Background) */}
-                <div className="absolute -top-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-blue-600/25 to-cyan-500/5 blur-[140px] pointer-events-none" />
-                <div className="absolute -bottom-[20%] -right-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-indigo-600/20 to-purple-500/5 blur-[140px] pointer-events-none" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45vw] h-[45vw] rounded-full bg-blue-500/10 blur-[130px] pointer-events-none" />
+                {/* 1. TOP CONTACT BAR */}
+                <header id="tour-contact-bar" className="bg-white border-b border-slate-200 py-1.5 text-xs text-slate-600 hidden md:block w-full">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-y-1">
+                        <div className="flex items-center gap-6">
+                            <a 
+                                href="https://maps.google.com/?q=Universitas+Trunojoyo+Madura" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title="Buka Lokasi Kampus UTM di Google Maps"
+                            >
+                                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusAddress}</span>
+                            </a>
+                            <a 
+                                href={`tel:${cleanPhone}`} 
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title={`Hubungi Telepon Kampus: ${campusPhone}`}
+                            >
+                                <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusPhone}</span>
+                            </a>
+                            <a 
+                                href={`mailto:${campusEmail}`} 
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title={`Kirim Email ke ${campusEmail}`}
+                            >
+                                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusEmail}</span>
+                            </a>
+                        </div>
+                        <div className="flex items-center gap-4 text-slate-500 font-medium">
+                            <a 
+                                href="https://trunojoyo.ac.id" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="hover:text-[#00288e] transition cursor-pointer"
+                                title="Portal Resmi Universitas Trunojoyo Madura"
+                            >
+                                <span>SI-KP TEKNIK INFORMATIKA &bull; UNIVERSITAS TRUNOJOYO MADURA</span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
 
-                {/* 2. Grid Pattern Overlay */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none opacity-50" />
-
-                {/* Main Content Area */}
-                <div className="w-full relative z-10 flex flex-col items-center">
-
-                    {/* Portal Header */}
-                    <div className="text-center space-y-3 mb-6 sm:mb-8">
-                        <div className="flex justify-center">
-                            <div className="bg-white/95 backdrop-blur p-2.5 rounded-2xl shadow-xl shadow-blue-500/10 border border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-105">
+                {/* 2. NAVBAR RESMI TEKNIK INFORMATIKA */}
+                <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+                    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-13 sm:h-15 flex items-center justify-between gap-2">
+                        <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group min-w-0 flex-1">
+                            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                                 <img 
                                     src="/images/Logo UTM terbaru_berwarna (1).png" 
                                     alt="Logo UTM" 
-                                    className="w-14 h-14 sm:w-16 sm:h-16 object-contain" 
+                                    className="h-7 sm:h-9 w-auto object-contain" 
+                                />
+                                <img 
+                                    src="/images/tekfor-logo.png" 
+                                    alt="Logo Teknik Informatika" 
+                                    className="h-6 sm:h-8 w-auto object-contain" 
                                 />
                             </div>
-                        </div>
-                        <div className="space-y-1">
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-[11px] font-semibold tracking-wider uppercase">
-                                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                                <span>Sistem Informasi Kerja Praktik</span>
+                            <div className="border-l border-slate-200 pl-2 sm:pl-2.5 min-w-0">
+                                <div className="text-xs sm:text-sm font-bold text-[#00288e] tracking-tight leading-tight truncate">
+                                    SI-KP • TEKNIK INFORMATIKA
+                                </div>
+                                <div className="text-[10px] sm:text-xs font-medium text-slate-500 leading-tight truncate">
+                                    Program Studi S1 Teknik Informatika • Fakultas Teknik UTM
+                                </div>
                             </div>
-                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-300 tracking-tight">
-                                TEKNIK INFORMATIKA
-                            </h1>
-                            <p className="text-xs sm:text-sm text-slate-400 font-medium tracking-wide">
-                                Universitas Trunodjoyo Madura
-                            </p>
+                        </Link>
+
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            <div id="tour-language">
+                                <LanguageSwitcher />
+                            </div>
+
+                            <Link 
+                                id="tour-panduan"
+                                href="/panduan" 
+                                className="inline-flex items-center justify-center gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer shadow-xs"
+                                title="Halaman Panduan"
+                            >
+                                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0" />
+                                <span className="hidden sm:inline">Panduan</span>
+                            </Link>
+
+                            <button
+                                id="tour-trigger-btn"
+                                type="button"
+                                onClick={() => setIsTourOpen(true)}
+                                className="inline-flex items-center justify-center gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 border border-blue-200 rounded-lg bg-blue-50/70 hover:bg-blue-100 text-[#00288e] text-xs font-semibold transition cursor-pointer shadow-xs"
+                                title={t('tour.btn_label', undefined, 'Petunjuk Fitur')}
+                            >
+                                <Compass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00288e] shrink-0" />
+                                <span className="hidden md:inline">{t('tour.btn_label', undefined, 'Petunjuk Fitur')}</span>
+                            </button>
                         </div>
                     </div>
+                </nav>
+
+                {/* 3. KONTEN UTAMA */}
+                <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 flex flex-col justify-center items-center">
 
                     {/* Global Status Alert */}
                     {status && (
-                        <div className="w-full max-w-md mb-6 text-xs font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-4 py-3 rounded-2xl shadow-lg text-center backdrop-blur">
+                        <div className="w-full max-w-md mb-4 text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-lg text-center shadow-xs">
                             {status}
                         </div>
                     )}
 
-                    {/* ======================================================== */}
-                    {/* VIEW 1: MENU 5 KOTAK PILIHAN ROLE (ROLE SELECTION)       */}
-                    {/* ======================================================== */}
-                    {!selectedRole ? (
+                    {/* VIEW 1: PILIH PERAN MASUK (5 BOXES SEPERTI SEBELUMNYA) */}
+                    {!selectedRole || !activeRole ? (
                         <div className="w-full max-w-5xl space-y-6">
-
-                            {/* Menu Header */}
+                            
+                            {/* Section Header */}
                             <div className="text-center space-y-1.5 mb-2">
-                                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                                    Pilih Akses Sistem Informasi Kerja Praktik
-                                </h2>
-                                <p className="text-xs sm:text-sm text-slate-400 font-medium">
-                                    Silakan tentukan hak akses portal sesuai dengan peran Anda untuk melanjutkan
+                                <span className="inline-block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#00288e] bg-blue-50 border border-blue-200 px-3 py-0.5 rounded-md">
+                                    Portal Resmi Kerja Praktik
+                                </span>
+                                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                                    Pilih Portal Masuk
+                                </h1>
+                                <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
+                                    Pilih peran akun Anda untuk mengakses layanan Kerja Praktik Teknik Informatika UTM.
                                 </p>
                             </div>
 
-                            {/* 5-Box Grid Layout: 3 in row 1, 2 centered in row 2 on desktop */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-5">
+                            {/* 5-Box Grid Layout (3 row 1, 2 centered row 2) */}
+                            <div id="tour-roles" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-5 w-full">
                                 {ROLES.map((role, idx) => {
                                     const IconComponent = role.icon;
                                     const gridSpanClass = idx < 3
@@ -274,275 +361,325 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
                                             key={role.id}
                                             type="button"
                                             onClick={() => handleSelectRole(role.id)}
-                                            className={`${gridSpanClass} group relative text-left bg-slate-900/80 hover:bg-slate-900 backdrop-blur-xl border border-slate-800/90 ${role.borderHover} rounded-3xl p-5 sm:p-6 shadow-xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl flex flex-col justify-between overflow-hidden cursor-pointer active:scale-[0.98]`}
+                                            className={`${gridSpanClass} bg-white border border-slate-200 hover:border-[#00288e] rounded-xl p-5 sm:p-6 transition-all duration-200 flex flex-col justify-between text-left cursor-pointer group shadow-xs hover:shadow-md hover:-translate-y-0.5`}
                                         >
-                                            {/* Glow overlay inside card */}
-                                            <div className={`absolute -right-10 -bottom-10 w-32 h-32 rounded-full ${role.glowColor} blur-2xl pointer-events-none transition-all duration-500 group-hover:scale-150 group-hover:opacity-100 opacity-40`} />
-
-                                            <div className="space-y-4 relative z-10">
+                                            <div className="space-y-4">
                                                 {/* Top Row: Icon and Badge */}
                                                 <div className="flex items-center justify-between">
-                                                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${role.accentGradient} flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
+                                                    <div className={`w-12 h-12 rounded-xl ${role.iconBg} border border-slate-100 flex items-center justify-center ${role.iconColor} group-hover:scale-105 transition-transform duration-200 shadow-xs`}>
                                                         <IconComponent className="w-6 h-6" />
                                                     </div>
-                                                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${role.badgeBg} ${role.badgeText}`}>
+                                                    <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${role.badgeBg} ${role.badgeBorder} ${role.badgeText}`}>
                                                         {role.badge}
                                                     </span>
                                                 </div>
 
                                                 {/* Title & Description */}
-                                                <div className="space-y-1.5">
-                                                    <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors">
+                                                <div className="space-y-1">
+                                                    <h2 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#00288e] transition-colors leading-snug">
                                                         {role.title}
-                                                    </h3>
-                                                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-3">
+                                                    </h2>
+                                                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
                                                         {role.description}
                                                     </p>
                                                 </div>
                                             </div>
 
                                             {/* Bottom Action Hint */}
-                                            <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-slate-300 group-hover:text-white transition-colors relative z-10">
-                                                <span>Pilih & Masuk</span>
-                                                <div className="w-7 h-7 rounded-xl bg-white/5 group-hover:bg-white/10 flex items-center justify-center text-slate-400 group-hover:text-white transition-all">
-                                                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                                            <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-600 group-hover:text-[#00288e] transition-colors">
+                                                <span>Masuk Portal</span>
+                                                <div className="w-6 h-6 rounded-lg bg-slate-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
+                                                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                                                 </div>
                                             </div>
                                         </button>
                                     );
                                 })}
                             </div>
+
+                            {/* Banner Google SSO Masuk Cepat */}
+                            <div 
+                                id="tour-google-sso" 
+                                className="bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs transition-colors"
+                            >
+                                <div className="flex items-center gap-3.5">
+                                    <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
+                                        <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" />
+                                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" />
+                                            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.17 0 9.97 0 12s.45 3.83 1.25 5.42l4.03-3.15z" />
+                                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
+                                            <span>Masuk Cepat via Akun Kampus</span>
+                                            <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-[#00288e] border border-blue-200">
+                                                SSO UTM
+                                            </span>
+                                        </div>
+                                        <div className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                                            Khusus akun resmi mahasiswa (<span className="text-[#00288e] font-semibold">@student.trunojoyo.ac.id</span>) dan dosen (<span className="text-[#00288e] font-semibold">@trunojoyo.ac.id</span>)
+                                        </div>
+                                    </div>
+                                </div>
+                                <a
+                                    href={route('auth.google')}
+                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#00288e] hover:bg-[#001f70] text-white rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer shadow-xs"
+                                >
+                                    <span>Masuk via Google Kampus</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                </a>
+                            </div>
+
+                            {/* Pilihan Registrasi */}
+                            <div className="pt-2 text-center flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500">
+                                <span>Belum punya akun?</span>
+                                <Link href={route('register')} className="font-semibold text-[#00288e] hover:underline">
+                                    Daftar Akun Mahasiswa
+                                </Link>
+                                <span className="text-slate-300">•</span>
+                                <Link href={route('register.pl')} className="font-semibold text-[#00288e] hover:underline">
+                                    Registrasi Pembimbing Lapangan (Mitra)
+                                </Link>
+                            </div>
                         </div>
                     ) : (
-                        /* ======================================================== */
-                        /* VIEW 2: DEDICATED LOGIN FORM FOR SELECTED ROLE           */
-                        /* ======================================================== */
-                        activeRole && (
-                            <div className="w-full max-w-[460px] space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                                
-                                {/* Back to 5 Boxes Button */}
-                                <div className="flex items-center justify-between">
-                                    <button
-                                        type="button"
-                                        onClick={handleBackToRoles}
-                                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 text-slate-300 hover:text-white border border-slate-800 text-xs font-bold transition-all shadow-sm hover:-translate-x-0.5 active:scale-95 cursor-pointer"
-                                    >
-                                        <ArrowLeft className="w-4 h-4" />
-                                        <span>Pilih Peran Lain</span>
-                                    </button>
+                        /* VIEW 2: FORM LOGIN TUNGGAL SESUAI PERAN */
+                        <div className="w-full max-w-md space-y-4">
+                            
+                            {/* Bar Kembali ke Pilihan Peran */}
+                            <div className="flex items-center justify-between">
+                                <button
+                                    type="button"
+                                    onClick={handleBackToRoles}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs"
+                                >
+                                    <ArrowLeft className="w-3.5 h-3.5" />
+                                    <span>Pilih Peran Lain</span>
+                                </button>
 
-                                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
-                                        <span>Peran Aktif:</span>
-                                        <span className={`px-2 py-0.5 rounded-md border text-[10px] uppercase tracking-wider ${activeRole.badgeBg} ${activeRole.badgeText}`}>
-                                            {activeRole.title}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* White Login Card */}
-                                <div className="bg-white rounded-3xl p-7 sm:p-9 shadow-2xl border border-slate-100 text-slate-800 relative overflow-hidden">
-                                    
-                                    {/* Top Card Role Banner */}
-                                    <div className="flex items-start gap-4 mb-6 pb-5 border-b border-slate-100">
-                                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${activeRole.accentGradient} flex-shrink-0 flex items-center justify-center text-white shadow-md`}>
-                                            <activeRole.icon className="w-6 h-6" />
-                                        </div>
-                                        <div className="space-y-0.5 flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                                                    Masuk {activeRole.title}
-                                                </h2>
-                                            </div>
-                                            <p className="text-xs text-slate-400 font-medium leading-tight">
-                                                {activeRole.id === 'mahasiswa' 
-                                                    ? 'Masuk menggunakan NIM dan kata sandi Anda' 
-                                                    : 'Gunakan akun yang telah terdaftar untuk role ini'}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Main Login Form */}
-                                    <form className="space-y-4" onSubmit={submit}>
-                                        <input type="hidden" name="role" value={data.role} />
-
-                                        {/* NIM / Email Field */}
-                                        <div className="space-y-1.5">
-                                            <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block" htmlFor="email">
-                                                {activeRole.id === 'mahasiswa' ? 'Nomor Induk Mahasiswa (NIM)' : activeRole.id === 'dosen' ? 'Nomor Induk Pegawai (NIP) / Email' : 'Alamat Email / Akun'}
-                                            </label>
-                                            <div className="relative group">
-                                                {activeRole.id === 'mahasiswa' ? (
-                                                    <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
-                                                ) : (
-                                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
-                                                )}
-                                                <input
-                                                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-50/50 hover:bg-white text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal ${
-                                                        emailError ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500 bg-red-50/30' : 'border-slate-200'
-                                                    }`}
-                                                    id="email"
-                                                    name="email"
-                                                    placeholder={activeRole.placeholder}
-                                                    type={activeRole.id === 'mahasiswa' || activeRole.id === 'dosen' ? 'text' : 'email'}
-                                                    value={data.email}
-                                                    onChange={(e) => setData('email', e.target.value)}
-                                                    required
-                                                    autoFocus
-                                                />
-                                            </div>
-                                            {emailError && (
-                                                <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs font-semibold text-red-600 flex items-start gap-2">
-                                                    <Info className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-500" />
-                                                    <span>{emailError}</span>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Password Field */}
-                                        <div className="space-y-1.5">
-                                            <div className="flex justify-between items-center">
-                                                <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block" htmlFor="password">
-                                                    Kata Sandi
-                                                </label>
-                                                {canResetPassword && (
-                                                    <Link href="/forgot-password" className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline">
-                                                        Lupa Sandi?
-                                                    </Link>
-                                                )}
-                                            </div>
-                                            <div className="relative group">
-                                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
-                                                <input
-                                                    className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-slate-50/50 hover:bg-white text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 ${
-                                                        passwordError ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500 bg-red-50/30' : 'border-slate-200'
-                                                    }`}
-                                                    id="password"
-                                                    name="password"
-                                                    placeholder="••••••••"
-                                                    type={showPassword ? 'text' : 'password'}
-                                                    value={data.password}
-                                                    onChange={(e) => setData('password', e.target.value)}
-                                                    required
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
-                                                >
-                                                    {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                                                </button>
-                                            </div>
-                                            {passwordError && <p className="text-xs font-semibold text-red-500 mt-1">{passwordError}</p>}
-                                        </div>
-
-                                        {/* Remember Me */}
-                                        <div className="flex items-center justify-between py-1">
-                                            <label className="flex items-center gap-2.5 cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                    checked={data.remember}
-                                                    onChange={(e) => setData('remember', e.target.checked)}
-                                                />
-                                                <span className="text-xs font-medium text-slate-600 cursor-pointer select-none">
-                                                    Ingat sesi masuk saya
-                                                </span>
-                                            </label>
-                                        </div>
-
-                                        {/* Submit Button with Role-themed Gradient */}
-                                        <button
-                                            type="submit"
-                                            disabled={processing}
-                                            className={`w-full bg-gradient-to-r ${activeRole.buttonGradient} text-white py-3.5 px-6 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-lg flex items-center justify-center gap-2.5 disabled:opacity-50 text-sm cursor-pointer`}
-                                        >
-                                            <span>{processing ? 'Memverifikasi...' : `Masuk sebagai ${activeRole.title}`}</span>
-                                            <LogIn className="w-4 h-4" />
-                                        </button>
-                                    </form>
-
-                                    {/* ROLE-SPECIFIC FOOTER ACTIONS */}
-                                    {selectedRole === 'mahasiswa' && (
-                                        <div className="mt-5 text-center">
-                                            <p className="text-xs font-semibold text-slate-500">
-                                                Belum punya akun mahasiswa?{' '}
-                                                <Link href={route('register')} className="text-blue-600 hover:text-blue-700 font-bold hover:underline">
-                                                    Daftar Akun Baru
-                                                </Link>
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    {selectedRole === 'instansi' && (
-                                        <div className="mt-6 pt-5 border-t border-slate-100 space-y-3">
-                                            <div className="p-3 rounded-xl bg-rose-50/80 border border-rose-100 text-xs text-slate-600 leading-relaxed">
-                                                <span className="font-bold text-rose-700">Mitra Baru: </span>
-                                                Jika perusahaan/instansi Anda belum terdaftar sebagai pembimbing lapangan, silakan lakukan registrasi mandiri.
-                                            </div>
-                                            <Link 
-                                                href={route('register.pl')} 
-                                                className="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2 border border-slate-200"
-                                            >
-                                                <Building2 className="w-4 h-4 text-rose-600" />
-                                                Registrasi Akun Pembimbing Lapangan (Instansi)
-                                            </Link>
-                                        </div>
-                                    )}
-
-                                    {(selectedRole === 'dosen' || selectedRole === 'prodi' || selectedRole === 'tu') && (
-                                        <div className="mt-5 pt-4 border-t border-slate-100">
-                                            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-500 flex items-start gap-2 leading-relaxed">
-                                                <Info className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                                                <span>
-                                                    Akun dosen dan staf dikelola langsung oleh Administrator Sistem / Tata Usaha Fakultas. Hubungi TU jika mengalami kendala login.
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Quick Switch to Other Roles */}
-                                    <div className="mt-6 pt-4 border-t border-slate-100">
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 text-center">
-                                            Ganti ke Peran Lain
-                                        </p>
-                                        <div className="flex flex-wrap items-center justify-center gap-1.5">
-                                            {ROLES.filter(r => r.id !== selectedRole).map(r => {
-                                                const MiniIcon = r.icon;
-                                                return (
-                                                    <button
-                                                        key={r.id}
-                                                        type="button"
-                                                        onClick={() => handleSelectRole(r.id)}
-                                                        className="px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                                                        title={`Beralih ke ${r.title}`}
-                                                    >
-                                                        <MiniIcon className="w-3.5 h-3.5 text-slate-500" />
-                                                        <span>{r.title}</span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
+                                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${activeRole.badgeBg} border ${activeRole.badgeBorder} rounded-md text-[11px] font-bold ${activeRole.badgeText}`}>
+                                    <activeRole.icon className="w-3.5 h-3.5" />
+                                    <span>Peran: {activeRole.title}</span>
                                 </div>
                             </div>
-                        )
-                    )}
-                </div>
 
-                {/* Portal Footer */}
-                <footer className="mt-10 text-center space-y-1 relative z-10">
-                    <p className="text-[11px] text-slate-500 font-medium">
-                        © 2026 Teknik Informatika, Fakultas Teknik, Universitas Trunodjoyo Madura.
-                    </p>
-                    <div className="flex items-center justify-center gap-3 text-[10px] text-slate-500 font-semibold">
-                        <span>Sistem Informasi Kerja Praktik (SI-KP)</span>
-                        <span className="w-1 h-1 bg-slate-700 rounded-full"></span>
-                        <a href="#" className="hover:text-slate-400 transition-colors">Panduan Sistem</a>
-                        <span className="w-1 h-1 bg-slate-700 rounded-full"></span>
-                        <a href="#" className="hover:text-slate-400 transition-colors">Bantuan</a>
+                            {/* Card Form Login */}
+                            <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs">
+                                
+                                {/* Header Card */}
+                                <div className="border-b border-slate-100 pb-4 mb-5 text-center sm:text-left">
+                                    <div className="flex items-center gap-3 justify-center sm:justify-start">
+                                        <div className={`w-12 h-12 ${activeRole.iconBg} border border-slate-100 rounded-xl flex items-center justify-center ${activeRole.iconColor} p-2 shrink-0 shadow-xs`}>
+                                            <activeRole.icon className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-100 text-[10px] font-bold text-[#00288e] tracking-wide uppercase mb-1">
+                                                SI-KP TEKNIK INFORMATIKA
+                                            </div>
+                                            <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                                                Masuk {activeRole.title}
+                                            </h2>
+                                            <p className="text-xs text-slate-500 mt-0.5">
+                                                {activeRole.portalName} • S1 Teknik Informatika UTM
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Form Kredensial */}
+                                <form className="space-y-4" onSubmit={submit}>
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5" htmlFor="email">
+                                            {activeRole.labelInput}
+                                        </label>
+                                        <div className="relative">
+                                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            <input
+                                                className={`w-full pl-9 pr-3.5 py-2.5 text-sm border rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-[#00288e] transition ${
+                                                    emailError ? 'border-red-500 bg-red-50/20' : 'border-slate-300'
+                                                }`}
+                                                id="email"
+                                                name="email"
+                                                placeholder={activeRole.placeholder}
+                                                type="text"
+                                                value={data.email}
+                                                onChange={(e) => setData('email', e.target.value)}
+                                                required
+                                                autoComplete="username"
+                                                autoFocus
+                                            />
+                                        </div>
+                                        {emailError && (
+                                            <div className="mt-1.5 p-2 bg-red-50 border border-red-200 text-xs font-medium text-red-700 rounded-md flex items-start gap-1.5">
+                                                <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-red-600" />
+                                                <span>{emailError}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Password Field */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1.5">
+                                            <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 block" htmlFor="password">
+                                                Kata Sandi
+                                            </label>
+                                            {canResetPassword && (
+                                                <Link href="/forgot-password" className="text-xs font-semibold text-[#00288e] hover:underline">
+                                                    Lupa Sandi?
+                                                </Link>
+                                            )}
+                                        </div>
+                                        <div className="relative">
+                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            <input
+                                                className={`w-full pl-9 pr-10 py-2.5 text-sm border rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-[#00288e] transition ${
+                                                    passwordError ? 'border-red-500 bg-red-50/20' : 'border-slate-300'
+                                                }`}
+                                                id="password"
+                                                name="password"
+                                                placeholder="••••••••"
+                                                type={showPassword ? 'text' : 'password'}
+                                                value={data.password}
+                                                onChange={(e) => setData('password', e.target.value)}
+                                                required
+                                                autoComplete="current-password"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                                                title={showPassword ? 'Sembunyikan sandi' : 'Tampilkan sandi'}
+                                            >
+                                                {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                            </button>
+                                        </div>
+                                        {passwordError && <p className="text-xs font-medium text-red-600 mt-1">{passwordError}</p>}
+                                    </div>
+
+                                    {/* Remember Me */}
+                                    <div className="flex items-center">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 rounded border-slate-300 text-[#00288e] focus:ring-0 cursor-pointer"
+                                                checked={data.remember}
+                                                onChange={(e) => setData('remember', e.target.checked)}
+                                            />
+                                            <span className="text-xs text-slate-600">
+                                                Ingat sesi saya
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="w-full bg-[#00288e] hover:bg-[#001f70] active:bg-[#001550] text-white py-2.5 px-4 font-semibold rounded-lg transition text-sm flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+                                    >
+                                        <LogIn className="w-4 h-4" />
+                                        <span>{processing ? 'Memverifikasi...' : `Masuk sebagai ${activeRole.title}`}</span>
+                                    </button>
+                                </form>
+
+                                {/* Google Login Option (Mahasiswa & Dosen) */}
+                                {(selectedRole === 'mahasiswa' || selectedRole === 'dosen') && (
+                                    <div className="mt-4">
+                                        <div className="relative my-3.5">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <div className="w-full border-t border-slate-200" />
+                                            </div>
+                                            <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+                                                <span className="bg-white px-3 text-slate-400 font-medium">atau masuk dengan</span>
+                                            </div>
+                                        </div>
+
+                                        <a
+                                            href={route('auth.google')}
+                                            className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 py-2.5 px-4 font-semibold rounded-lg transition text-xs flex items-center justify-center gap-2.5 shadow-xs cursor-pointer"
+                                        >
+                                            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                                                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" />
+                                                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" />
+                                                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.17 0 9.97 0 12s.45 3.83 1.25 5.42l4.03-3.15z" />
+                                                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+                                            </svg>
+                                            <span>Masuk dengan Akun Google Kampus</span>
+                                        </a>
+                                        <p className="text-[11px] text-slate-500 text-center mt-1.5 font-medium">
+                                            {selectedRole === 'mahasiswa' ? (
+                                                <>Khusus akun resmi mahasiswa <span className="text-[#00288e] font-semibold">@student.trunojoyo.ac.id</span></>
+                                            ) : (
+                                                <>Khusus akun resmi dosen <span className="text-[#00288e] font-semibold">@trunojoyo.ac.id</span></>
+                                            )}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Catatan dan link registrasi sesuai role */}
+                                {selectedRole === 'mahasiswa' && (
+                                    <div className="mt-4 pt-3.5 border-t border-slate-100 text-center">
+                                        <p className="text-xs text-slate-500">
+                                            Belum punya akun mahasiswa?{' '}
+                                            <Link href={route('register')} className="text-[#00288e] font-semibold hover:underline">
+                                                Daftar Sekarang
+                                            </Link>
+                                        </p>
+                                    </div>
+                                )}
+
+                                {selectedRole === 'instansi' && (
+                                    <div className="mt-4 pt-4 border-t border-slate-100 space-y-2.5">
+                                        <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 text-xs text-slate-600 leading-relaxed">
+                                            <span className="font-semibold text-rose-800">Mitra Baru: </span>
+                                            Daftarkan instansi atau perusahaan Anda jika belum memiliki akun pembimbing lapangan.
+                                        </div>
+                                        <Link
+                                            href={route('register.pl')}
+                                            className="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-slate-200"
+                                        >
+                                            <Building2 className="w-3.5 h-3.5 text-rose-600" />
+                                            <span>Daftar Pembimbing Lapangan</span>
+                                        </Link>
+                                    </div>
+                                )}
+
+                                {(selectedRole === 'dosen' || selectedRole === 'tu' || selectedRole === 'prodi') && (
+                                    <div className="mt-4 pt-3.5 border-t border-slate-100">
+                                        <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-500 flex items-start gap-2 leading-relaxed">
+                                            <Info className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+                                            <span>
+                                                Akun dosen dan staf dikelola oleh Tata Usaha Fakultas Teknik. Hubungi bagian TU jika membutuhkan bantuan akses akun.
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </main>
+
+                {/* 4. FOOTER INSTITUSI */}
+                <footer className="bg-white border-t border-slate-200 py-3.5 text-xs text-slate-500">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+                        <div>
+                            <span className="font-semibold text-slate-700">&copy; 2024 - 2026 SI-KP TEKNIK INFORMATIKA.</span> All Rights Reserved.
+                        </div>
+                        <div>
+                            Program Studi S1 Teknik Informatika - <span className="font-semibold text-slate-700">Universitas Trunojoyo Madura</span>
+                        </div>
                     </div>
                 </footer>
-            </main>
+            </div>
+
+            {/* Interactive First Visit Interface Tour */}
+            <InterfaceTour 
+                isOpen={isTourOpen} 
+                onClose={() => setIsTourOpen(false)} 
+                autoStart={true} 
+            />
         </>
     );
 }

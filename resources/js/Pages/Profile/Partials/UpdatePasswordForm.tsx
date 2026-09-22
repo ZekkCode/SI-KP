@@ -2,15 +2,20 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import { Transition } from '@headlessui/react';
-import { useForm } from '@inertiajs/react';
-import { Eye, EyeOff, CheckCircle, Lock } from 'lucide-react';
+import { useForm, usePage } from '@inertiajs/react';
+import { Eye, EyeOff, CheckCircle, Lock, Info } from 'lucide-react';
 import { FormEventHandler, useRef, useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function UpdatePasswordForm({
     className = '',
 }: {
     className?: string;
 }) {
+    const { t } = useTranslation();
+    const user = usePage().props.auth.user;
+    const isGoogleWithoutPassword = Boolean((user as any)?.google_id && !(user as any)?.has_set_password);
+
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
@@ -54,40 +59,53 @@ export default function UpdatePasswordForm({
 
     return (
         <form onSubmit={updatePassword} className={`space-y-5 ${className}`}>
-            {/* Current Password */}
-            <div>
-                <InputLabel htmlFor="current_password" value="Kata Sandi Saat Ini" className="text-sm font-medium text-on-surface" />
-                <div className="relative mt-1.5">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <Lock className="h-4 w-4 text-secondary/40" />
-                    </div>
-                    <TextInput
-                        id="current_password"
-                        ref={currentPasswordInput}
-                        value={data.current_password}
-                        onChange={(e) => setData('current_password', e.target.value)}
-                        type={showCurrentPassword ? 'text' : 'password'}
-                        className="block w-full rounded-xl border-outline-variant/50 bg-surface-container-lowest pl-10 pr-10 focus:border-primary focus:ring-primary/30"
-                        autoComplete="current-password"
-                        placeholder="Masukkan kata sandi lama"
-                    />
-                    <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-secondary/40 hover:text-on-surface transition-colors"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        tabIndex={-1}
-                    >
-                        {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
+            {isGoogleWithoutPassword && (
+                <div className="rounded-xl bg-blue-50/80 border border-blue-200 p-3.5 flex items-start gap-3 text-xs text-blue-900 leading-relaxed">
+                    <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <p>
+                        {t('profile.set_password_desc', undefined, 'Sebagai pengguna SSO Google Trunojoyo, Anda dapat langsung mengatur kata sandi baru tanpa perlu memasukkan kata sandi lama.')}
+                    </p>
                 </div>
-                <InputError message={errors.current_password} className="mt-1.5" />
-            </div>
+            )}
 
-            <div className="h-px bg-outline-variant/20" />
+            {/* Current Password - Only shown if user has set a password or is standard user */}
+            {!isGoogleWithoutPassword && (
+                <>
+                    <div>
+                        <InputLabel htmlFor="current_password" value={t('profile.current_password', undefined, 'Kata Sandi Saat Ini')} className="text-sm font-medium text-on-surface" />
+                        <div className="relative mt-1.5">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <Lock className="h-4 w-4 text-secondary/40" />
+                            </div>
+                            <TextInput
+                                id="current_password"
+                                ref={currentPasswordInput}
+                                value={data.current_password}
+                                onChange={(e) => setData('current_password', e.target.value)}
+                                type={showCurrentPassword ? 'text' : 'password'}
+                                className="block w-full rounded-xl border-outline-variant/50 bg-surface-container-lowest pl-10 pr-10 focus:border-primary focus:ring-primary/30"
+                                autoComplete="current-password"
+                                placeholder="Masukkan kata sandi lama"
+                            />
+                            <button
+                                type="button"
+                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-secondary/40 hover:text-on-surface transition-colors"
+                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                tabIndex={-1}
+                            >
+                                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
+                        <InputError message={errors.current_password} className="mt-1.5" />
+                    </div>
+
+                    <div className="h-px bg-outline-variant/20" />
+                </>
+            )}
 
             {/* New Password */}
             <div>
-                <InputLabel htmlFor="password" value="Kata Sandi Baru" className="text-sm font-medium text-on-surface" />
+                <InputLabel htmlFor="password" value={t('profile.new_password', undefined, 'Kata Sandi Baru')} className="text-sm font-medium text-on-surface" />
                 <div className="relative mt-1.5">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <Lock className="h-4 w-4 text-secondary/40" />
@@ -116,7 +134,7 @@ export default function UpdatePasswordForm({
 
             {/* Confirm Password */}
             <div>
-                <InputLabel htmlFor="password_confirmation" value="Konfirmasi Kata Sandi" className="text-sm font-medium text-on-surface" />
+                <InputLabel htmlFor="password_confirmation" value={t('profile.confirm_password', undefined, 'Konfirmasi Kata Sandi')} className="text-sm font-medium text-on-surface" />
                 <div className="relative mt-1.5">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <Lock className="h-4 w-4 text-secondary/40" />
@@ -155,7 +173,9 @@ export default function UpdatePasswordForm({
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
                     ) : null}
-                    Perbarui Kata Sandi
+                    {isGoogleWithoutPassword 
+                        ? t('profile.save_password', undefined, 'Simpan Kata Sandi') 
+                        : t('profile.update_password', undefined, 'Perbarui Kata Sandi')}
                 </button>
 
                 <Transition
@@ -167,7 +187,7 @@ export default function UpdatePasswordForm({
                 >
                     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600">
                         <CheckCircle className="h-4 w-4" />
-                        Tersimpan!
+                        {t('profile.saved', undefined, 'Tersimpan!')}
                     </span>
                 </Transition>
             </div>

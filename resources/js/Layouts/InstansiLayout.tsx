@@ -1,15 +1,18 @@
 import { PropsWithChildren } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, Users, BarChart2, BookOpen, Award, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart2, BookOpen, Award, Settings, LogOut, ClipboardCheck } from 'lucide-react';
+import { getAvatarUrl } from '@/utils/avatar';
 
 export default function InstansiLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
     const user = (props as any).auth?.user;
+    const avatarUrl = getAvatarUrl(user?.avatar || user?.foto);
 
     const navItems = [
-        { href: '/instansi/dashboard', label: 'Ringkasan', icon: LayoutDashboard },
-        { href: '/instansi/logbook', label: 'Monitoring', icon: BookOpen },
-        { href: '/instansi/evaluation', label: 'Penilaian', icon: BarChart2 },
+        { href: '/instansi/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/panduan', label: 'Buku Panduan KP', icon: BookOpen },
+        { href: '/instansi/pendaftaran', label: 'Pendaftaran Mahasiswa', icon: ClipboardCheck },
+        { href: '/instansi/evaluation', label: 'Penilaian Mahasiswa', icon: Award },
     ];
 
     return (
@@ -18,8 +21,8 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
             <nav className="bg-white h-screen w-64 fixed left-0 top-0 border-r border-outline-variant flex flex-col shadow-sm z-40 hidden md:flex">
                 <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
                     <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
-                        {user?.avatar ? (
-                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             user?.name?.substring(0, 2).toUpperCase() || 'PL'
                         )}

@@ -68,8 +68,8 @@ export default function ReviewProposalScreen({ proposals }: Props) {
                   return (
                     <tr key={proposal.id} className="hover:bg-surface-container-lowest/50 transition-colors">
                       <ModernTableTd>
-                        <div className="font-medium text-on-surface">{proposal.pendaftaran.mahasiswa.name}</div>
-                        <div className="text-sm text-secondary">{proposal.pendaftaran.mahasiswa.nim}</div>
+                        <div className="font-semibold text-on-surface">{proposal.pendaftaran.mahasiswa.name}</div>
+                        <div className="text-xs text-secondary font-mono mt-0.5">{proposal.pendaftaran.mahasiswa.nim}</div>
                       </ModernTableTd>
                       <ModernTableTd>
                         <div className="text-sm font-medium text-on-surface line-clamp-2" title={proposal.judul}>
@@ -77,29 +77,30 @@ export default function ReviewProposalScreen({ proposals }: Props) {
                         </div>
                       </ModernTableTd>
                       <ModernTableTd>
-                        <div className="text-sm text-secondary flex items-center gap-1.5">
-                          <Clock size={14} />
+                        <div className="text-xs text-secondary flex items-center gap-1.5">
+                          <Clock size={13} />
                           {proposal.submitted_at ? new Date(proposal.submitted_at).toLocaleDateString('id-ID', {
-                            day: 'numeric', month: 'long', year: 'numeric'
+                            day: 'numeric', month: 'short', year: 'numeric'
                           }) : '-'}
                         </div>
                       </ModernTableTd>
                       <ModernTableTd>
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusUi.color}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${statusUi.color}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                           {statusUi.label}
                         </span>
                       </ModernTableTd>
                       <ModernTableTd>
                         <Link 
                           href={route('dosen.review.show', proposal.id)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                             proposal.status === 'diajukan' 
                               ? 'bg-primary text-on-primary hover:bg-primary/90 shadow-sm'
-                              : 'border border-outline text-secondary hover:bg-surface-container'
+                              : 'border border-outline-variant text-secondary hover:bg-surface-container'
                           }`}
                         >
                           {proposal.status === 'diajukan' ? (
-                            <>Review</>
+                            <>Review Proposal</>
                           ) : (
                             <>Lihat Review</>
                           )}

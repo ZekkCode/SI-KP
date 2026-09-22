@@ -46,13 +46,13 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
       <div className="flex items-center gap-4">
         <Link 
           href={route('dosen.logbook')} 
-          className="p-2 bg-surface-container hover:bg-surface-container-high rounded-full transition-colors text-on-surface-variant"
+          className="p-2.5 bg-surface-container hover:bg-surface-container-high rounded-lg transition-colors text-on-surface-variant border border-outline-variant"
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={18} />
         </Link>
         <div>
           <h1 className="text-2xl font-display font-semibold text-on-surface">Validasi Kegiatan Harian</h1>
-          <p className="text-sm text-on-surface-variant mt-1">Berikan validasi untuk logbook kegiatan mahasiswa.</p>
+          <p className="text-sm text-secondary mt-0.5">Tinjau aktivitas pelaksanaan KP mahasiswa bimbingan.</p>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
           
           <div>
             <div className="text-xs font-medium text-on-surface-variant mb-1 uppercase tracking-wider">Deskripsi Kegiatan</div>
-            <div className="text-sm text-on-surface whitespace-pre-wrap bg-surface p-4 rounded-xl border border-outline-variant">{logbook.deskripsi}</div>
+            <div className="text-sm text-on-surface whitespace-pre-wrap bg-surface p-4 rounded-lg border border-outline-variant">{logbook.deskripsi}</div>
           </div>
 
           {logbook.path_foto && (
@@ -115,7 +115,7 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
               <label className="block text-sm font-medium text-on-surface mb-3">
                 Keputusan Validasi <span className="text-error">*</span>
               </label>
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 <label className="relative cursor-pointer">
                   <input 
                     type="radio" 
@@ -125,9 +125,9 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
                     checked={data.status_dosen === 'menunggu'}
                     onChange={(e) => setData('status_dosen', e.target.value)}
                   />
-                  <div className="p-4 text-center rounded-xl border-2 border-outline-variant hover:bg-surface-container peer-checked:border-warning peer-checked:bg-warning-container peer-checked:text-on-warning-container transition-all flex items-center justify-center gap-2 shadow-sm">
-                    <Clock size={20} className={data.status_dosen === 'menunggu' ? 'text-warning' : 'text-outline'} />
-                    <span className="font-semibold">Menunggu</span>
+                  <div className="p-3.5 text-center rounded-lg border-2 border-outline-variant hover:bg-surface-container peer-checked:border-warning peer-checked:bg-warning-container peer-checked:text-on-warning-container transition-all flex items-center justify-center gap-2 shadow-sm">
+                    <Clock size={18} className={data.status_dosen === 'menunggu' ? 'text-warning' : 'text-outline'} />
+                    <span className="font-semibold text-sm">Menunggu Validasi</span>
                   </div>
                 </label>
                 <label className="relative cursor-pointer">
@@ -139,9 +139,9 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
                     checked={data.status_dosen === 'disetujui'}
                     onChange={(e) => setData('status_dosen', e.target.value)}
                   />
-                  <div className="p-4 text-center rounded-xl border-2 border-outline-variant hover:bg-surface-container peer-checked:border-primary peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-all flex items-center justify-center gap-2 shadow-sm">
-                    <CheckCircle2 size={20} className={data.status_dosen === 'disetujui' ? 'text-primary' : 'text-outline'} />
-                    <span className="font-semibold">Sudah Disetujui</span>
+                  <div className="p-3.5 text-center rounded-lg border-2 border-outline-variant hover:bg-surface-container peer-checked:border-primary peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-all flex items-center justify-center gap-2 shadow-sm">
+                    <CheckCircle2 size={18} className={data.status_dosen === 'disetujui' ? 'text-primary' : 'text-outline'} />
+                    <span className="font-semibold text-sm">Setujui Kegiatan</span>
                   </div>
                 </label>
                 <label className="relative cursor-pointer">
@@ -153,9 +153,9 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
                     checked={data.status_dosen === 'revisi'}
                     onChange={(e) => setData('status_dosen', e.target.value)}
                   />
-                  <div className="p-4 text-center rounded-xl border-2 border-outline-variant hover:bg-surface-container peer-checked:border-tertiary peer-checked:bg-tertiary-container peer-checked:text-on-tertiary-container transition-all flex items-center justify-center gap-2 shadow-sm">
-                    <Edit3 size={20} className={data.status_dosen === 'revisi' ? 'text-tertiary' : 'text-outline'} />
-                    <span className="font-semibold">Belum Disetujui / Revisi</span>
+                  <div className="p-3.5 text-center rounded-lg border-2 border-outline-variant hover:bg-surface-container peer-checked:border-tertiary peer-checked:bg-tertiary-container peer-checked:text-on-tertiary-container transition-all flex items-center justify-center gap-2 shadow-sm">
+                    <Edit3 size={18} className={data.status_dosen === 'revisi' ? 'text-tertiary' : 'text-outline'} />
+                    <span className="font-semibold text-sm">Perlu Perbaikan / Revisi</span>
                   </div>
                 </label>
               </div>
@@ -168,11 +168,11 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
               </label>
               <textarea
                 id="catatan_dosen"
-                rows={5}
+                rows={4}
                 value={data.catatan_dosen}
                 onChange={(e) => setData('catatan_dosen', e.target.value)}
-                placeholder="Berikan masukan, perbaikan, atau catatan untuk mahasiswa..."
-                className="w-full p-4 bg-surface border border-outline-variant rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y shadow-sm h-32"
+                placeholder="Tuliskan masukan atau arahan perbaikan untuk mahasiswa..."
+                className="w-full p-3.5 bg-surface border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y shadow-sm h-28"
               ></textarea>
               {errors.catatan_dosen && <p className="text-error text-sm mt-2">{errors.catatan_dosen}</p>}
             </div>
@@ -181,9 +181,10 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
               <button
                 type="submit"
                 disabled={processing || !data.status_dosen}
-                className="w-full sm:w-auto px-6 py-3 bg-primary text-on-primary text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-all shadow-md active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-on-primary text-sm font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]"
               >
-                {processing ? 'Menyimpan...' : 'Simpan Penilaian'}
+                <CheckCircle2 size={16} />
+                {processing ? 'Menyimpan...' : 'Simpan Validasi'}
               </button>
             </div>
           </form>

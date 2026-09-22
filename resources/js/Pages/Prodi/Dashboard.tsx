@@ -87,9 +87,9 @@ export default function ProdiDashboard({ stats }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
         {statCards.map((card, idx) => (
           <Link key={idx} href={card.link} className="block group">
-            <div className="bg-surface-lowest rounded-2xl p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all h-full relative overflow-hidden flex flex-col justify-between">
+            <div className="bg-surface-lowest rounded-xl p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all h-full relative overflow-hidden flex flex-col justify-between">
               <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${card.color}`}>
+                <div className={`p-3 rounded-lg ${card.color}`}>
                   {card.icon}
                 </div>
               </div>
@@ -105,42 +105,42 @@ export default function ProdiDashboard({ stats }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
-        <div className="lg:col-span-2 bg-surface-lowest rounded-2xl border border-outline-variant shadow-sm p-6 flex flex-col">
+        <div className="lg:col-span-2 bg-surface-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-display font-semibold text-on-surface">Aksi Cepat</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
             {quickActions.map((action, idx) => (
-              <Link key={idx} href={action.link} className={`p-5 rounded-xl border border-outline-variant group flex flex-col justify-between ${action.color}`}>
+              <Link key={idx} href={action.link} className={`p-4 rounded-lg border border-outline-variant group flex flex-col justify-between ${action.color}`}>
                 <div>
                   <div className="mb-3 text-primary">{action.icon}</div>
-                  <h3 className="font-semibold text-on-surface mb-1">{action.title}</h3>
-                  <p className="text-sm text-on-surface-variant">{action.description}</p>
+                  <h3 className="font-semibold text-on-surface mb-1 text-sm">{action.title}</h3>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">{action.description}</p>
                 </div>
                 <div className="mt-4 flex justify-end">
-                  <ArrowRight size={18} className="text-on-surface-variant group-hover:text-primary transition-colors group-hover:translate-x-1" />
+                  <ArrowRight size={16} className="text-on-surface-variant group-hover:text-primary transition-colors group-hover:translate-x-1" />
                 </div>
               </Link>
             ))}
           </div>
         </div>
 
-        <div className="bg-primary text-on-primary rounded-2xl shadow-sm p-6 relative overflow-hidden flex flex-col justify-between">
+        <div className="bg-primary text-on-primary rounded-xl shadow-sm p-6 relative overflow-hidden flex flex-col justify-between">
           <div className="absolute -right-6 -top-6 text-on-primary/10 rotate-12">
             <AlertTriangle size={120} />
           </div>
           <div className="relative z-10">
-            <div className="bg-on-primary text-primary inline-flex p-2 rounded-lg mb-4">
+            <div className="bg-on-primary text-primary inline-flex p-2.5 rounded-lg mb-4">
               <AlertTriangle size={20} />
             </div>
-            <h2 className="text-xl font-display font-bold mb-2">Pusat Perhatian</h2>
+            <h2 className="text-xl font-display font-bold mb-2">Prioritas Penugasan</h2>
             <p className="text-on-primary/90 text-sm leading-relaxed mb-6">
-              Pastikan Anda secara berkala meninjau "Plotting Dosen" dan "Manajemen Kuota" agar tidak ada mahasiswa yang terlantar tanpa bimbingan dan tidak ada dosen yang beban kerjanya berlebih.
+              Lakukan alokasi Dosen Pembimbing untuk mahasiswa yang berkasnya telah disetujui guna kelancaran pelaksanaan Kerja Praktik.
             </p>
           </div>
           <div className="relative z-10">
-            <Link href={route().has('prodi.plotting') ? route('prodi.plotting') : '#'} className="inline-flex items-center gap-2 bg-on-primary text-primary px-4 py-2 rounded-lg font-medium text-sm hover:bg-on-primary/90 transition-colors w-full justify-center">
-              Periksa Antrean Plotting <ArrowRight size={16} />
+            <Link href={route().has('prodi.plotting') ? route('prodi.plotting') : '#'} className="inline-flex items-center gap-2 bg-on-primary text-primary px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-on-primary/90 transition-colors w-full justify-center shadow-sm">
+              Kelola Plotting Dosen <ArrowRight size={16} />
             </Link>
           </div>
         </div>

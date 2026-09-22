@@ -141,7 +141,7 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                 {activeTab === 'pengajuan' && (
                     <div>
                         {pengajuan.length > 0 ? (
-                            <div className="bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+                            <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
@@ -157,28 +157,28 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                                 <tr key={item.id} className="hover:bg-surface-container-low/30 transition-colors">
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold">
+                                                            <div className="w-10 h-10 rounded-md bg-primary-container/20 text-primary flex items-center justify-center font-bold text-sm">
                                                                 {item.mahasiswa.name.split(' ').slice(0, 2).map((w) => w[0]).join('')}
                                                             </div>
                                                             <div>
-                                                                <p className="font-bold">{item.mahasiswa.name}</p>
-                                                                <p className="text-label-sm text-secondary">NIM: {item.mahasiswa.nim} • {item.mahasiswa.prodi}</p>
+                                                                <p className="font-semibold text-on-surface">{item.mahasiswa.name}</p>
+                                                                <p className="text-xs font-mono text-secondary mt-0.5">NIM: {item.mahasiswa.nim} • {item.mahasiswa.prodi}</p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className="font-medium text-on-surface">{item.perusahaan}</span>
+                                                        <span className="font-medium text-sm text-on-surface">{item.perusahaan}</span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-secondary text-sm">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-secondary text-xs">
                                                         {item.periode}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right">
                                                         <Link
                                                             href={`/tu/generate-surat?id=${item.id}`}
-                                                            className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline text-sm"
+                                                            className="inline-flex items-center gap-1.5 text-primary font-semibold hover:underline text-xs"
                                                         >
                                                             Verifikasi
-                                                            <ChevronRight className="w-4 h-4" />
+                                                            <ChevronRight className="w-3.5 h-3.5" />
                                                         </Link>
                                                     </td>
                                                 </tr>
@@ -188,9 +188,9 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-12 bg-white border border-outline-variant rounded-2xl text-secondary">
+                            <div className="text-center py-12 bg-white border border-outline-variant rounded-xl text-secondary">
                                 <FileIcon className="w-12 h-12 mx-auto mb-2 text-secondary/50" />
-                                <p>Tidak ada pengajuan surat pengantar yang menunggu verifikasi.</p>
+                                <p className="text-sm">Tidak ada pengajuan surat pengantar yang menunggu verifikasi.</p>
                             </div>
                         )}
                     </div>
@@ -199,7 +199,7 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                 {activeTab === 'setuju' && (
                     <div>
                         {setuju.length > 0 ? (
-                            <div className="bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+                            <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
@@ -215,28 +215,28 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                                 <tr key={item.id} className="hover:bg-surface-container-low/30 transition-colors">
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
+                                                            <div className="w-10 h-10 rounded-md bg-green-100 text-green-700 flex items-center justify-center font-bold text-sm">
                                                                 {item.mahasiswa.name.split(' ').slice(0, 2).map((w) => w[0]).join('')}
                                                             </div>
                                                             <div>
-                                                                <p className="font-bold">{item.mahasiswa.name}</p>
-                                                                <p className="text-label-sm text-secondary">NIM: {item.mahasiswa.nim} • {item.mahasiswa.prodi}</p>
+                                                                <p className="font-semibold text-on-surface">{item.mahasiswa.name}</p>
+                                                                <p className="text-xs font-mono text-secondary mt-0.5">NIM: {item.mahasiswa.nim} • {item.mahasiswa.prodi}</p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className="font-medium text-on-surface">{item.perusahaan}</span>
+                                                        <span className="font-medium text-sm text-on-surface">{item.perusahaan}</span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-secondary text-sm">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-secondary text-xs">
                                                         {item.surat_pengantar?.nomor_surat ?? '-'}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right">
                                                         <Link
                                                             href={`/tu/generate-surat?id=${item.id}`}
-                                                            className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline text-sm"
+                                                            className="inline-flex items-center gap-1.5 text-primary font-semibold hover:underline text-xs"
                                                         >
                                                             Detail Surat
-                                                            <ChevronRight className="w-4 h-4" />
+                                                            <ChevronRight className="w-3.5 h-3.5" />
                                                         </Link>
                                                     </td>
                                                 </tr>
@@ -246,9 +246,9 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-12 bg-white border border-outline-variant rounded-2xl text-secondary">
+                            <div className="text-center py-12 bg-white border border-outline-variant rounded-xl text-secondary">
                                 <FileIcon className="w-12 h-12 mx-auto mb-2 text-secondary/50" />
-                                <p>Belum ada surat pengantar yang disetujui/diterbitkan.</p>
+                                <p className="text-sm">Belum ada surat pengantar yang disetujui/diterbitkan.</p>
                             </div>
                         )}
                     </div>
@@ -257,7 +257,7 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                 {activeTab === 'ditolak' && (
                     <div>
                         {ditolak.length > 0 ? (
-                            <div className="bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+                            <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
@@ -273,28 +273,28 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                                 <tr key={item.id} className="hover:bg-surface-container-low/30 transition-colors">
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">
+                                                            <div className="w-10 h-10 rounded-md bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm">
                                                                 {item.mahasiswa.name.split(' ').slice(0, 2).map((w) => w[0]).join('')}
                                                             </div>
                                                             <div>
-                                                                <p className="font-bold">{item.mahasiswa.name}</p>
-                                                                <p className="text-label-sm text-secondary">NIM: {item.mahasiswa.nim} • {item.mahasiswa.prodi}</p>
+                                                                <p className="font-semibold text-on-surface">{item.mahasiswa.name}</p>
+                                                                <p className="text-xs font-mono text-secondary mt-0.5">NIM: {item.mahasiswa.nim} • {item.mahasiswa.prodi}</p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className="font-medium text-on-surface">{item.perusahaan}</span>
+                                                        <span className="font-medium text-sm text-on-surface">{item.perusahaan}</span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-secondary text-sm truncate max-w-xs" title={item.catatan_tu || ''}>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-secondary text-xs truncate max-w-xs" title={item.catatan_tu || ''}>
                                                         {item.catatan_tu}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right">
                                                         <Link
                                                             href={`/tu/generate-surat?id=${item.id}`}
-                                                            className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline text-sm"
+                                                            className="inline-flex items-center gap-1.5 text-primary font-semibold hover:underline text-xs"
                                                         >
                                                             Tinjau Kembali
-                                                            <ChevronRight className="w-4 h-4" />
+                                                            <ChevronRight className="w-3.5 h-3.5" />
                                                         </Link>
                                                     </td>
                                                 </tr>
@@ -304,9 +304,9 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-12 bg-white border border-outline-variant rounded-2xl text-secondary">
+                            <div className="text-center py-12 bg-white border border-outline-variant rounded-xl text-secondary">
                                 <FileIcon className="w-12 h-12 mx-auto mb-2 text-secondary/50" />
-                                <p>Tidak ada pengajuan surat pengantar yang ditolak/dikembalikan.</p>
+                                <p className="text-sm">Tidak ada pengajuan surat pengantar yang ditolak/dikembalikan.</p>
                             </div>
                         )}
                     </div>
@@ -323,13 +323,13 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
             <div className="flex items-center gap-4">
                 <Link
                     href="/tu/generate-surat"
-                    className="p-2 rounded-full border border-outline-variant bg-white text-secondary hover:bg-surface-container-low transition-colors"
+                    className="p-2.5 rounded-lg border border-outline-variant bg-white text-secondary hover:bg-surface-container-low transition-colors"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </Link>
                 <div>
                     <h2 className="text-2xl font-display font-bold text-on-surface">Detail Pengajuan Surat Pengantar</h2>
-                    <p className="text-on-surface-variant text-sm">Tinjau informasi permohonan surat pengantar mahasiswa.</p>
+                    <p className="text-secondary text-sm">Tinjau informasi permohonan surat pengantar mahasiswa.</p>
                 </div>
             </div>
 
@@ -412,7 +412,7 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                             }`}
                                         >
                                             <div className="flex items-center space-x-4">
-                                                <div className="w-10 h-10 rounded bg-red-100 text-red-700 flex items-center justify-center shrink-0">
+                                                <div className="w-10 h-10 rounded-md bg-red-100 text-red-700 flex items-center justify-center shrink-0">
                                                     <FileIcon size={20} />
                                                 </div>
                                                 <div>
@@ -420,7 +420,7 @@ export default function GenerateSurat({ pengajuan, setuju, ditolak, selectedStud
                                                     <div className="text-xs text-on-surface-variant">Diunggah pada {doc.date} • {doc.size}</div>
                                                 </div>
                                             </div>
-                                            <button className="text-primary hover:bg-primary-container/20 p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100">
+                                            <button className="text-primary hover:bg-primary-container/20 p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
                                                 <Eye size={20} />
                                             </button>
                                         </div>

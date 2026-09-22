@@ -3,8 +3,9 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard, Users, ListOrdered, ClipboardCheck,
     BarChart3, Settings, LogOut, Menu, Bell, HelpCircle, Search, Plus, CalendarDays,
-    FileText, UserCircle, BellRing, Building2
+    FileText, UserCircle, BellRing, Building2, BookOpen
 } from 'lucide-react';
+import { getAvatarUrl } from '@/utils/avatar';
 
 export default function ProdiLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
@@ -13,9 +14,11 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const notifications = (props as any).auth?.notifications || [];
     const unreadCount = notifications.filter((n: any) => !n.is_read).length;
+    const avatarUrl = getAvatarUrl(user?.avatar || user?.foto);
 
     const navItems = [
         { href: route('prodi.dashboard'), label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/panduan', label: 'Buku Panduan & SOP', icon: BookOpen },
         { href: route('prodi.periode'), label: 'Pendaftaran & Surat', icon: FileText },
         { href: route('prodi.dosen.index'), label: 'Daftar Dosen Pembimbing', icon: ListOrdered },
         { href: route().has('prodi.instansi.index') ? route('prodi.instansi.index') : '#', label: 'Instansi & Pembimbing Lapangan', icon: Building2 },
@@ -37,8 +40,8 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
                 <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
                     <button className="absolute top-4 right-4 md:hidden text-secondary" onClick={() => setIsSidebarOpen(false)}>✕</button>
                     <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
-                        {user?.avatar ? (
-                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             user?.name?.substring(0, 2).toUpperCase() || 'KP'
                         )}
@@ -90,7 +93,15 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
                         </button>
                         <h2 className="text-title-lg font-bold text-primary">Kerja Praktik Teknik Informatika</h2>
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-3">
+                        <Link 
+                            href="/panduan" 
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-[#00288e] border border-blue-200 rounded-lg text-xs font-semibold hover:bg-blue-100 transition-colors shadow-xs"
+                            title="Buka Buku Panduan & SOP"
+                        >
+                            <BookOpen className="w-3.5 h-3.5" />
+                            <span>Panduan</span>
+                        </Link>
                         <div className="relative">
                             <button 
                                 onClick={() => setIsNotifOpen(!isNotifOpen)}

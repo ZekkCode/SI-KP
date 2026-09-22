@@ -42,6 +42,7 @@ class User extends Authenticatable
         'angkatan',
         'bidang_keahlian',
         'must_change_password',
+        'has_set_password',
         'dosen_wali_id',
     ];
 
@@ -67,6 +68,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'bidang_keahlian' => 'array',
             'must_change_password' => 'boolean',
+            'has_set_password' => 'boolean',
         ];
     }
 

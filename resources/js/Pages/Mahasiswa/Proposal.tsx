@@ -109,149 +109,170 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
     };
 
     return (
-        <div className="flex-1 p-6 max-w-[1280px] mx-auto w-full">
-            {/* Page Header & Status */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="flex-1 p-4 sm:p-6 max-w-[1280px] mx-auto w-full space-y-6">
+            {/* Header & Status */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-headline-md text-on-surface mb-1">Upload Proposal Kerja Praktik</h1>
-                    <p className="text-body-md text-secondary">Pastikan informasi proposal sudah benar sebelum dikirim untuk review.</p>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
+                        <GraduationCap className="w-3.5 h-3.5" />
+                        Tahap 2: Bimbingan Proposal
+                    </span>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Pengajuan Proposal KP</h1>
+                    <p className="text-sm text-slate-500 mt-1">Unggah berkas proposal untuk ditinjau dan disetujui Dosen Pembimbing.</p>
                 </div>
                 {proposal && (
                     <div className="flex items-center gap-2">
-                        <span className="text-label-sm text-secondary uppercase tracking-wider font-bold">Status Terkini:</span>
-                        <span className={`px-4 py-1.5 rounded-full text-label-md font-bold flex items-center gap-1.5 ${
-                            proposal.status === 'disetujui' ? 'bg-green-100 text-green-700' :
-                            proposal.status === 'revisi' ? 'bg-error-container text-error' :
-                            'bg-blue-100 text-blue-700'
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Status Proposal:</span>
+                        <span className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 border ${
+                            proposal.status === 'disetujui' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            proposal.status === 'revisi' ? 'bg-red-50 text-red-700 border-red-200' :
+                            'bg-blue-50 text-blue-700 border-blue-200'
                         }`}>
-                            {proposal.status === 'revisi' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
-                            {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
+                            {proposal.status === 'revisi' ? <AlertCircle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                            <span className="capitalize">{proposal.status}</span>
                         </span>
                     </div>
                 )}
             </div>
 
             {flash?.success && (
-                <div className="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl flex items-center gap-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-600" />
-                    <div>
-                        <p className="font-bold">Berhasil!</p>
-                        <p className="text-sm">{flash.success}</p>
-                    </div>
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <p className="text-sm font-medium">{flash.success}</p>
                 </div>
             )}
 
             {flash?.error && (
-                <div className="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl flex items-center gap-3">
-                    <AlertCircle className="w-6 h-6 text-red-600" />
-                    <div>
-                        <p className="font-bold">Gagal!</p>
-                        <p className="text-sm">{flash.error}</p>
-                    </div>
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+                    <p className="text-sm font-medium">{flash.error}</p>
                 </div>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Form Upload Section */}
                 <div className="lg:col-span-2 space-y-6">
-                    <section className="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
-                        <h2 className="text-title-lg text-primary mb-4 font-bold">Formulir Pengajuan</h2>
+                    <section className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-xs">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                            <div>
+                                <h2 className="text-base font-bold text-slate-900">Formulir Proposal</h2>
+                                <p className="text-xs text-slate-500">Isi rencana judul dan lampirkan dokumen naskah.</p>
+                            </div>
+                            {dosenPembimbing && (
+                                <div className="text-right hidden sm:block">
+                                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Dosen Pembimbing</span>
+                                    <span className="text-xs font-bold text-slate-700">{dosenPembimbing.name}</span>
+                                </div>
+                            )}
+                        </div>
                         
                         <form className="space-y-4" onSubmit={handleSubmit}>
-                            <div>
-                                <label className="block text-label-md text-on-surface mb-1.5 font-bold">Judul Proposal</label>
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">Judul Rencana Kerja Praktik</label>
                                 <input 
                                     type="text" 
-                                    className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-primary-container outline-none transition-all ${errors.judul ? 'border-error' : 'border-outline-variant focus:border-primary'}`}
-                                    placeholder="Masukkan judul lengkap rencana Kerja Praktik" 
+                                    className={`w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition ${errors.judul ? 'border-red-500' : 'border-slate-300'}`}
+                                    placeholder="Contoh: Rancang Bangun Sistem Informasi Logistik Berbasis Web..." 
                                     value={data.judul}
                                     onChange={(e) => setData('judul', e.target.value)}
                                     disabled={proposal?.status === 'disetujui'}
                                 />
-                                {errors.judul && <p className="text-error text-body-sm mt-1">{errors.judul}</p>}
+                                {errors.judul && <p className="text-xs text-red-600">{errors.judul}</p>}
                             </div>
                             
-                            <div>
-                                <label className="block text-label-md text-on-surface mb-1.5 font-bold">Abstrak / Deskripsi Singkat</label>
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">Abstrak / Gambaran Kegiatan</label>
                                 <textarea 
-                                    className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-primary-container outline-none transition-all ${errors.abstrak ? 'border-error' : 'border-outline-variant focus:border-primary'}`}
-                                    placeholder="Tuliskan abstrak atau gambaran umum kegiatan..." 
-                                    rows={6}
+                                    className={`w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition ${errors.abstrak ? 'border-red-500' : 'border-slate-300'}`}
+                                    placeholder="Ringkas latar belakang, rumusan masalah, dan lingkup tugas yang akan dikerjakan di instansi..." 
+                                    rows={5}
                                     value={data.abstrak}
                                     onChange={(e) => setData('abstrak', e.target.value)}
                                     disabled={proposal?.status === 'disetujui'}
                                 />
-                                {errors.abstrak && <p className="text-error text-body-sm mt-1">{errors.abstrak}</p>}
+                                {errors.abstrak && <p className="text-xs text-red-600">{errors.abstrak}</p>}
                             </div>
                             
-                            <div>
-                                <label className="block text-label-md text-on-surface mb-1.5 font-bold">File Proposal (PDF)</label>
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">Berkas Naskah Proposal (PDF)</label>
                                 {!data.file_proposal && proposal?.status !== 'disetujui' ? (
                                     <label
                                         onDragOver={(e) => e.preventDefault()}
                                         onDrop={handleFileDrop}
-                                        className="border-2 border-dashed border-primary bg-secondary-container/10 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-secondary-container/20 transition-all group block w-full"
+                                        className="border-2 border-dashed border-slate-300 bg-slate-50/50 hover:border-blue-500 hover:bg-blue-50/30 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition group block w-full text-center"
                                     >
-                                        <UploadCloud className="w-12 h-12 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                                        <p className="text-label-md text-primary font-bold">Klik atau seret file PDF ke sini</p>
-                                        <p className="text-body-sm text-secondary">Maksimum ukuran file: 2MB</p>
+                                        <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center mx-auto mb-2 group-hover:scale-105 transition-transform">
+                                            <UploadCloud className="w-5 h-5" />
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-900">Pilih Berkas Proposal PDF</p>
+                                        <p className="text-xs text-slate-500 mt-0.5">Seret file ke sini atau klik untuk telusuri (Maks. 2 MB)</p>
                                         <input type="file" accept=".pdf" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
                                     </label>
                                 ) : data.file_proposal ? (
-                                    <div className="mt-4 p-4 bg-surface-container-low rounded-lg flex items-center justify-between border border-outline-variant">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-primary-container/20 text-primary rounded-lg flex items-center justify-center">
-                                                <CheckCircle2 className="w-6 h-6" />
+                                    <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 bg-emerald-100 text-emerald-700 rounded-md flex items-center justify-center">
+                                                <CheckCircle2 className="w-5 h-5" />
                                             </div>
-                                            <span className="text-body-md font-medium text-on-surface truncate max-w-xs">{data.file_proposal.name}</span>
+                                            <div>
+                                                <span className="text-sm font-bold text-slate-900 block truncate max-w-xs">{data.file_proposal.name}</span>
+                                                <span className="text-xs text-emerald-700">File siap diunggah ({(data.file_proposal.size / 1024 / 1024).toFixed(2)} MB)</span>
+                                            </div>
                                         </div>
-                                        <button type="button" onClick={() => setData('file_proposal', null)} className="text-error hover:text-error-container p-2 rounded text-sm font-bold">
-                                            Hapus
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setData('file_proposal', null)} 
+                                            className="text-xs font-semibold text-red-600 hover:text-red-800 px-3 py-1.5 rounded-md hover:bg-red-50 transition"
+                                        >
+                                            Hapus File
                                         </button>
                                     </div>
                                 ) : proposal?.path_file ? (
-                                    <div className="mt-4 p-4 bg-surface-container-low rounded-lg flex items-center justify-between border border-outline-variant">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-primary-container/20 text-primary rounded-lg flex items-center justify-center">
-                                                <CheckCircle2 className="w-6 h-6" />
+                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 bg-blue-50 text-blue-700 rounded-md flex items-center justify-center">
+                                                <CheckCircle2 className="w-5 h-5" />
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-body-md font-medium text-on-surface">Proposal Tersimpan</span>
-                                                <a href={`/storage/${proposal.path_file}`} target="_blank" className="text-label-sm text-primary hover:underline">Lihat Dokumen</a>
+                                            <div>
+                                                <span className="text-sm font-semibold text-slate-900 block">Proposal Terunggah</span>
+                                                <a href={`/storage/${proposal.path_file}`} target="_blank" className="text-xs font-medium text-blue-700 hover:underline">
+                                                    Lihat Berkas Dokumen &rarr;
+                                                </a>
                                             </div>
                                         </div>
                                         {proposal?.status !== 'disetujui' && (
-                                            <button type="button" onClick={() => {if (fileInputRef.current) fileInputRef.current.click()}} className="text-primary hover:text-primary-container p-2 rounded text-sm font-bold border border-primary">
-                                                Upload Baru
+                                            <button 
+                                                type="button" 
+                                                onClick={() => {if (fileInputRef.current) fileInputRef.current.click()}} 
+                                                className="text-xs font-semibold text-blue-700 hover:text-blue-900 px-3 py-1.5 rounded-md border border-slate-300 hover:bg-white transition"
+                                            >
+                                                Ganti File
                                             </button>
                                         )}
                                         <input type="file" accept=".pdf" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
                                     </div>
                                 ) : null}
-                                <p className="text-sm text-red-500 mt-1">Batas maksimal file: 2MB (PDF)</p>
-                                {errors.file_proposal && <p className="text-error text-body-sm mt-1">{errors.file_proposal}</p>}
+                                {errors.file_proposal && <p className="text-xs text-red-600 mt-1">{errors.file_proposal}</p>}
                             </div>
                             
                             {proposal?.status !== 'disetujui' && (
-                                <div className="pt-4 flex justify-end">
+                                <div className="pt-3 flex justify-end">
                                     <button 
                                         type="submit" 
                                         disabled={processing}
-                                        className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-md ${
-                                            processing 
-                                                ? 'bg-primary/70 text-white cursor-not-allowed' 
-                                                : 'bg-primary text-white hover:bg-primary-container active:scale-95'
+                                        className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold shadow-xs transition cursor-pointer ${
+                                            processing ? 'opacity-60 cursor-not-allowed' : ''
                                         }`}
                                     >
                                         {processing ? (
                                             <>
-                                                <RefreshCw className="w-5 h-5 animate-spin" />
-                                                Mengirim...
+                                                <RefreshCw className="w-4 h-4 animate-spin" />
+                                                <span>Mengirim...</span>
                                             </>
                                         ) : (
                                             <>
-                                                <SendIcon className="w-5 h-5" />
-                                                {proposal ? 'Kirim Revisi Proposal' : 'Kirim Proposal'}
+                                                <SendIcon className="w-4 h-4" />
+                                                <span>{proposal ? 'Kirim Revisi Proposal' : 'Kirim Proposal'}</span>
                                             </>
                                         )}
                                     </button>
@@ -261,101 +282,113 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
                     </section>
                 </div>
 
-                {/* Sidebar Info / Guidelines */}
+                {/* Sidebar Ketentuan */}
                 <div className="space-y-6">
-                    <section className="bg-primary-container text-white rounded-xl p-6 shadow-sm relative overflow-hidden">
-                        <div className="relative z-10">
-                            <h3 className="text-title-lg mb-3 font-bold">Ketentuan Penulisan</h3>
-                            <ul className="space-y-2 text-body-sm opacity-90">
-                                <li className="flex items-start gap-2">
-                                    <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                    Menggunakan template resmi universitas.
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                    Sudah disetujui oleh Pembimbing Lapangan.
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                    Format file wajib PDF.
-                                </li>
-                            </ul>
+                    <section className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-xs">
+                        <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3">
+                            <InfoIcon className="w-4 h-4 text-blue-700" />
+                            <h3 className="text-sm font-bold text-slate-900">Ketentuan Berkas Proposal</h3>
                         </div>
-                        <InfoIcon className="absolute -bottom-4 -right-4 w-32 h-32 opacity-10" />
+                        <ul className="space-y-2.5 text-xs text-slate-600">
+                            <li className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                                <span>Format naskah sesuai template panduan akademik UTM.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                                <span>Telah dikonsultasikan dengan Pembimbing Lapangan.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                                <span>Berkas wajib berekstensi <strong>.PDF</strong> dengan ukuran maksimal <strong>2 MB</strong>.</span>
+                            </li>
+                        </ul>
                     </section>
 
+                    {dosenPembimbing && (
+                        <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs shrink-0">
+                                {dosenPembimbing.initials}
+                            </div>
+                            <div>
+                                <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider block">Dosen Pembimbing</span>
+                                <p className="text-xs font-bold text-slate-900">{dosenPembimbing.name}</p>
+                                <p className="text-[11px] text-slate-500">NIP. {dosenPembimbing.nip}</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Feedback History Section */}
+            {/* Riwayat Feedback Bimbingan */}
             {proposal && (
-                <section className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden mt-6 flex flex-col max-h-[800px]">
-                    <div className="p-6 border-b border-outline-variant flex items-center justify-between">
-                        <h2 className="text-title-lg text-primary font-bold">Riwayat Feedback Dosen</h2>
-                        <span className="text-body-sm text-secondary">Total {feedbacks.length} Interaksi</span>
+                <section className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden mt-6 flex flex-col">
+                    <div className="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <GraduationCap className="w-4 h-4 text-blue-700" />
+                            <h2 className="text-sm font-bold text-slate-900">Catatan & Riwayat Bimbingan Dosen</h2>
+                        </div>
+                        <span className="text-xs text-slate-500 font-medium">{feedbacks.length} Catatan</span>
                     </div>
-                    <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                    
+                    <div className="p-4 sm:p-6 space-y-4 max-h-[500px] overflow-y-auto">
                         {feedbacks.length > 0 ? feedbacks.slice().reverse().map((fb) => (
-                            <div key={fb.id} className={`flex gap-4 max-w-3xl ${fb.user_role === 'mahasiswa' ? 'flex-row-reverse ml-auto text-right' : ''}`}>
-                                <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center ${fb.user_role === 'mahasiswa' ? 'bg-primary text-white' : 'bg-secondary-container text-primary font-bold'}`}>
-                                    {fb.user_role === 'mahasiswa' ? <GraduationCap className="w-5 h-5" /> : fb.user_initials}
+                            <div key={fb.id} className={`flex gap-3 max-w-2xl ${fb.user_role === 'mahasiswa' ? 'flex-row-reverse ml-auto text-right' : ''}`}>
+                                <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center text-xs font-bold ${
+                                    fb.user_role === 'mahasiswa' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'
+                                }`}>
+                                    {fb.user_role === 'mahasiswa' ? <GraduationCap className="w-4 h-4" /> : fb.user_initials}
                                 </div>
-                                <div className="space-y-2">
-                                    <div className={`p-4 shadow-sm border border-outline-variant ${
+                                <div className="space-y-1">
+                                    <div className={`p-3.5 rounded-xl border text-sm leading-relaxed ${
                                         fb.user_role === 'mahasiswa' 
-                                            ? 'bg-primary text-white rounded-l-xl rounded-br-xl border-none' 
-                                            : 'bg-surface-container-low text-on-surface rounded-r-xl rounded-bl-xl'
+                                            ? 'bg-blue-700 text-white border-blue-800' 
+                                            : 'bg-slate-50 text-slate-900 border-slate-200 text-left'
                                     }`}>
-                                        <p className="text-body-md whitespace-pre-wrap">{fb.komentar}</p>
+                                        <p className="whitespace-pre-wrap">{fb.komentar}</p>
                                         
                                         {(fb.status_setelah || fb.user_role !== 'mahasiswa') && (
-                                            <div className={`mt-4 pt-3 flex items-center gap-4 ${fb.user_role === 'mahasiswa' ? 'border-t border-white/20 justify-end' : 'border-t border-outline-variant'}`}>
+                                            <div className={`mt-2.5 pt-2 flex items-center gap-2 text-xs ${fb.user_role === 'mahasiswa' ? 'border-t border-white/20 justify-end' : 'border-t border-slate-200'}`}>
                                                 {fb.status_setelah && (
-                                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                                                        fb.status_setelah === 'revisi' ? 'bg-error-container text-error' : 'bg-green-100 text-green-700'
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                                        fb.status_setelah === 'revisi' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'
                                                     }`}>
                                                         Status: {fb.status_setelah}
                                                     </span>
                                                 )}
-                                                <span className={`text-label-sm ${fb.user_role === 'mahasiswa' ? 'opacity-80' : 'text-secondary'}`}>
+                                                <span className={`${fb.user_role === 'mahasiswa' ? 'text-blue-100' : 'text-slate-500'}`}>
                                                     {fb.created_at}
                                                 </span>
                                             </div>
-                                        )}
-                                        
-                                        {fb.user_role === 'mahasiswa' && !fb.status_setelah && (
-                                            <p className="text-label-sm opacity-80 mt-2">Terkirim: {fb.created_at}</p>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         )) : (
-                            <p className="text-center text-secondary py-8">Belum ada riwayat feedback.</p>
+                            <p className="text-center text-xs text-slate-400 py-6">Belum ada riwayat catatan bimbingan.</p>
                         )}
                     </div>
                     
-                    <div className="p-4 bg-surface-container-lowest border-t border-outline-variant">
-                        <form onSubmit={handleSendNote} className="flex gap-4">
+                    <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-100">
+                        <form onSubmit={handleSendNote} className="flex gap-2">
                             <input 
                                 type="text" 
-                                className={`flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-container ${noteForm.errors.komentar ? 'border-error' : 'border-outline-variant'}`}
-                                placeholder="Tulis catatan tambahan untuk dosen pembimbing..." 
+                                className="flex-1 px-3.5 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
+                                placeholder="Tulis catatan atau tanggapan untuk dosen pembimbing..." 
                                 value={noteForm.data.komentar}
                                 onChange={(e) => noteForm.setData('komentar', e.target.value)}
                             />
                             <button 
-                                type="submit"
+                                type="submit" 
                                 disabled={noteForm.processing || !noteForm.data.komentar.trim()}
-                                className={`px-6 py-2 rounded-lg font-bold transition-all ${
-                                    noteForm.processing || !noteForm.data.komentar.trim()
-                                        ? 'bg-primary-container/50 text-on-primary-container/50 cursor-not-allowed'
-                                        : 'bg-primary-container text-on-primary-container hover:bg-tertiary-container hover:text-white'
+                                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold transition cursor-pointer ${
+                                    noteForm.processing || !noteForm.data.komentar.trim() ? 'opacity-60 cursor-not-allowed' : ''
                                 }`}
                             >
-                                Kirim Catatan
+                                <SendIcon className="w-3.5 h-3.5" />
+                                <span>Kirim Catatan</span>
                             </button>
                         </form>
-                        {noteForm.errors.komentar && <p className="text-error text-body-sm mt-1">{noteForm.errors.komentar}</p>}
                     </div>
                 </section>
             )}

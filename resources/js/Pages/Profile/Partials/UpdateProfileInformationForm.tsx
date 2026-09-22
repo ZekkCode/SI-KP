@@ -5,6 +5,7 @@ import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { Camera, Upload, CheckCircle } from 'lucide-react';
 import { FormEventHandler, useRef, useState } from 'react';
+import { getAvatarUrl } from '@/utils/avatar';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -18,7 +19,7 @@ export default function UpdateProfileInformation({
     const user = usePage().props.auth.user;
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [preview, setPreview] = useState<string | null>((user as any).avatar ? `/storage/${(user as any).avatar}` : null);
+    const [preview, setPreview] = useState<string | null>(getAvatarUrl((user as any).avatar || (user as any).foto));
 
     const { data, setData, post, errors, processing, recentlySuccessful } =
         useForm({
@@ -47,7 +48,7 @@ export default function UpdateProfileInformation({
                 >
                     <div className="h-24 w-24 overflow-hidden rounded-2xl bg-gradient-to-br from-surface-container to-surface-container-high ring-2 ring-outline-variant/30 transition-all duration-300 group-hover:ring-primary/50 group-hover:shadow-lg">
                         {preview ? (
-                            <img src={preview} alt="Preview" className="h-full w-full object-cover" />
+                            <img src={preview} alt="Preview" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             <div className="flex h-full w-full items-center justify-center">
                                 <Camera className="h-8 w-8 text-secondary/50" />

@@ -11,13 +11,23 @@ export interface User {
     created_at?: string;
 }
 
+export interface CampusContact {
+    name?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
     auth: {
         user: User;
     };
+    campus?: CampusContact;
+    locale?: string;
 };
+
 
 // Mahasiswa specific types
 export type MahasiswaRoute = 'dashboard' | 'profil' | 'panduan' | 'pendaftaran' | 'status_pengajuan' | 'surat_pengantar' | 'proposal' | 'logbook' | 'berita_acara' | 'penilaian_akhir';

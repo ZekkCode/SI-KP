@@ -1,13 +1,16 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, FileText, ClipboardList, Award, Bell, UserCircle, Search, Menu, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, Award, Bell, UserCircle, Search, Menu, LogOut, BookOpen } from 'lucide-react';
+import { getAvatarUrl } from '@/utils/avatar';
 
 export default function DosenLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
     const user = (props as any).auth?.user;
+    const avatarUrl = getAvatarUrl(user?.avatar || user?.foto);
 
     const navItems = [
         { href: '/dosen/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/panduan', label: 'Buku Panduan & SOP', icon: BookOpen },
         { href: '/dosen/review-proposal', label: 'Review Proposal', icon: FileText },
         { href: '/dosen/logbook', label: 'Monitoring', icon: ClipboardList },
         { href: '/dosen/penilaian', label: 'Penilaian Akhir', icon: Award },
@@ -19,8 +22,8 @@ export default function DosenLayout({ children }: PropsWithChildren) {
             <aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-white border-r border-outline-variant shadow-sm z-40">
                 <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
                     <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
-                        {user?.avatar ? (
-                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             user?.name?.substring(0, 2).toUpperCase() || 'DS'
                         )}
@@ -95,6 +98,10 @@ export default function DosenLayout({ children }: PropsWithChildren) {
                             <Bell className="w-5 h-5" />
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
                         </button>
+                        <Link href="/panduan" className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-[#00288e] border border-blue-200 rounded-lg text-xs font-semibold hover:bg-blue-100 transition-colors shadow-xs">
+                            <BookOpen className="w-3.5 h-3.5" />
+                            <span>Panduan</span>
+                        </Link>
                         <div className="w-px h-6 bg-outline-variant mx-1"></div>
                         <Link href={route('profile.edit')} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high rounded-lg transition-colors text-sm font-medium">
                             <UserCircle className="w-4 h-4" />

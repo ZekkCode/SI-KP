@@ -54,29 +54,29 @@ export default function Index({ hasData, message, rapor }: PenilaianProps) {
         <div className="flex-1 p-6 max-w-[1200px] mx-auto w-full space-y-6">
             <Head title="Hasil Penilaian Kerja Praktik" />
             
-            <PageHeader title="Hasil Penilaian" description="Rincian hasil penilaian Kerja Praktik Anda.">
-                <div className="bg-primary/10 p-3 rounded-full">
-                    <Award className="w-8 h-8 text-primary" />
+            <PageHeader title="Hasil Penilaian" description="Rincian hasil evaluasi nilai Kerja Praktik dari Dosen dan Instansi.">
+                <div className="bg-blue-50 p-3 rounded-xl text-blue-700">
+                    <Award className="w-7 h-7" />
                 </div>
             </PageHeader>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-outline-variant overflow-hidden mb-8">
-                <div className="p-6 bg-surface-container-lowest border-b border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div className="p-5 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-title-lg font-bold text-on-surface">Rapor Kerja Praktik</h2>
-                        <p className="text-secondary text-body-md">Instansi: {rapor.instansi} | Dosen: {rapor.dosen_pembimbing}</p>
+                        <h2 className="text-base font-bold text-slate-800">Rapor Kerja Praktik</h2>
+                        <p className="text-xs text-slate-500 mt-0.5">Instansi: <span className="font-semibold text-slate-700">{rapor.instansi}</span> | Dosen: <span className="font-semibold text-slate-700">{rapor.dosen_pembimbing}</span></p>
                     </div>
                     
                     {(rapor.rincian_dosen.length > 0 || rapor.rincian_instansi.length > 0) && (
-                        <div className="flex gap-3 shrink-0">
+                        <div className="flex gap-2.5 shrink-0">
                             <a
                                 href={route('mahasiswa.penilaian.cetak')}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 bg-secondary text-white px-5 py-2.5 rounded-lg font-bold hover:bg-secondary/90 transition-all text-label-md"
+                                className="inline-flex items-center gap-2 bg-[#00288e] hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors text-xs shadow-sm"
                             >
-                                <Printer className="w-5 h-5" />
-                                Cetak Bukti Nilai
+                                <Printer className="w-4 h-4" />
+                                Cetak Nilai
                             </a>
                             
                             {rapor.rincian_instansi.length > 0 && (
@@ -84,10 +84,10 @@ export default function Index({ hasData, message, rapor }: PenilaianProps) {
                                     href={route('mahasiswa.penilaian.cetak-instansi')}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 bg-white border border-outline text-primary px-5 py-2.5 rounded-lg font-bold hover:bg-surface-variant transition-all text-label-md"
+                                    className="inline-flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg font-semibold hover:bg-slate-50 transition-colors text-xs"
                                 >
-                                    <Printer className="w-5 h-5" />
-                                    Cetak Nilai Instansi
+                                    <Printer className="w-4 h-4" />
+                                    Nilai Instansi
                                 </a>
                             )}
                         </div>
@@ -174,24 +174,24 @@ export default function Index({ hasData, message, rapor }: PenilaianProps) {
                             </div>
                             
                             <div className="space-y-6">
-                                <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant text-center">
-                                    <h3 className="text-title-md font-bold text-secondary mb-2">Total Nilai Akhir</h3>
-                                    <div className="text-display-lg text-primary font-bold mb-1">{rapor.nilai_total}</div>
-                                    <div className="inline-block bg-primary text-white px-4 py-1 rounded-full text-title-md font-bold mb-4">
+                                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
+                                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Nilai Akhir</h3>
+                                    <div className="text-4xl text-[#00288e] font-bold mb-2">{rapor.nilai_total}</div>
+                                    <div className="inline-block bg-[#00288e] text-white px-3 py-1 rounded-md text-xs font-bold mb-3">
                                         Grade {rapor.nilai_huruf}
                                     </div>
-                                    <div className="text-label-md font-medium text-secondary">
-                                        Status: <span className={rapor.status_lulus === 'lulus' ? 'text-green-600' : 'text-red-600'}>{rapor.status_lulus.toUpperCase()}</span>
+                                    <div className="text-xs font-medium text-slate-500">
+                                        Status: <span className={`font-bold ${rapor.status_lulus === 'lulus' ? 'text-green-600' : 'text-red-600'}`}>{rapor.status_lulus.toUpperCase()}</span>
                                     </div>
                                 </div>
                                 
                                 {rapor.catatan && (
-                                    <div className="bg-orange-50 p-6 rounded-2xl border border-orange-200">
-                                        <h3 className="text-label-lg font-bold text-orange-800 mb-2 flex items-center gap-2">
-                                            <AlertCircle className="w-5 h-5" />
-                                            Catatan
+                                    <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
+                                        <h3 className="text-xs font-bold text-amber-800 mb-1.5 flex items-center gap-1.5">
+                                            <AlertCircle className="w-4 h-4" />
+                                            Catatan Evaluasi
                                         </h3>
-                                        <p className="text-body-md text-orange-900 whitespace-pre-wrap">{rapor.catatan}</p>
+                                        <p className="text-xs text-amber-900 whitespace-pre-wrap leading-relaxed">{rapor.catatan}</p>
                                     </div>
                                 )}
                             </div>

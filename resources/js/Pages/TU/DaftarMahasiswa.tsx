@@ -91,7 +91,7 @@ export default function DaftarMahasiswa({ students, filters }: Props) {
             </div>
 
             {/* Table Card */}
-            <div className="bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -110,31 +110,31 @@ export default function DaftarMahasiswa({ students, filters }: Props) {
                                     <tr key={student.id} className="hover:bg-surface-container-low/30 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold">
+                                                <div className="w-10 h-10 rounded-md bg-primary-container/20 text-primary flex items-center justify-center font-bold text-sm">
                                                     {student.name.split(' ').slice(0, 2).map((w) => w[0]).join('')}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold">{student.name}</p>
-                                                    <p className="text-label-sm text-secondary">NIM: {student.nim}</p>
+                                                    <p className="font-semibold text-on-surface">{student.name}</p>
+                                                    <p className="text-xs font-mono text-secondary mt-0.5">NIM: {student.nim}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="font-medium">{student.program_studi}</span>
+                                            <span className="font-medium text-sm text-on-surface">{student.program_studi}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex flex-col text-label-sm">
+                                            <div className="flex flex-col text-xs">
                                                 <span className="text-secondary font-medium">Smstr: <strong className="text-on-surface">{student.semester}</strong></span>
                                                 <span className="text-secondary font-medium">IPK: <strong className="text-on-surface">{student.ipk}</strong></span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${student.status_akun === 'aktif' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border ${student.status_akun === 'aktif' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
                                                 {student.status_akun === 'aktif' ? 'AKTIF' : 'MENUNGGU VERIFIKASI'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getStatusBadgeClass(student.status_pendaftaran)}`}>
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border ${getStatusBadgeClass(student.status_pendaftaran)}`}>
                                                 {formatStatusLabel(student.status_pendaftaran)}
                                             </span>
                                         </td>
@@ -146,20 +146,20 @@ export default function DaftarMahasiswa({ students, filters }: Props) {
                                                             router.put(`/tu/mahasiswa/${student.id}/verifikasi`);
                                                         }
                                                     }}
-                                                    className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline text-sm"
+                                                    className="inline-flex items-center gap-1.5 text-primary font-semibold hover:underline text-xs"
                                                 >
                                                     Verifikasi Akun
-                                                    <ChevronRight className="w-4 h-4" />
+                                                    <ChevronRight className="w-3.5 h-3.5" />
                                                 </button>
                                             ) : (
-                                                <span className="text-secondary text-sm">Terverifikasi</span>
+                                                <span className="text-secondary text-xs">Terverifikasi</span>
                                             )}
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="text-center py-12 text-secondary">
+                                    <td colSpan={6} className="text-center py-12 text-secondary">
                                         <Users className="w-12 h-12 mx-auto mb-2 text-secondary/50" />
                                         <p>Tidak ada data mahasiswa ditemukan.</p>
                                     </td>

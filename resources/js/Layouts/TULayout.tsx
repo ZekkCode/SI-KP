@@ -1,14 +1,17 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell, Users, ClipboardCheck, UserCheck, Database } from 'lucide-react';
+import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell, Users, ClipboardCheck, UserCheck, Database, BookOpen } from 'lucide-react';
+import { getAvatarUrl } from '@/utils/avatar';
 
 export default function TULayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
     const user = (props as any).auth?.user;
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const avatarUrl = getAvatarUrl(user?.avatar || user?.foto);
 
     const navItems: { href: string; label: string; icon: any; alsoActive?: string }[] = [
         { href: '/tu/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/panduan', label: 'Buku Panduan & SOP', icon: BookOpen },
         { href: '/tu/persetujuan-akun', label: 'Permohonan Akun', icon: UserCheck },
         { href: '/tu/master-mahasiswa', label: 'Master Mahasiswa', icon: Database },
         { href: '/tu/mahasiswa', label: 'Daftar Mahasiswa', icon: Users },
@@ -31,8 +34,8 @@ export default function TULayout({ children }: PropsWithChildren) {
             <nav className={`flex flex-col h-screen w-64 fixed left-0 top-0 bg-white border-r border-outline-variant shadow-sm z-30 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
                     <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
-                        {user?.avatar ? (
-                            <img src={`/storage/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             user?.name?.substring(0, 2).toUpperCase() || 'TU'
                         )}
@@ -90,7 +93,15 @@ export default function TULayout({ children }: PropsWithChildren) {
                         <h1 className="text-2xl font-display font-bold text-primary hidden md:block">Sistem Informasi Kerja Praktik</h1>
                         <h1 className="text-xl font-display font-bold text-primary md:hidden">SIKP</h1>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                        <Link 
+                            href="/panduan" 
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-[#00288e] border border-blue-200 rounded-lg text-xs font-semibold hover:bg-blue-100 transition-colors shadow-xs"
+                            title="Buka Buku Panduan & SOP"
+                        >
+                            <BookOpen className="w-3.5 h-3.5" />
+                            <span>Panduan</span>
+                        </Link>
                         <button className="text-on-surface-variant hover:bg-surface-container p-2 rounded-full transition-colors relative">
                             <Bell size={24} />
                             <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>

@@ -1,20 +1,20 @@
 import { FormEventHandler, useState } from 'react';
-import { Head, router, Link } from '@inertiajs/react';
+import { Head, router, Link, usePage } from '@inertiajs/react';
 import { 
     Search, 
     CheckCircle2, 
     AlertCircle, 
     Clock, 
     ArrowRight, 
-    ArrowLeft, 
     GraduationCap, 
     Mail, 
     BookOpen, 
-    Calendar, 
     Loader2, 
     ShieldAlert, 
-    Building2,
-    RotateCcw
+    RotateCcw,
+    MapPin,
+    Phone,
+    ExternalLink
 } from 'lucide-react';
 
 interface StudentData {
@@ -26,6 +26,13 @@ interface StudentData {
 }
 
 export default function Register() {
+    const { props } = usePage();
+    const campus = (props as any)?.campus;
+    const campusAddress = campus?.address || 'Jl. Raya Telang, PO BOX 2 Kamal, Bangkalan';
+    const campusPhone = campus?.phone || '031-3011147';
+    const campusEmail = campus?.email || 'tif@trunojoyo.ac.id';
+    const cleanPhone = campusPhone.replace(/[^0-9]/g, '');
+
     const [nimInput, setNimInput] = useState('');
     const [isChecking, setIsChecking] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
@@ -35,13 +42,13 @@ export default function Register() {
     const [isSubmittedSuccess, setIsSubmittedSuccess] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Fungsi cek NIM ke server
+    // Cek NIM ke server
     const handleCheckNim = async (e?: React.FormEvent, customNim?: string) => {
         if (e) e.preventDefault();
 
         const trimmedNim = (customNim !== undefined ? customNim : nimInput).trim();
         if (!trimmedNim) {
-            setCheckError('Silakan masukkan NIM Anda terlebih dahulu.');
+            setCheckError('Masukkan NIM Anda terlebih dahulu.');
             setCheckErrorType('validation');
             return;
         }
@@ -68,11 +75,11 @@ export default function Register() {
             if (res.ok && result.status === 'ready') {
                 setStudentData(result.data);
             } else {
-                setCheckError(result.message || 'Terjadi kesalahan saat memeriksa NIM.');
+                setCheckError(result.message || 'Gagal memeriksa NIM.');
                 setCheckErrorType(result.status || 'error');
             }
-        } catch (error) {
-            setCheckError('Gagal terhubung ke server. Silakan periksa koneksi Anda.');
+        } catch {
+            setCheckError('Gagal terhubung ke server. Periksa koneksi internet Anda.');
             setCheckErrorType('network');
         } finally {
             setIsChecking(false);
@@ -83,7 +90,7 @@ export default function Register() {
         const trimmedNim = nimInput.trim();
         if (!trimmedNim) return;
 
-        if (!confirm('Apakah Anda ingin membatalkan permohonan akun yang sedang menunggu verifikasi ini dan mengajukan ulang?')) {
+        if (!confirm('Batalkan permohonan akun yang sedang menunggu verifikasi untuk mengajukan ulang?')) {
             return;
         }
 
@@ -104,13 +111,12 @@ export default function Register() {
             if (res.ok) {
                 setCheckError(null);
                 setCheckErrorType(null);
-                // Langsung periksa ulang NIM agar form pendaftaran siap diisi
                 await handleCheckNim(undefined, trimmedNim);
             } else {
                 alert(result.message || 'Gagal membatalkan permohonan.');
             }
-        } catch (error) {
-            alert('Gagal terhubung ke server saat membatalkan permohonan.');
+        } catch {
+            alert('Gagal terhubung ke server.');
         } finally {
             setIsCancelling(false);
         }
@@ -143,93 +149,156 @@ export default function Register() {
     return (
         <>
             <Head title="Registrasi Akun Mahasiswa - SI-KP UTM" />
-            <main className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-slate-950 font-sans text-slate-100">
-                
-                {/* Background Mesh */}
-                <div className="absolute -top-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-blue-600/25 to-cyan-500/5 blur-[140px] pointer-events-none" />
-                <div className="absolute -bottom-[20%] -right-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-indigo-600/20 to-purple-500/5 blur-[140px] pointer-events-none" />
-                <div className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] rounded-full bg-blue-500/10 blur-[120px] pointer-events-none" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none opacity-60" />
 
-                {/* Main Card Container */}
-                <div className="w-full max-w-[540px] space-y-5 relative z-10">
-                    
-                    {/* Header Logo */}
-                    <div className="text-center space-y-2.5">
-                        <div className="flex justify-center">
-                            <div className="bg-white p-2.5 rounded-2xl shadow-xl border border-white/10 flex items-center justify-center transition-all duration-300 hover:scale-105">
-                                <img src="/images/Logo UTM terbaru_berwarna (1).png" alt="Logo UTM" className="w-14 h-14 object-contain" />
-                            </div>
+            <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-[#00288e] selection:text-white">
+                {/* Top Contact Bar */}
+                <header className="bg-white border-b border-slate-200 py-1.5 text-xs text-slate-600 hidden md:block w-full">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-y-1">
+                        <div className="flex items-center gap-6">
+                            <a 
+                                href="https://maps.google.com/?q=Universitas+Trunojoyo+Madura" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title="Buka Lokasi Kampus UTM di Google Maps"
+                            >
+                                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusAddress}</span>
+                            </a>
+                            <a 
+                                href={`tel:${cleanPhone}`} 
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title={`Hubungi Telepon Kampus: ${campusPhone}`}
+                            >
+                                <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusPhone}</span>
+                            </a>
+                            <a 
+                                href={`mailto:${campusEmail}`} 
+                                className="flex items-center gap-1.5 hover:text-[#00288e] transition cursor-pointer"
+                                title={`Kirim Email ke ${campusEmail}`}
+                            >
+                                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{campusEmail}</span>
+                            </a>
                         </div>
-                        <div className="space-y-0.5">
-                            <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-blue-200 to-indigo-100 tracking-tight">
-                                Registrasi Akun Mahasiswa
-                            </h1>
-                            <p className="text-xs text-blue-400 font-bold tracking-widest uppercase">
-                                Sistem Informasi Kerja Praktik
-                            </p>
+                        <div className="flex items-center gap-4 text-slate-500 font-medium">
+                            <a 
+                                href="https://trunojoyo.ac.id" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="hover:text-[#00288e] transition cursor-pointer"
+                                title="Portal Resmi Universitas Trunojoyo Madura"
+                            >
+                                <span>SI-KP TEKNIK INFORMATIKA &bull; UNIVERSITAS TRUNOJOYO MADURA</span>
+                            </a>
                         </div>
                     </div>
+                </header>
 
-                    {/* Registration Card */}
-                    <div className="bg-white rounded-3xl p-7 sm:p-9 shadow-2xl border border-slate-100 text-slate-800 relative">
+                {/* Navbar */}
+                <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+                    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-13 sm:h-15 flex items-center justify-between gap-2">
+                        <Link href="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+                            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                                <img 
+                                    src="/images/Logo UTM terbaru_berwarna (1).png" 
+                                    alt="Logo UTM" 
+                                    className="h-7 sm:h-9 w-auto object-contain" 
+                                />
+                                <img 
+                                    src="/images/tekfor-logo.png" 
+                                    alt="Logo Teknik Informatika" 
+                                    className="h-6 sm:h-8 w-auto object-contain" 
+                                />
+                            </div>
+                            <div className="border-l border-slate-200 pl-2 sm:pl-2.5 min-w-0">
+                                <div className="text-xs sm:text-sm font-bold text-[#00288e] tracking-tight leading-tight truncate">
+                                    SI-KP • TEKNIK INFORMATIKA
+                                </div>
+                                <div className="text-[10px] sm:text-xs font-medium text-slate-500 leading-tight truncate">
+                                    Program Studi S1 Teknik Informatika • Fakultas Teknik UTM
+                                </div>
+                            </div>
+                        </Link>
+
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            <Link 
+                                href="/panduan" 
+                                className="inline-flex items-center justify-center gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer shadow-xs"
+                                title="Panduan"
+                            >
+                                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0" />
+                                <span className="hidden sm:inline">Panduan</span>
+                            </Link>
+                        </div>
+                    </div>
+                </nav>
+
+                {/* Main Content */}
+                <main className="flex-1 flex flex-col justify-center items-center px-4 py-8 sm:py-12">
+                    <div className="w-full max-w-xl bg-white border border-slate-200 rounded-xl shadow-xs p-6 sm:p-8 space-y-5">
                         
                         {/* VIEW A: SUCCESS STATE */}
                         {isSubmittedSuccess ? (
-                            <div className="text-center space-y-5 py-4 animate-in fade-in zoom-in-95">
-                                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
-                                    <CheckCircle2 className="w-9 h-9" />
+                            <div className="text-center space-y-4 py-2">
+                                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto">
+                                    <CheckCircle2 className="w-6 h-6" />
                                 </div>
-                                <div className="space-y-2">
-                                    <h2 className="text-xl font-black text-slate-900">
-                                        Permohonan Berhasil Diajukan!
-                                    </h2>
-                                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-md mx-auto">
-                                        Data permohonan akun atas nama <strong className="text-slate-800">{studentData?.nama}</strong> ({studentData?.nim}) telah dikirimkan ke <strong className="text-slate-800">Tata Usaha (TU)</strong> untuk diverifikasi.
+                                <div className="space-y-1">
+                                    <h1 className="text-lg font-bold text-slate-900 tracking-tight">
+                                        Permohonan Berhasil Dikirim
+                                    </h1>
+                                    <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+                                        Data permohonan atas nama <strong className="text-slate-900">{studentData?.nama}</strong> ({studentData?.nim}) telah diterima. Petugas Tata Usaha (TU) akan memverifikasi data Anda.
                                     </p>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 text-xs text-blue-800 text-left space-y-1">
-                                    <p className="font-bold flex items-center gap-1.5">
-                                        <Mail className="w-4 h-4 text-blue-600" />
-                                        Informasi Penting:
+                                <div className="p-3.5 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-900 text-left space-y-1">
+                                    <p className="font-semibold flex items-center gap-1.5">
+                                        <Mail className="w-4 h-4 text-[#00288e]" />
+                                        Informasi Akun:
                                     </p>
-                                    <p className="text-blue-700 leading-relaxed">
-                                        Setelah disetujui TU, username (NIM) dan password sementara akan dikirimkan langsung ke email resmi Anda: <span className="font-semibold underline">{studentData?.email}</span>.
+                                    <p className="text-blue-800 leading-relaxed text-[11px]">
+                                        Setelah disetujui, username (NIM) dan kata sandi sementara akan dikirimkan ke email kampus Anda: <span className="font-semibold text-[#00288e]">{studentData?.email}</span>.
                                     </p>
                                 </div>
 
-                                <Link
-                                    href="/login?role=mahasiswa"
-                                    className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
-                                >
-                                    <span>Kembali ke Halaman Login</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </Link>
+                                <div className="pt-2">
+                                    <Link
+                                        href="/login"
+                                        className="w-full py-2.5 px-4 rounded-lg bg-[#00288e] hover:bg-[#001f70] text-white font-semibold text-xs transition duration-150 ease-in-out shadow-xs flex items-center justify-center gap-1.5"
+                                    >
+                                        <span>Ke Halaman Masuk</span>
+                                        <ArrowRight className="w-4 h-4" />
+                                    </Link>
+                                </div>
                             </div>
                         ) : (
                             /* VIEW B: FORM STATE */
                             <div className="space-y-5">
-                                <div className="space-y-1 border-b border-slate-100 pb-4">
-                                    <h2 className="text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                                        <span>Pencarian Data Master Mahasiswa</span>
-                                    </h2>
-                                    <p className="text-xs text-slate-400 font-medium leading-relaxed">
-                                        Masukkan NIM Anda. Sistem akan mencari data resmi Anda pada Data Master Mahasiswa Teknik Informatika.
+                                <div className="space-y-1 border-b border-slate-100 pb-4 text-center sm:text-left">
+                                    <div className="inline-flex p-2.5 rounded-lg bg-blue-50 text-[#00288e] mb-1">
+                                        <GraduationCap className="w-5 h-5" />
+                                    </div>
+                                    <h1 className="text-lg font-bold text-slate-900 tracking-tight">
+                                        Registrasi Akun Mahasiswa
+                                    </h1>
+                                    <p className="text-xs text-slate-500 leading-relaxed">
+                                        Masukkan NIM Anda untuk memeriksa data pendaftaran pada sistem master akademik.
                                     </p>
                                 </div>
 
                                 {/* Step 1: Input NIM */}
                                 <form onSubmit={handleCheckNim} className="space-y-3">
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block" htmlFor="nim">
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5" htmlFor="nim">
                                             Nomor Induk Mahasiswa (NIM)
                                         </label>
                                         <div className="flex gap-2">
-                                            <div className="relative flex-1 group">
-                                                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                            <div className="relative flex-1">
                                                 <input
-                                                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal"
+                                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 text-sm focus:border-[#00288e] focus:ring-2 focus:ring-[#00288e]/20 outline-none transition"
                                                     id="nim"
                                                     name="nim"
                                                     placeholder="Contoh: 220411100080"
@@ -237,24 +306,26 @@ export default function Register() {
                                                     value={nimInput}
                                                     onChange={(e) => setNimInput(e.target.value)}
                                                     disabled={isChecking || studentData !== null}
+                                                    maxLength={30}
                                                     autoFocus
                                                 />
+                                                <GraduationCap className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                             </div>
 
                                             {!studentData ? (
                                                 <button
                                                     type="submit"
                                                     disabled={isChecking || !nimInput.trim()}
-                                                    className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                                                    className="px-4 py-2.5 rounded-lg bg-[#00288e] hover:bg-[#001f70] text-white font-semibold text-xs transition duration-150 shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
                                                 >
                                                     {isChecking ? (
                                                         <>
-                                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                                            <span>Mencari...</span>
+                                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                            <span>Memeriksa...</span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Search className="w-4 h-4" />
+                                                            <Search className="w-3.5 h-3.5" />
                                                             <span>Cek NIM</span>
                                                         </>
                                                     )}
@@ -263,7 +334,7 @@ export default function Register() {
                                                 <button
                                                     type="button"
                                                     onClick={handleReset}
-                                                    className="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition-colors cursor-pointer"
+                                                    className="px-3.5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition cursor-pointer shrink-0"
                                                 >
                                                     Ganti NIM
                                                 </button>
@@ -274,7 +345,7 @@ export default function Register() {
 
                                 {/* Alert Box for Errors */}
                                 {checkError && (
-                                    <div className={`p-4 rounded-2xl text-xs flex items-start gap-3 border ${
+                                    <div className={`p-3.5 rounded-lg text-xs flex items-start gap-2.5 border ${
                                         checkErrorType === 'already_has_account'
                                             ? 'bg-amber-50 border-amber-200 text-amber-900'
                                             : checkErrorType === 'pending_verification'
@@ -282,34 +353,34 @@ export default function Register() {
                                                 : 'bg-red-50 border-red-200 text-red-900'
                                     }`}>
                                         {checkErrorType === 'pending_verification' ? (
-                                            <Clock className="w-5 h-5 flex-shrink-0 text-blue-600 mt-0.5" />
+                                            <Clock className="w-4 h-4 shrink-0 text-[#00288e] mt-0.5" />
                                         ) : checkErrorType === 'already_has_account' ? (
-                                            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-amber-600 mt-0.5" />
+                                            <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
                                         ) : (
-                                            <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600 mt-0.5" />
+                                            <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
                                         )}
                                         <div className="space-y-1 w-full">
-                                            <p className="font-bold">
+                                            <p className="font-semibold">
                                                 {checkErrorType === 'already_has_account'
                                                     ? 'Akun Sudah Terdaftar'
                                                     : checkErrorType === 'pending_verification'
-                                                        ? 'Status Permohonan'
-                                                        : 'Perhatian'}
+                                                        ? 'Permohonan Sedang Diproses'
+                                                        : 'Pemberitahuan'}
                                             </p>
-                                            <p className="leading-relaxed opacity-90">{checkError}</p>
+                                            <p className="text-[11px] leading-relaxed opacity-90">{checkError}</p>
                                             {checkErrorType === 'already_has_account' && (
-                                                <Link href="/login?role=mahasiswa" className="inline-block font-bold text-blue-600 hover:underline mt-1">
+                                                <Link href="/login" className="inline-block font-semibold text-[#00288e] hover:underline mt-1 text-xs">
                                                     Masuk ke Akun Anda →
                                                 </Link>
                                             )}
                                             {checkErrorType === 'pending_verification' && (
-                                                <div className="pt-2.5 mt-2 border-t border-blue-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                                    <span className="text-[11px] text-blue-800 font-medium">Data keliru atau ingin mengajukan ulang?</span>
+                                                <div className="pt-2 mt-1.5 border-t border-blue-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                    <span className="text-[11px] text-blue-800">Perlu mengubah data atau mengajukan ulang?</span>
                                                     <button
                                                         type="button"
                                                         onClick={handleCancelPending}
                                                         disabled={isCancelling}
-                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-[11px] transition-colors shadow-sm cursor-pointer disabled:opacity-50 shrink-0"
+                                                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-[#00288e] hover:bg-[#001f70] text-white rounded-md font-semibold text-[11px] transition shadow-xs cursor-pointer disabled:opacity-50 shrink-0"
                                                     >
                                                         {isCancelling ? (
                                                             <>
@@ -331,65 +402,61 @@ export default function Register() {
 
                                 {/* Step 2: Display Fetched Data & Confirm Application */}
                                 {studentData && (
-                                    <form onSubmit={submitApplication} className="space-y-4 pt-1 animate-in fade-in duration-300">
-                                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3.5">
-                                            <div className="flex items-center justify-between pb-2 border-b border-slate-200/60">
-                                                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                    <form onSubmit={submitApplication} className="space-y-4 pt-1">
+                                        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3">
+                                            <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
+                                                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1">
                                                     <CheckCircle2 className="w-3.5 h-3.5" />
-                                                    Data Terverifikasi di Master
+                                                    Data Terverifikasi
                                                 </span>
-                                                <span className="text-xs font-bold text-slate-500">Angkatan {studentData.angkatan}</span>
+                                                <span className="text-xs font-semibold text-slate-500">Angkatan {studentData.angkatan}</span>
                                             </div>
 
-                                            <div className="space-y-2 text-xs">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                                                 <div>
-                                                    <span className="text-slate-400 font-semibold block text-[10px] uppercase tracking-wider">Nama Lengkap</span>
-                                                    <p className="font-bold text-slate-900 text-sm">{studentData.nama}</p>
+                                                    <span className="text-slate-500 font-medium block text-[10px] uppercase tracking-wider">Nama Mahasiswa</span>
+                                                    <p className="font-semibold text-slate-900 text-sm">{studentData.nama}</p>
                                                 </div>
 
                                                 <div>
-                                                    <span className="text-slate-400 font-semibold block text-[10px] uppercase tracking-wider">Program Studi</span>
-                                                    <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                                                        <BookOpen className="w-3.5 h-3.5 text-blue-600" />
-                                                        {studentData.program_studi}
-                                                    </p>
+                                                    <span className="text-slate-500 font-medium block text-[10px] uppercase tracking-wider">NIM</span>
+                                                    <p className="font-semibold text-slate-800 font-mono">{studentData.nim}</p>
                                                 </div>
 
                                                 <div>
-                                                    <span className="text-slate-400 font-semibold block text-[10px] uppercase tracking-wider">Email Resmi Kampus</span>
-                                                    <p className="font-bold text-slate-800 flex items-center gap-1.5 font-mono">
-                                                        <Mail className="w-3.5 h-3.5 text-blue-600" />
-                                                        {studentData.email}
-                                                    </p>
-                                                    <span className="text-[10px] text-slate-400 italic">
-                                                        *Email berasal dari data master dan tidak dapat diubah.
-                                                    </span>
+                                                    <span className="text-slate-500 font-medium block text-[10px] uppercase tracking-wider">Program Studi</span>
+                                                    <p className="font-semibold text-slate-800">{studentData.program_studi}</p>
+                                                </div>
+
+                                                <div>
+                                                    <span className="text-slate-500 font-medium block text-[10px] uppercase tracking-wider">Email Kampus</span>
+                                                    <p className="font-semibold text-slate-800 truncate">{studentData.email}</p>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Submit Action */}
-                                        <div className="pt-2">
+                                        <div className="pt-1">
                                             <button
                                                 type="submit"
                                                 disabled={isSubmitting}
-                                                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                                                className="w-full py-2.5 px-4 rounded-lg bg-[#00288e] hover:bg-[#001f70] text-white font-semibold text-xs shadow-xs transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
-                                                <span>{isSubmitting ? 'Mengirim Permohonan...' : 'Ajukan Pembuatan Akun'}</span>
+                                                <span>{isSubmitting ? 'Mengirimkan Permohonan...' : 'Ajukan Pembuatan Akun'}</span>
                                                 <ArrowRight className="w-4 h-4" />
                                             </button>
-                                            <p className="text-[11px] text-center text-slate-400 mt-2">
-                                                Permohonan akan diverifikasi oleh staf Tata Usaha sebelum akun aktif.
+                                            <p className="text-[11px] text-center text-slate-500 mt-2">
+                                                Petugas Tata Usaha akan memverifikasi permohonan Anda.
                                             </p>
                                         </div>
                                     </form>
                                 )}
 
                                 {/* Bottom Link to Login */}
-                                <div className="pt-4 border-t border-slate-100 text-center">
-                                    <p className="text-xs text-slate-500 font-medium">
-                                        Sudah memiliki akun mahasiswa?{' '}
-                                        <Link href="/login?role=mahasiswa" className="text-blue-600 hover:text-blue-800 font-bold hover:underline">
+                                <div className="pt-3 border-t border-slate-100 text-center">
+                                    <p className="text-xs text-slate-500">
+                                        Sudah memiliki akun?{' '}
+                                        <Link href="/login" className="text-[#00288e] hover:text-[#001f70] font-semibold hover:underline">
                                             Masuk di sini
                                         </Link>
                                     </p>
@@ -397,15 +464,20 @@ export default function Register() {
                             </div>
                         )}
                     </div>
-                </div>
+                </main>
 
-                {/* Footer Details */}
-                <footer className="mt-8 text-center space-y-1 relative z-10">
-                    <p className="text-[11px] text-slate-500 font-medium">
-                        © 2026 Teknik Informatika, Fakultas Teknik, Universitas Trunodjoyo Madura.
-                    </p>
+                {/* Footer */}
+                <footer className="bg-white border-t border-slate-200 py-3.5 text-xs text-slate-500">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+                        <div>
+                            <span className="font-semibold text-slate-700">&copy; 2024 - 2026 SI-KP TEKNIK INFORMATIKA.</span> All Rights Reserved.
+                        </div>
+                        <div>
+                            Program Studi S1 Teknik Informatika - <span className="font-semibold text-slate-700">Universitas Trunojoyo Madura</span>
+                        </div>
+                    </div>
                 </footer>
-            </main>
+            </div>
         </>
     );
 }

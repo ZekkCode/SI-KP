@@ -140,17 +140,18 @@ export default function EvaluationScreen({ pendaftarans, error }: Props) {
                         <div className="text-sm text-secondary">{p.mahasiswa.nim}</div>
                       </ModernTableTd>
                       <ModernTableTd>
-                        <span className="inline-block px-2.5 py-1 bg-surface-high text-on-surface rounded text-[10px] font-bold uppercase tracking-wider border border-outline-variant">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-high text-on-surface rounded-md text-xs font-semibold border border-outline-variant">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {p.status_kp?.replace('_', ' ') || 'AKTIF'}
                         </span>
                       </ModernTableTd>
                       <ModernTableTd>
                         {p.is_dinilai ? (
-                          <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-                            <CheckCircle2 size={16} /> Sudah Dinilai
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
+                            <CheckCircle2 size={14} /> Sudah Dinilai
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-sm font-medium text-secondary">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md">
                             Belum Dinilai
                           </span>
                         )}
@@ -167,7 +168,7 @@ export default function EvaluationScreen({ pendaftarans, error }: Props) {
                       <ModernTableTd>
                         <button 
                           onClick={() => openGradingModal(p)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                             !p.is_dinilai 
                               ? 'bg-primary text-on-primary hover:bg-primary/90 shadow-sm'
                               : 'border border-outline text-secondary hover:bg-surface-container'
@@ -196,7 +197,7 @@ export default function EvaluationScreen({ pendaftarans, error }: Props) {
                 </p>
               )}
             </div>
-            <button onClick={closeModal} className="text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors">
+            <button onClick={closeModal} className="text-on-surface-variant hover:bg-surface-container p-1.5 rounded-lg transition-colors">
               <X size={20} />
             </button>
           </div>
