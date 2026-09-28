@@ -114,27 +114,59 @@
             <tr>
                 <td style="width: 590px;">Demikian, atas perhatian dan bantuannya kami ucapkan terima kasih.</td>
             </tr>
-            <tr style="height: 60px;">
+            <tr style="height: 30px;">
                 <td></td>
             </tr>
         </table>
-        <table align="center">
+        <table align="center" style="width: 590px;">
             <tr>
-                <td style="width: 370px;"></td>
-                <td>Dekan</td>
-                <td style="width: 32px;"></td>
+                <td style="width: 320px;"></td>
+                <td style="text-align: left;">Dekan,</td>
             </tr>
-            <tr style="height: 100px;">
-            </tr>
-            <tr>
-                <td></td>
-                <td>Ari Basuki</td>
+            <tr style="height: 70px;">
+                <td colspan="2"></td>
             </tr>
             <tr>
                 <td></td>
-                <td>NIP. 197801202003121002</td>
+                <td style="text-align: left;">
+                    <b>Ari Basuki, S.T., M.T.</b><br>
+                    NIP. 197801202003121002
+                </td>
             </tr>
         </table>
+
+        @php
+            $token = $surat->confirmation_token ?? null;
+            $konfirmUrl = $konfirmasi_url ?? ($token ? url('/konfirmasi/' . $token) : null);
+        @endphp
+
+        @if($konfirmUrl)
+        <div style="margin: 25px auto 0 auto; max-width: 590px; border: 1.5px dashed #0f766e; border-radius: 8px; padding: 12px 16px; background-color: #f0fdfa; font-family: Arial, sans-serif; font-size: 11px; color: #134e4a;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 85px; vertical-align: top; text-align: center; padding-right: 12px;">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{ urlencode($konfirmUrl) }}" alt="QR Konfirmasi" style="width: 75px; height: 75px; border: 1px solid #99f6e4; border-radius: 4px; background: #ffffff; padding: 2px;">
+                    </td>
+                    <td style="vertical-align: top; line-height: 1.45;">
+                        <div style="font-weight: bold; font-size: 11.5px; color: #0f766e; margin-bottom: 3px; text-transform: uppercase;">
+                            Konfirmasi Penerimaan Kerja Praktik oleh Instansi
+                        </div>
+                        <div>
+                            Pihak Instansi / Pembimbing Lapangan dimohon melakukan konfirmasi penerimaan mahasiswa melalui pemindaian QR code di samping atau membuka tautan:
+                        </div>
+                        <div style="margin-top: 4px;">
+                            <a href="{{ $konfirmUrl }}" style="color: #0f766e; font-weight: bold; word-break: break-all; text-decoration: underline;">
+                                {{ $konfirmUrl }}
+                            </a>
+                        </div>
+                        <div style="margin-top: 4px; font-size: 10px; color: #115e59;">
+                            * Melalui tautan ini, Instansi dapat menyatakan persetujuan/penolakan dan mengisi kontak Pembimbing Lapangan untuk penerbitan akun portal monitoring & penilaian.
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        @endif
     </div>
 </body>
 </html>

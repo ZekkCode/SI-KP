@@ -185,11 +185,27 @@ class MahasiswaSuratPengantarController extends Controller
             abort(404, 'Data surat belum ada.');
         }
 
+        if (empty($surat->confirmation_token)) {
+            $surat->update([
+                'confirmation_token' => \Illuminate\Support\Str::random(64),
+                'confirmation_status' => $surat->confirmation_status ?: 'pending',
+            ]);
+        }
+
         $nama_instansi = $surat->nama_instansi;
         $alamat_instansi = $surat->alamat_instansi;
         $tanggal_mulai = $surat->tanggal_mulai;
         $tanggal_selesai = $surat->tanggal_selesai;
+        $konfirmasi_url = url('/konfirmasi/' . $surat->confirmation_token);
 
-        return view('cetak.surat-pengantar', compact('data', 'nama_instansi', 'alamat_instansi', 'tanggal_mulai', 'tanggal_selesai'));
+        return view('cetak.surat-pengantar', compact(
+            'data',
+            'nama_instansi',
+            'alamat_instansi',
+            'tanggal_mulai',
+            'tanggal_selesai',
+            'konfirmasi_url',
+            'surat'
+        ));
     }
 }
