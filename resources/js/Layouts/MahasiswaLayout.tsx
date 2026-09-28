@@ -2,7 +2,7 @@ import { PropsWithChildren, ReactNode, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard, UserCircle, BookOpen, ClipboardEdit, ClipboardCheck,
-    FileText, File, CalendarDays, FileClock, Award, Bell, LogOut, Menu, BellRing, FileCheck,
+    FileText, File, CalendarDays, FileClock, Award, Bell, LogOut, Menu, BellRing, FileCheck, X,
 } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -50,7 +50,7 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
                         className="absolute top-3 right-3 md:hidden text-slate-400 hover:text-slate-600 p-1" 
                         onClick={() => setIsSidebarOpen(false)}
                     >
-                        ✕
+                        <X className="w-5 h-5" />
                     </button>
                     
                     <div className="w-18 h-18 rounded-full bg-blue-50 border-2 border-blue-100 text-[#00288e] flex items-center justify-center mb-3 overflow-hidden font-bold text-xl shadow-xs relative">

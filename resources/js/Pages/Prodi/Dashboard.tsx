@@ -79,8 +79,8 @@ export default function ProdiDashboard({ stats }: Props) {
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-semibold text-on-surface">Dasbor Program Studi</h1>
-          <p className="text-on-surface-variant mt-1">Ringkasan eksekutif dan statistik keseluruhan pelaksanaan Kerja Praktik.</p>
+          <h1 className="text-3xl font-display font-semibold text-on-surface">Dashboard Program Studi</h1>
+          <p className="text-on-surface-variant mt-1">Ringkasan data dan status pelaksanaan Kerja Praktik.</p>
         </div>
       </div>
 
@@ -107,7 +107,7 @@ export default function ProdiDashboard({ stats }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
         <div className="lg:col-span-2 bg-surface-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-display font-semibold text-on-surface">Aksi Cepat</h2>
+            <h2 className="text-lg font-display font-semibold text-on-surface">Menu Pengelolaan Prodi</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
             {quickActions.map((action, idx) => (
@@ -118,7 +118,7 @@ export default function ProdiDashboard({ stats }: Props) {
                   <p className="text-xs text-on-surface-variant leading-relaxed">{action.description}</p>
                 </div>
                 <div className="mt-4 flex justify-end">
-                  <ArrowRight size={16} className="text-on-surface-variant group-hover:text-primary transition-colors group-hover:translate-x-1" />
+                  <ArrowRight size={16} className="text-on-surface-variant group-hover:text-primary transition-colors" />
                 </div>
               </Link>
             ))}
@@ -126,21 +126,18 @@ export default function ProdiDashboard({ stats }: Props) {
         </div>
 
         <div className="bg-primary text-on-primary rounded-xl shadow-sm p-6 relative overflow-hidden flex flex-col justify-between">
-          <div className="absolute -right-6 -top-6 text-on-primary/10 rotate-12">
-            <AlertTriangle size={120} />
-          </div>
           <div className="relative z-10">
             <div className="bg-on-primary text-primary inline-flex p-2.5 rounded-lg mb-4">
               <AlertTriangle size={20} />
             </div>
             <h2 className="text-xl font-display font-bold mb-2">Prioritas Penugasan</h2>
             <p className="text-on-primary/90 text-sm leading-relaxed mb-6">
-              Lakukan alokasi Dosen Pembimbing untuk mahasiswa yang berkasnya telah disetujui guna kelancaran pelaksanaan Kerja Praktik.
+              Alokasikan dosen pembimbing untuk mahasiswa yang telah menyelesaikan tahapan administrasi pendaftaran.
             </p>
           </div>
           <div className="relative z-10">
-            <Link href={route().has('prodi.plotting') ? route('prodi.plotting') : '#'} className="inline-flex items-center gap-2 bg-on-primary text-primary px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-on-primary/90 transition-colors w-full justify-center shadow-sm">
-              Kelola Plotting Dosen <ArrowRight size={16} />
+            <Link href={route().has('prodi.plotting') ? route('prodi.plotting') : '#'} className="inline-flex items-center justify-center bg-on-primary text-primary px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-on-primary/90 transition-colors w-full shadow-sm">
+              Kelola Plotting Dosen
             </Link>
           </div>
         </div>

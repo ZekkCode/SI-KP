@@ -236,7 +236,7 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
                                             <div>
                                                 <span className="text-sm font-semibold text-slate-900 block">Proposal Terunggah</span>
                                                 <a href={`/storage/${proposal.path_file}`} target="_blank" className="text-xs font-medium text-blue-700 hover:underline">
-                                                    Lihat Berkas Dokumen &rarr;
+                                                    Lihat Berkas Dokumen
                                                 </a>
                                             </div>
                                         </div>

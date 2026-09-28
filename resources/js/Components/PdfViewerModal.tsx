@@ -422,7 +422,7 @@ export default function PdfViewerModal({ isOpen, onClose, pdfUrl, title }: PdfVi
                         SI-KP UTM &bull; Panduan Resmi
                     </span>
                     <span className="hidden sm:inline">
-                        Gunakan panah &larr; / &rarr; pada keyboard untuk berpindah halaman
+                        Gunakan tombol panah kiri / kanan keyboard untuk berpindah halaman
                     </span>
                 </div>
             </div>

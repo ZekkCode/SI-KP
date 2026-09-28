@@ -67,7 +67,7 @@
 
             <div class="button-wrapper">
                 <a href="{{ url('/login?role=dosen') }}" class="button">
-                    Masuk ke Portal Dosen SI-KP &rarr;
+                    Masuk ke Portal Dosen SI-KP
                 </a>
             </div>
 
