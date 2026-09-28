@@ -370,7 +370,7 @@ export default function Register() {
                                             <p className="text-[11px] leading-relaxed opacity-90">{checkError}</p>
                                             {checkErrorType === 'already_has_account' && (
                                                 <Link href="/login" className="inline-block font-semibold text-[#00288e] hover:underline mt-1 text-xs">
-                                                    Masuk ke Akun Anda →
+                                                    Masuk ke Akun Anda
                                                 </Link>
                                             )}
                                             {checkErrorType === 'pending_verification' && (

@@ -44,7 +44,7 @@ export default function StatusPengajuan() {
                     href="/mahasiswa/pendaftaran"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold shadow-xs transition"
                 >
-                    <span>Mulai Pendaftaran &rarr;</span>
+                    <span>Mulai Pendaftaran</span>
                 </a>
             </div>
         </div>

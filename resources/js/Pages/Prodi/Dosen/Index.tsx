@@ -340,8 +340,8 @@ export default function LecturerIndex({ lecturers = [] }: Props) {
               </div>
 
               {/* Info Announcement */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
-                📢 <strong>Otomatisasi Sistem:</strong> Setelah di-import, sistem akan otomatis men-generate password sementara dan mengirimkan <strong>email pemberitahuan resmi</strong> berisi NIP & password ke email masing-masing dosen.
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                <strong>Pemberitahuan Sistem:</strong> Setelah impor selesai, sistem akan menghasilkan kata sandi sementara dan mengirimkan rincian akun ke alamat surel masing-masing dosen.
               </div>
 
               {/* Action Buttons */}

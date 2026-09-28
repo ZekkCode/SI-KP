@@ -408,8 +408,8 @@ export default function Index({ masterMahasiswas, registeredNims, pendingNims = 
                         <div className="flex flex-wrap gap-1.5">
                             {[
                                 { value: 'all', label: 'Semua' },
-                                { value: 'manual', label: '✏️ Tambah Manual' },
-                                { value: 'import_excel', label: '📊 Import Excel' },
+                                { value: 'manual', label: 'Tambah Manual' },
+                                { value: 'import_excel', label: 'Import Excel' },
                             ].map((opt) => (
                                 <button
                                     key={opt.value}
@@ -927,8 +927,8 @@ export default function Index({ masterMahasiswas, registeredNims, pendingNims = 
                                 <p className="text-xs text-slate-500 leading-relaxed">
                                     Apakah Anda yakin ingin menghapus mahasiswa <strong className="text-slate-800">{deleteConfirmData.nama}</strong> ({deleteConfirmData.nim}) dari Data Master?
                                 </p>
-                                <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 leading-relaxed">
-                                    ⚠️ Akun login, permohonan akun, dan <strong>seluruh data KP</strong> mahasiswa ini (pendaftaran, logbook, proposal, dll) akan <strong>ikut terhapus permanen</strong>.
+                                <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 leading-relaxed">
+                                    Akun login, permohonan akun, dan <strong>seluruh data KP</strong> mahasiswa ini (pendaftaran, logbook, proposal) akan <strong>ikut terhapus permanen</strong>.
                                 </div>
                             </div>
 
@@ -966,8 +966,8 @@ export default function Index({ masterMahasiswas, registeredNims, pendingNims = 
                                 <p className="text-xs text-slate-500 leading-relaxed">
                                     Tindakan ini akan menghapus <strong>{masterMahasiswas.total} data master mahasiswa</strong> yang tersimpan saat ini.
                                 </p>
-                                <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 leading-relaxed">
-                                    ⚠️ Seluruh akun login, permohonan akun, dan <strong>semua data KP</strong> dari mahasiswa tersebut (pendaftaran, logbook, proposal, dll) akan <strong>ikut terhapus permanen</strong>.
+                                <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 leading-relaxed">
+                                    Seluruh akun login, permohonan akun, dan <strong>seluruh data KP</strong> dari mahasiswa terkait (pendaftaran, logbook, proposal) akan <strong>ikut terhapus permanen</strong>.
                                 </div>
                             </div>
 

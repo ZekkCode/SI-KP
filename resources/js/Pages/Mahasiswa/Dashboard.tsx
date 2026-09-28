@@ -61,63 +61,60 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                     <div className="flex-1 space-y-4">
                         <div>
                             <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
-                                {t('dashboard.welcome', { name: userName }, `Selamat Datang, ${userName}!`)}
+                                {t('dashboard.welcome', { name: userName }, `Selamat Datang, ${userName}`)}
                             </h3>
                             <p className="text-sm font-semibold text-[#00288e]">
                                 {userProdi} • {t('dashboard.class_year', undefined, 'Angkatan')} {userAngkatan}
                             </p>
                         </div>
                         <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                            {t('dashboard.welcome_desc', undefined, 'Sistem Informasi Kerja Praktik (SI-KP) Teknik Informatika UTM memfasilitasi seluruh tahapan kegiatan kerja praktik Anda mulai dari pendaftaran, monitoring kegiatan harian, hingga evaluasi akhir secara terintegrasi.')}
+                            {t('dashboard.welcome_desc', undefined, 'Kelola pendaftaran mitra, pencatatan logbook kegiatan harian, dan berkas evaluasi akhir Kerja Praktik melalui portal ini.')}
                         </p>
-                        <div className="flex flex-wrap gap-3 pt-2">
+                        <div className="flex flex-wrap gap-2.5 pt-2">
                             <Link 
                                 href="/panduan" 
-                                className="bg-[#00288e] hover:bg-[#001f70] text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center space-x-2 shadow-xs cursor-pointer"
+                                className="bg-[#00288e] hover:bg-[#001f70] text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
                             >
                                 <BookOpen className="w-4 h-4" />
-                                <span>{t('dashboard.guidebook', undefined, 'Buka Panduan & Berkas')}</span>
+                                <span>{t('dashboard.guidebook', undefined, 'Panduan & Berkas')}</span>
                             </Link>
                             <a 
                                 href="/dokumen/buku_panduan_kp.pdf" 
                                 download 
-                                className="border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                                className="border border-slate-300 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
                             >
                                 <Download className="w-4 h-4 text-slate-500" />
                                 <span>Unduh PDF</span>
                             </a>
                             <a 
                                 href={`mailto:${campusEmail}`} 
-                                className="border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center shadow-xs"
+                                className="border border-slate-300 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-xs"
                             >
                                 {t('dashboard.coordinator_help', undefined, 'Bantuan Koordinator')}
                             </a>
                         </div>
                     </div>
-                    <div className="w-full md:w-48 h-32 md:h-40 rounded-xl overflow-hidden shadow-sm relative flex-shrink-0">
-                        <div className="absolute inset-0 bg-primary/10"></div>
+                    <div className="w-full md:w-48 h-32 md:h-40 rounded-xl overflow-hidden shadow-2xs relative flex-shrink-0 border border-slate-200">
                         <img
                             src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXQKsbzd0HD4f87_TGfq2xTvVtGgchivENcvI5tuAqWBzCZ4NTAqck8TfJWnxGrLU8E7mQBzg8jQrXtTTWvKO7-3vdt8qaMNVjriuIkU387_tBzIULkAu87DgtHWZk2k-rG9AuDj-Aq4trJR2gXUbtBseLTunRNoHlxwHiggYt2lHFsxqXBGitSitJ6JqWO7Inv72Y2OvpN12fMOv0eAUroC_lewtjrRmCa_K0pPAvbL56Iz6Yq9whcXPcRdbtu9XuV21deV-yHag"
-                            alt="Office"
+                            alt="Teknik Informatika UTM"
                             className="w-full h-full object-cover"
                         />
                     </div>
                 </div>
 
                 {/* Status Chip Card */}
-                <div className="col-span-12 lg:col-span-4 bg-primary text-white border border-primary rounded-xl p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
-                    <div className="z-10">
-                        <span className="text-label-sm uppercase tracking-widest opacity-80">{t('dashboard.current_status', undefined, 'Status Saat Ini')}</span>
-                        <h4 className="text-title-lg font-bold mt-2">{statusInfo.label}</h4>
-                        <p className="text-body-sm mt-1 opacity-90">{statusInfo.description}</p>
+                <div className="col-span-12 lg:col-span-4 bg-[#00288e] text-white border border-[#00288e] rounded-xl p-6 flex flex-col justify-between shadow-xs">
+                    <div>
+                        <span className="text-[11px] uppercase tracking-wider font-semibold opacity-75">{t('dashboard.current_status', undefined, 'Status Pengajuan')}</span>
+                        <h4 className="text-xl font-bold mt-1.5">{statusInfo.label}</h4>
+                        <p className="text-xs mt-1.5 text-blue-100/90 leading-relaxed">{statusInfo.description}</p>
                     </div>
-                    <div className="mt-6 z-10">
-                        <Link href="/mahasiswa/status-pengajuan" className="bg-white text-primary px-5 py-2 rounded-lg font-bold text-label-md hover:bg-opacity-90 transition-all flex items-center space-x-2 w-max">
+                    <div className="mt-5">
+                        <Link href="/mahasiswa/status-pengajuan" className="inline-flex items-center gap-1.5 bg-white text-[#00288e] hover:bg-slate-100 px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-2xs">
                             <span>{t('dashboard.status_detail', undefined, 'Detail Status')}</span>
-                            <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
-                    <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
             </div>
 
@@ -132,8 +129,8 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                                 <BookOpen className="w-5 h-5" />
                                 {t('dashboard.sop_title', undefined, 'Standar Operasional Prosedur (SOP)')}
                             </h3>
-                            <span className="text-label-sm bg-secondary-container/30 text-secondary px-3 py-0.5 rounded-md">
-                                {t('dashboard.sop_revision', undefined, 'Revisi 2024.1')}
+                            <span className="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-md border border-slate-200">
+                                {t('dashboard.sop_revision', undefined, 'Alur Pelaksanaan')}
                             </span>
                         </div>
                         <div className="space-y-4">
@@ -263,7 +260,7 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                     <div className="bg-surface-container-high rounded-xl p-6 border border-outline-variant flex-1 flex flex-col justify-between">
                         <div>
                             <h3 className="text-label-md font-bold mb-1 uppercase tracking-wider text-secondary">{t('dashboard.guidance_docs', undefined, 'Dokumen Panduan')}</h3>
-                            <p className="text-body-sm text-secondary mb-4">{t('dashboard.guidance_docs_desc', undefined, 'Unduh dokumen panduan resmi untuk kelancaran pelaksanaan Kerja Praktik Anda.')}</p>
+                            <p className="text-body-sm text-secondary mb-4">{t('dashboard.guidance_docs_desc', undefined, 'Format resmi berkas proposal, berita acara, dan pedoman Kerja Praktik.')}</p>
                             <div className="space-y-3">
                                 <a
                                     href="/dokumen/buku_panduan_kp.pdf"
@@ -318,13 +315,12 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                             </div>
 
                             <div className="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between">
-                                <span className="text-xs text-secondary font-medium">Butuh SOP & berkas lengkap?</span>
+                                <span className="text-xs text-secondary font-medium">Dokumen dan panduan lengkap:</span>
                                 <Link 
                                     href="/panduan" 
-                                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00288e] hover:underline cursor-pointer"
+                                    className="inline-flex items-center text-xs font-bold text-[#00288e] hover:underline cursor-pointer"
                                 >
-                                    <span>Buka Halaman Panduan</span>
-                                    <ArrowRight className="w-3.5 h-3.5" />
+                                    <span>Halaman Panduan</span>
                                 </Link>
                             </div>
                         </div>

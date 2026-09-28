@@ -1,6 +1,6 @@
 import DosenLayout from '@/Layouts/DosenLayout';
 import { Link } from '@inertiajs/react';
-import { Users, Clock, TrendingUp, ArrowRight, Building2, FileText, CheckCircle2 } from 'lucide-react';
+import { Users, Clock, TrendingUp, Building2, FileText, CheckCircle2 } from 'lucide-react';
 
 interface Mahasiswa {
   id: number;
@@ -90,7 +90,7 @@ export default function DashboardScreen({ kuota, stats, bimbinganList }: Dashboa
           <div className="w-full bg-slate-100 rounded-lg h-2 mt-1 overflow-hidden">
             <div className={`h-full rounded-lg transition-all duration-500 ${barColor}`} style={{ width: `${percentFull}%` }}></div>
           </div>
-          <p className="text-xs text-slate-500">Tersedia sisa {kuota.sisa} slot bimbingan periode ini.</p>
+          <p className="text-xs text-slate-500">Sisa kuota: {kuota.sisa} mahasiswa.</p>
         </div>
 
         {/* Pending Review */}
@@ -104,7 +104,7 @@ export default function DashboardScreen({ kuota, stats, bimbinganList }: Dashboa
               <Clock className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-xs text-slate-500 pt-3 border-t border-slate-100">Proposal masuk menunggu persetujuan Anda.</p>
+          <p className="text-xs text-slate-500 pt-3 border-t border-slate-100">Proposal menunggu persetujuan pembimbing.</p>
         </div>
 
         {/* Active Monitoring */}
@@ -118,7 +118,7 @@ export default function DashboardScreen({ kuota, stats, bimbinganList }: Dashboa
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-xs text-slate-500 pt-3 border-t border-slate-100">Mahasiswa sedang aktif bekerja di instansi.</p>
+          <p className="text-xs text-slate-500 pt-3 border-t border-slate-100">Mahasiswa aktif magang di instansi mitra.</p>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function DashboardScreen({ kuota, stats, bimbinganList }: Dashboa
             <div className="p-12 text-center flex flex-col items-center">
               <Users size={40} className="text-slate-300 mb-3" />
               <p className="font-semibold text-slate-700 text-sm">Belum ada mahasiswa bimbingan</p>
-              <p className="text-xs text-slate-500 mt-1">Anda belum dialokasikan untuk membimbing mahasiswa pada periode ini.</p>
+              <p className="text-xs text-slate-500 mt-1">Belum ada mahasiswa yang dialokasikan pada periode ini.</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
@@ -195,9 +195,9 @@ export default function DashboardScreen({ kuota, stats, bimbinganList }: Dashboa
                           {proposal?.status === 'diajukan' ? (
                             <Link 
                               href={route('dosen.review')} 
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00288e] hover:bg-blue-800 text-white text-xs font-semibold transition-colors shadow-sm"
+                              className="inline-flex items-center px-3 py-1.5 rounded-lg bg-[#00288e] hover:bg-blue-800 text-white text-xs font-semibold transition-colors shadow-sm"
                             >
-                              Review <ArrowRight size={13} />
+                              Review
                             </Link>
                           ) : pendaftaran.status === 'aktif' ? (
                             <Link 

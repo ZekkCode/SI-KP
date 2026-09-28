@@ -216,3 +216,70 @@ graph LR
 - **Verifikasi:**
   - Build `npm run build` sukses 100% tanpa error.
   - Verifikasi visual via Browser Subagent mengonfirmasi alur login tunggal bersih, tombol Google aktif, dan bebas elemen pilih peran.
+
+### [SESI 5] - 2026-09-24 - Audit & Restrukturisasi Panduan Instalasi README.md
+- **Tujuan:** Mengaudit dan memperbarui dokumentasi inisialisasi pada `README.md` menjadi panduan instalasi yang presisi, bertahap, dan komprehensif bagi developer/pengguna baru.
+- **Aksi & Perubahan:**
+  1. Menyesuaikan spesifikasi tech stack (PHP 8.3+, disarankan PHP 8.4+, OpenSpout 5.11, Tailwind v4).
+  2. Merinci prasyarat sistem & ekstensi PHP wajib (`pdo_mysql`, `zip` untuk seeder OpenSpout, `fileinfo`, `mbstring`, `gd`, `intl`, `dom`).
+  3. Menambahkan langkah kritis pembuatan symlink publik yang sebelumnya terlewat (`php artisan storage:link`).
+  4. Menjelaskan detail proses `php artisan migrate --seed` yang membaca otomatis `master_dosen.xlsx` & `master_mahasiswa.xlsx`.
+  5. Menambahkan panduan konfigurasi basis data MySQL & Google OAuth.
+  6. Menyediakan opsi server development (2 terminal terpisah atau single command `composer run dev`).
+  7. Memutakhirkan tabel akun demo bawaan berbasis universal login (NIM/NIP/Email) dan 5 skenario peran.
+  8. Menambahkan bab Troubleshooting (solusi ZipArchive missing, file 404, migrasi DB, queue email, dan memory limit).
+- **Status:** Selesai | README.md siap dan terverifikasi.
+
+### [SESI 6] - 2026-09-24 - Audit & Eliminasi Simbol Panah Mentah (AI Slop) Frontend
+- **Tujuan:** Menghapus seluruh simbol panah mentah (`&rarr;`, `&larr;`, `→`, `->`) yang bertebaran di teks tombol dan tautan antarmuka frontend karena mengindikasikan gaya penulisan AI slop.
+- **Aksi & Perubahan:**
+  1. `resources/js/Pages/Mahasiswa/StatusPengajuan.tsx`: Mengubah tombol `<span>Mulai Pendaftaran &rarr;</span>` menjadi `<span>Mulai Pendaftaran</span>` (sesuai tangkapan layar user).
+  2. `resources/js/Pages/Mahasiswa/Proposal.tsx`: Mengubah tautan `Lihat Berkas Dokumen &rarr;` menjadi `Lihat Berkas Dokumen`.
+  3. `resources/js/Pages/Auth/Register.tsx`: Mengubah tautan `Masuk ke Akun Anda →` menjadi `Masuk ke Akun Anda`.
+  4. `resources/js/Components/PdfViewerModal.tsx`: Mengubah teks panduan keyboard dari `Gunakan panah &larr; / &rarr;...` menjadi `Gunakan tombol panah kiri / kanan keyboard...`.
+  5. `resources/views/emails/akun-dosen-announcement.blade.php`: Mengubah tombol `Masuk ke Portal Dosen SI-KP &rarr;` menjadi `Masuk ke Portal Dosen SI-KP`.
+- **Verifikasi:**
+  - Script pemindaian komprehensif mengonfirmasi nol entitas panah mentah di seluruh `resources/js` dan `resources/views`.
+  - Kompilasi produksi `npm run build` sukses 100% tanpa error (selesai dalam 14.16s).
+- **Status:** Selesai | Seluruh antarmuka bersih dari simbol panah mentah.
+
+### [SESI 7] - 2026-09-24 - Penerapan Total Skill /stop-slop & Eliminasi Zero-Emoji pada Seluruh Dashboard Peran
+- **Tujuan:** Menerapkan skill `/stop-slop` secara menyeluruh pada dashboard semua peran (`Mahasiswa`, `Dosen`, `Tata Usaha`, `Program Studi`, `Instansi`), meniadakan seluruh karakter emoji (`⚠️`, `✓`, `📢`, `✏️`, `📊`), serta membuang pola kalimat AI klise, fake versioning, watermark dekoratif raksasa, dan visual mesh glow AI slop.
+- **Aksi & Perubahan:**
+  1. **Dashboard Mahasiswa (`resources/js/Pages/Mahasiswa/Dashboard.tsx`):**
+     - Menghapus efek visual AI mesh glowing radial blur (`blur-3xl`).
+     - Mengeliminasi paragraf ceramah pembuka panjang ("Sistem Informasi Kerja Praktik memfasilitasi...").
+     - Mengganti badge versi artifisial ("Revisi 2024.1") menjadi "Alur Pelaksanaan".
+     - Memadatkan copy panduan SOP dan dokumen unduhan menjadi instruksi institusional yang lugas.
+  2. **Dashboard Dosen (`resources/js/Pages/Dosen/Dashboard.tsx`):**
+     - Menghilangkan ikon `ArrowRight` di tombol `Review`.
+     - Mengubah copy kuota menjadi padat: `Sisa kuota: {kuota.sisa} mahasiswa.`
+     - Memperbaiki microcopy card evaluasi dan empty state tanpa nada bertele-tele.
+  3. **Dashboard Tata Usaha (`resources/js/Pages/TU/Dashboard.tsx`):**
+     - Menstandarisasi judul menjadi `Dashboard Tata Usaha`.
+     - Mengubah judul bagian layanan menjadi `Layanan Administrasi Tata Usaha`.
+     - Memperjelas deskripsi aksi cepat layanan penerbitan surat pengantar dan verifikasi berkas.
+  4. **Dashboard Program Studi (`resources/js/Pages/Prodi/Dashboard.tsx`):**
+     - Menstandarisasi judul menjadi `Dashboard Program Studi`.
+     - Menghapus watermark ikon segitiga peringatan miring berukuran 120px (`AlertTriangle size={120} className="rotate-12"`) pada kartu prioritas penugasan.
+     - Menghapus animasi hover artifisial (`group-hover:translate-x-1`) pada menu pengelolaan prodi.
+     - Menyusun teks instruksi plotting dosen yang ringkas dan institusional.
+  5. **Dashboard Instansi (`resources/js/Pages/Instansi/Dashboard.tsx`):**
+     - Menstandarisasi judul menjadi `Dashboard Pembimbing Lapangan`.
+     - Mengeliminasi basa-basi salam pembuka AI ("Selamat datang kembali, ... Berikut adalah daftar mahasiswa bimbingan Anda.") menjadi deskripsi status kerja langsung: "Daftar mahasiswa bimbingan aktif di instansi mitra."
+     - Merapikan header aksi tabel menjadi ringkas: `Aksi`.
+  6. **Pembersihan Zero-Emoji Seluruh Frontend:**
+     - `resources/js/Layouts/MahasiswaLayout.tsx`: Mengganti karakter silang mentah `✕` dengan ikon Lucide `<X className="w-5 h-5" />`.
+     - `resources/js/Layouts/ProdiLayout.tsx`: Mengganti karakter silang mentah `✕` dengan ikon Lucide `<X className="w-5 h-5" />`.
+     - `resources/js/Pages/Mahasiswa/Pendaftaran.tsx`: Menghapus emoji `⚠️` dan `✓` pada indikator validasi syarat SKS.
+     - `resources/js/Pages/Prodi/Dosen/Index.tsx`: Menghapus emoji pengeras suara `📢` pada kotak informasi impor data dosen dan menata kalimatnya secara formal.
+     - `resources/js/Pages/TU/MasterMahasiswa/Index.tsx`: Menghapus emoji pensil `✏️` dan grafik `📊` pada filter sumber data, serta emoji `⚠️` pada modal konfirmasi penghapusan data master.
+  7. **Standarisasi Bahasa Sistem (`lang/id/app.php` & `lang/en/app.php`):**
+     - Mengharmonisasi string dashboard dan instruksi sistem agar seragam dan bebas slop.
+- **Verifikasi:**
+  - Script audit Python berbasis regex unicode mengonfirmasi: **ZERO EMOJIS FOUND IN RESOURCES!**
+  - Script audit panah mengonfirmasi: **0 panah mentah tersisa.**
+  - Kompilasi produksi `npm run build` sukses 100% tanpa error TypeScript maupun bundling (selesai dalam 26.64s).
+- **Status:** Selesai | Seluruh dashboard peran dan frontend terbebas dari AI slop dan emoji.
+
+

@@ -33,7 +33,7 @@ export default function TUDashboard({ stats }: Props) {
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-semibold text-on-surface">Dasbor Tata Usaha</h1>
+          <h1 className="text-3xl font-display font-semibold text-on-surface">Dashboard Tata Usaha</h1>
           <p className="text-on-surface-variant mt-1">Ringkasan administrasi dan antrean layanan dokumen Kerja Praktik.</p>
         </div>
       </div>
@@ -58,12 +58,12 @@ export default function TUDashboard({ stats }: Props) {
         ))}
       </div>
 
-      {/* Aksi Cepat Layanan */}
+      {/* Layanan Administrasi Tata Usaha */}
       <div className="bg-surface-lowest rounded-xl border border-outline-variant shadow-sm p-6 mt-2">
         <div className="flex items-center justify-between mb-4 border-b border-outline-variant pb-3">
           <div>
-            <h2 className="text-lg font-display font-semibold text-on-surface">Aksi Cepat Layanan TU</h2>
-            <p className="text-xs text-secondary mt-0.5">Pintasan menu administrasi dan pemrosesan berkas mahasiswa.</p>
+            <h2 className="text-lg font-display font-semibold text-on-surface">Layanan Administrasi Tata Usaha</h2>
+            <p className="text-xs text-secondary mt-0.5">Akses cepat pemrosesan berkas Kerja Praktik.</p>
           </div>
         </div>
 
@@ -90,7 +90,7 @@ export default function TUDashboard({ stats }: Props) {
                 <FileText size={20} />
               </div>
               <h4 className="font-semibold text-sm text-on-surface group-hover:text-primary transition-colors">Surat Pengantar</h4>
-              <p className="text-xs text-secondary mt-1">Penerbitan dan verifikasi nomor surat legal.</p>
+              <p className="text-xs text-secondary mt-1">Penerbitan surat pengantar instansi.</p>
             </div>
           </Link>
 

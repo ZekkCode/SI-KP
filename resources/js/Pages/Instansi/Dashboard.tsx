@@ -38,8 +38,8 @@ export default function DashboardScreen({ mahasiswaBimbingan, error }: Props) {
     <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-semibold text-on-surface">Dasbor Pembimbing Lapangan</h1>
-          <p className="text-sm text-on-surface-variant mt-1">Selamat datang kembali, {user?.name}. Berikut adalah daftar mahasiswa bimbingan Anda.</p>
+          <h1 className="text-2xl md:text-3xl font-display font-semibold text-on-surface">Dashboard Pembimbing Lapangan</h1>
+          <p className="text-sm text-on-surface-variant mt-1">Daftar mahasiswa bimbingan aktif di instansi mitra.</p>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export default function DashboardScreen({ mahasiswaBimbingan, error }: Props) {
                 <th className="py-4 px-6 font-semibold text-sm w-16">No</th>
                 <th className="py-4 px-6 font-semibold text-sm">NIM</th>
                 <th className="py-4 px-6 font-semibold text-sm">Nama Mahasiswa</th>
-                <th className="py-4 px-6 font-semibold text-sm text-right">Aksi Cepat</th>
+                <th className="py-4 px-6 font-semibold text-sm text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant">

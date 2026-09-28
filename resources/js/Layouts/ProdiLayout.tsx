@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard, Users, ListOrdered, ClipboardCheck,
     BarChart3, Settings, LogOut, Menu, Bell, HelpCircle, Search, Plus, CalendarDays,
-    FileText, UserCircle, BellRing, Building2, BookOpen
+    FileText, UserCircle, BellRing, Building2, BookOpen, X
 } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 
@@ -38,7 +38,9 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
             {/* Sidebar */}
             <aside className={`fixed left-0 top-0 h-screen w-64 bg-white border-r border-outline-variant z-50 flex flex-col shadow-sm transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="px-6 py-8 flex flex-col items-center border-b border-outline-variant/30 mb-4">
-                    <button className="absolute top-4 right-4 md:hidden text-secondary" onClick={() => setIsSidebarOpen(false)}>✕</button>
+                    <button className="absolute top-4 right-4 md:hidden text-secondary p-1" onClick={() => setIsSidebarOpen(false)}>
+                        <X className="w-5 h-5" />
+                    </button>
                     <div className="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden font-bold text-2xl">
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
