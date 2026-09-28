@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'must_change_password' => \App\Http\Middleware\CheckMustChangePassword::class,
+            'kp.step' => \App\Http\Middleware\KpStepGate::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

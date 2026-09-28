@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard, UserCircle, BookOpen, ClipboardEdit, ClipboardCheck,
     FileText, File, CalendarDays, FileClock, Award, Bell, LogOut, Menu, BellRing, FileCheck, X,
+    Lock, AlertCircle, CheckCircle2,
 } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -11,6 +12,8 @@ import LanguageSwitcher from '@/Components/LanguageSwitcher';
 export default function MahasiswaLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
     const user = (props as any).auth?.user;
+    const kpProgress = (props as any).kp_progress;
+    const flash = (props as any).flash;
     const { t } = useTranslation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -21,17 +24,17 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
     const avatarUrl = getAvatarUrl(user?.avatar || user?.foto);
 
     const navItems = [
-        { href: '/mahasiswa/dashboard', label: t('nav.dashboard', undefined, 'Dashboard'), icon: LayoutDashboard },
-        { href: '/panduan', label: t('nav.panduan', undefined, 'Buku Panduan'), icon: BookOpen },
-        { href: '/mahasiswa/pendaftaran', label: t('nav.pendaftaran', undefined, 'Pendaftaran'), icon: ClipboardEdit },
-        { href: '/mahasiswa/status-pengajuan', label: t('nav.status_pengajuan', undefined, 'Status Pengajuan'), icon: ClipboardCheck },
-        { href: '/mahasiswa/surat-pengantar', label: t('nav.surat_pengantar', undefined, 'Surat Pengantar'), icon: FileText },
-        { href: '/mahasiswa/proposal', label: t('nav.proposal', undefined, 'Proposal'), icon: File },
-        { href: '/mahasiswa/logbook', label: t('nav.monitoring', undefined, 'Monitoring Logbook'), icon: BookOpen },
-        { href: '/mahasiswa/sidang', label: 'Sidang KP', icon: CalendarDays },
-        { href: '/mahasiswa/berita-acara', label: t('nav.berita_acara', undefined, 'Berita Acara'), icon: FileClock },
-        { href: '/mahasiswa/dokumen-akhir', label: t('nav.laporan_akhir', undefined, 'Laporan Akhir'), icon: FileCheck },
-        { href: '/mahasiswa/penilaian', label: t('nav.penilaian', undefined, 'Penilaian Akhir'), icon: Award },
+        { href: '/mahasiswa/dashboard', label: t('nav.dashboard', undefined, 'Dashboard'), icon: LayoutDashboard, step: null },
+        { href: '/panduan', label: t('nav.panduan', undefined, 'Buku Panduan'), icon: BookOpen, step: null },
+        { href: '/mahasiswa/pendaftaran', label: t('nav.pendaftaran', undefined, 'Pendaftaran'), icon: ClipboardEdit, step: 1 },
+        { href: '/mahasiswa/status-pengajuan', label: t('nav.status_pengajuan', undefined, 'Status Pengajuan'), icon: ClipboardCheck, step: 1 },
+        { href: '/mahasiswa/surat-pengantar', label: t('nav.surat_pengantar', undefined, 'Surat Pengantar'), icon: FileText, step: 2 },
+        { href: '/mahasiswa/proposal', label: t('nav.proposal', undefined, 'Proposal'), icon: File, step: 4 },
+        { href: '/mahasiswa/logbook', label: t('nav.monitoring', undefined, 'Monitoring Logbook'), icon: BookOpen, step: 6 },
+        { href: '/mahasiswa/dokumen-akhir', label: t('nav.laporan_akhir', undefined, 'Laporan Akhir'), icon: FileCheck, step: 7 },
+        { href: '/mahasiswa/berita-acara', label: t('nav.berita_acara', undefined, 'Berita Acara'), icon: FileClock, step: 7 },
+        { href: '/mahasiswa/sidang', label: 'Sidang KP', icon: CalendarDays, step: 8 },
+        { href: '/mahasiswa/penilaian', label: t('nav.penilaian', undefined, 'Penilaian Akhir'), icon: Award, step: 9 },
     ];
 
     return (
@@ -83,20 +86,29 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
                     {navItems.map((item) => {
                         const isActive = url.startsWith(item.href);
+                        const isLocked = item.step !== null && kpProgress && (item.step > kpProgress.max_unlocked_step);
                         const Icon = item.icon;
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setIsSidebarOpen(false)}
-                                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                                title={isLocked ? `Tahap ${item.step} terkunci. Selesaikan tahapan sebelumnya terlebih dahulu.` : undefined}
+                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
                                     isActive
                                         ? 'bg-[#00288e] text-white shadow-xs font-bold'
-                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                        : isLocked
+                                            ? 'text-slate-400 hover:bg-slate-50 hover:text-slate-500 opacity-75'
+                                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                                 }`}
                             >
-                                <Icon className="w-4 h-4 shrink-0" />
-                                <span>{item.label}</span>
+                                <div className="flex items-center space-x-3 truncate">
+                                    <Icon className={`w-4 h-4 shrink-0 ${isLocked ? 'text-slate-400' : ''}`} />
+                                    <span className="truncate">{item.label}</span>
+                                </div>
+                                {isLocked && (
+                                    <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1.5" />
+                                )}
                             </Link>
                         );
                     })}
@@ -264,6 +276,26 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
                 </header>
 
                 <main className="flex-1 flex flex-col w-full h-full overflow-y-auto overflow-x-hidden relative">
+                    {/* Flash Alert Messages */}
+                    {flash?.error && (
+                        <div className="mx-4 sm:mx-6 mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 shadow-xs">
+                            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                            <div className="flex-1 text-xs">
+                                <p className="font-bold text-amber-950">Akses Dibatasi Sistem</p>
+                                <p className="mt-0.5 leading-relaxed">{flash.error}</p>
+                            </div>
+                        </div>
+                    )}
+                    {flash?.success && (
+                        <div className="mx-4 sm:mx-6 mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-start gap-3 shadow-xs">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <div className="flex-1 text-xs">
+                                <p className="font-bold text-emerald-950">Berhasil</p>
+                                <p className="mt-0.5 leading-relaxed">{flash.success}</p>
+                            </div>
+                        </div>
+                    )}
+
                     {children}
                     
                     {/* Consistent Institutional Footer */}
