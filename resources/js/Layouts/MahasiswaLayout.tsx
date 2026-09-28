@@ -14,6 +14,7 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
     const { t } = useTranslation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [filterPriority, setFilterPriority] = useState<'important' | 'all'>('important');
     const notifications = (props as any).auth?.notifications || [];
     const unreadCount = notifications.filter((n: any) => !n.is_read).length;
 
@@ -164,23 +165,50 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
                                 )}
                             </button>
                             {isNotifOpen && (
-                                <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
-                                    <div className="p-3.5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                                        <h3 className="text-xs font-bold text-slate-900">{t('header.notifications', undefined, 'Notifikasi')}</h3>
-                                        <span className="text-[11px] text-[#00288e] font-semibold cursor-pointer hover:underline">
-                                            {t('header.mark_all_read', undefined, 'Tandai semua dibaca')}
-                                        </span>
+                                <div className="absolute right-0 mt-2 w-84 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="p-3 border-b border-slate-100 bg-slate-50 flex flex-col gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-xs font-bold text-slate-900">{t('header.notifications', undefined, 'Notifikasi')}</h3>
+                                            <span className="text-[11px] text-[#00288e] font-semibold cursor-pointer hover:underline">
+                                                {t('header.mark_all_read', undefined, 'Tandai semua dibaca')}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-1 bg-slate-200/70 p-0.5 rounded-lg text-[11px]">
+                                            <button
+                                                type="button"
+                                                onClick={() => setFilterPriority('important')}
+                                                className={`flex-1 py-1 text-center font-semibold rounded-md transition ${filterPriority === 'important' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                                            >
+                                                Penting ({notifications.filter((n: any) => n.priority === 'high' || n.priority === 'normal' || !n.priority).length})
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFilterPriority('all')}
+                                                className={`flex-1 py-1 text-center font-semibold rounded-md transition ${filterPriority === 'all' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                                            >
+                                                Semua ({notifications.length})
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="max-h-80 overflow-y-auto">
                                         {notifications.length > 0 ? (
-                                            notifications.map((notif: any) => (
+                                            notifications
+                                                .filter((notif: any) => filterPriority === 'all' || notif.priority === 'high' || notif.priority === 'normal' || !notif.priority)
+                                                .map((notif: any) => (
                                                 <div key={notif.id} className={`p-3 border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer ${!notif.is_read ? 'bg-blue-50/40' : ''}`}>
                                                     <div className="flex gap-2.5">
-                                                        <div className={`p-1.5 rounded-full shrink-0 ${notif.tipe === 'info' ? 'bg-blue-100 text-blue-600' : notif.tipe === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                                        <div className={`p-1.5 rounded-full shrink-0 ${notif.priority === 'high' ? 'bg-rose-100 text-rose-600' : notif.tipe === 'info' ? 'bg-blue-100 text-blue-600' : notif.tipe === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`}>
                                                             <BellRing className="w-3.5 h-3.5" />
                                                         </div>
-                                                        <div>
-                                                            <h4 className="text-xs font-bold text-slate-900 mb-0.5">{notif.judul}</h4>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                                                                <h4 className="text-xs font-bold text-slate-900 truncate">{notif.judul}</h4>
+                                                                {notif.priority === 'high' && (
+                                                                    <span className="shrink-0 px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                                        Penting
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <p className="text-xs text-slate-600 line-clamp-2">{notif.pesan}</p>
                                                             <span className="text-[10px] text-slate-400 mt-1 block">{new Date(notif.created_at).toLocaleDateString()}</span>
                                                         </div>

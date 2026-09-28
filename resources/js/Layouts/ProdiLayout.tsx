@@ -12,6 +12,7 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
     const user = (props as any).auth?.user;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [filterPriority, setFilterPriority] = useState<'important' | 'all'>('important');
     const notifications = (props as any).auth?.notifications || [];
     const unreadCount = notifications.filter((n: any) => !n.is_read).length;
     const avatarUrl = getAvatarUrl(user?.avatar || user?.foto);
@@ -117,21 +118,48 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
                                 )}
                             </button>
                             {isNotifOpen && (
-                                <div className="absolute right-0 mt-2 w-80 bg-white border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden">
-                                    <div className="p-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
-                                        <h3 className="text-title-md font-bold text-on-surface">Notifikasi</h3>
-                                        <span className="text-label-sm text-primary cursor-pointer hover:underline">Tandai semua dibaca</span>
+                                <div className="absolute right-0 mt-2 w-84 bg-white border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="p-3.5 border-b border-outline-variant bg-surface-container-low flex flex-col gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-title-md font-bold text-on-surface">Notifikasi</h3>
+                                            <span className="text-label-sm text-primary cursor-pointer hover:underline">Tandai semua dibaca</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 bg-surface-container p-0.5 rounded-lg text-[11px]">
+                                            <button
+                                                type="button"
+                                                onClick={() => setFilterPriority('important')}
+                                                className={`flex-1 py-1 text-center font-semibold rounded-md transition ${filterPriority === 'important' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-on-surface'}`}
+                                            >
+                                                Penting ({notifications.filter((n: any) => n.priority === 'high' || n.priority === 'normal' || !n.priority).length})
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFilterPriority('all')}
+                                                className={`flex-1 py-1 text-center font-semibold rounded-md transition ${filterPriority === 'all' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-on-surface'}`}
+                                            >
+                                                Semua ({notifications.length})
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="max-h-96 overflow-y-auto">
                                         {notifications.length > 0 ? (
-                                            notifications.map((notif: any) => (
-                                                <div key={notif.id} className={`p-4 border-b border-outline-variant hover:bg-surface-container-lowest transition-colors cursor-pointer ${!notif.is_read ? 'bg-primary/5' : ''}`}>
+                                            notifications
+                                                .filter((notif: any) => filterPriority === 'all' || notif.priority === 'high' || notif.priority === 'normal' || !notif.priority)
+                                                .map((notif: any) => (
+                                                <div key={notif.id} className={`p-3.5 border-b border-outline-variant hover:bg-surface-container-lowest transition-colors cursor-pointer ${!notif.is_read ? 'bg-primary/5' : ''}`}>
                                                     <div className="flex gap-3">
-                                                        <div className={`p-2 rounded-full flex-shrink-0 ${notif.tipe === 'info' ? 'bg-blue-100 text-blue-600' : notif.tipe === 'warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
+                                                        <div className={`p-2 rounded-full flex-shrink-0 ${notif.priority === 'high' ? 'bg-rose-100 text-rose-600' : notif.tipe === 'info' ? 'bg-blue-100 text-blue-600' : notif.tipe === 'warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
                                                             <BellRing className="w-4 h-4" />
                                                         </div>
-                                                        <div>
-                                                            <h4 className="text-label-md font-bold text-on-surface mb-1">{notif.judul}</h4>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center justify-between gap-1 mb-1">
+                                                                <h4 className="text-label-md font-bold text-on-surface truncate">{notif.judul}</h4>
+                                                                {notif.priority === 'high' && (
+                                                                    <span className="shrink-0 px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                                        Penting
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <p className="text-body-sm text-secondary line-clamp-2">{notif.pesan}</p>
                                                             <span className="text-[10px] text-outline mt-1 block">{new Date(notif.created_at).toLocaleDateString()}</span>
                                                         </div>

@@ -143,6 +143,7 @@ class MahasiswaProposalController extends Controller
             'judul' => 'Proposal KP',
             'pesan' => 'Proposal berhasil dikirim.',
             'tipe' => 'info',
+            'priority' => 'high',
             'is_read' => false,
         ]);
 
@@ -279,6 +280,7 @@ class MahasiswaProposalController extends Controller
             'judul' => 'Proposal KP',
             'pesan' => 'Proposal berhasil diperbarui.',
             'tipe' => 'info',
+            'priority' => 'high',
             'is_read' => false,
         ]);
 

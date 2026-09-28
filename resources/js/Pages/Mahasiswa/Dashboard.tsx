@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import { Link, usePage } from '@inertiajs/react';
 import { School, ArrowRight, Mail, Megaphone, AlertCircle, Download, BookOpen, FileText, Edit3, Briefcase, Verified, CheckCircle2, Calendar, Clock } from 'lucide-react';
@@ -7,6 +8,7 @@ interface Notification {
     judul: string;
     pesan: string;
     tipe: 'info' | 'peringatan' | 'error' | 'sukses';
+    priority?: 'low' | 'normal' | 'high';
     is_read: boolean;
     created_at: string;
 }
@@ -52,6 +54,11 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
     const { props } = usePage();
     const campusEmail = (props as any)?.campus?.email || 'tif@trunojoyo.ac.id';
     const { t } = useTranslation();
+    const [notifFilter, setNotifFilter] = useState<'important' | 'all'>('important');
+
+    const displayedNotifications = notifFilter === 'important'
+        ? notifications.filter((n) => n.priority === 'high' || n.priority === 'normal' || !n.priority)
+        : notifications;
 
     return (
         <div className="p-6 max-w-[1280px] mx-auto w-full flex-1 space-y-8">
@@ -223,13 +230,31 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                 )}
 
                 <div className="col-span-12 lg:col-span-7 bg-white border border-outline-variant rounded-xl shadow-sm flex flex-col overflow-hidden">
-                    <div className="p-6 border-b border-outline-variant flex justify-between items-center">
-                        <h3 className="text-title-lg font-bold">{t('dashboard.recent_notifications', undefined, 'Notifikasi Terbaru')}</h3>
+                    <div className="p-4 sm:p-5 border-b border-outline-variant flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-title-lg font-bold">{t('dashboard.recent_notifications', undefined, 'Notifikasi Terbaru')}</h3>
+                            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg text-xs font-semibold">
+                                <button
+                                    type="button"
+                                    onClick={() => setNotifFilter('important')}
+                                    className={`px-2.5 py-1 rounded-md transition ${notifFilter === 'important' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                                >
+                                    Penting
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setNotifFilter('all')}
+                                    className={`px-2.5 py-1 rounded-md transition ${notifFilter === 'all' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                                >
+                                    Semua ({notifications.length})
+                                </button>
+                            </div>
+                        </div>
                         <button className="text-primary text-label-md hover:underline">{t('dashboard.view_all', undefined, 'Lihat Semua')}</button>
                     </div>
                     <div className="divide-y divide-outline-variant">
-                        {notifications.length > 0 ? (
-                            notifications.map((notif) => {
+                        {displayedNotifications.length > 0 ? (
+                            displayedNotifications.map((notif) => {
                                 const { icon: Icon, bgClass, iconClass } = getNotifIcon(notif.tipe);
                                 return (
                                     <div key={notif.id} className="p-4 flex space-x-4 hover:bg-surface-container-low transition-colors cursor-pointer">
@@ -237,9 +262,16 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                                             <Icon className={`w-5 h-5 ${iconClass}`} />
                                         </div>
                                         <div className="flex-1">
-                                            <div className="flex justify-between items-start">
-                                                <h5 className={`text-label-md font-bold ${notif.tipe === 'error' ? 'text-error' : ''}`}>{notif.judul}</h5>
-                                                <span className="text-label-sm text-secondary">{notif.created_at}</span>
+                                            <div className="flex justify-between items-start gap-2">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <h5 className={`text-label-md font-bold ${notif.tipe === 'error' ? 'text-error' : ''}`}>{notif.judul}</h5>
+                                                    {notif.priority === 'high' && (
+                                                        <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                            Penting
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="text-label-sm text-secondary shrink-0">{notif.created_at}</span>
                                             </div>
                                             <p className="text-body-sm text-on-surface-variant mt-1">{notif.pesan}</p>
                                         </div>

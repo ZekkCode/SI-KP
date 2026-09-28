@@ -33,9 +33,7 @@ class HandleInertiaRequests extends Middleware
 
         // Eager-load programStudi for mahasiswa/dosen users
         if ($user && in_array($user->role, ['mahasiswa', 'dosen', 'prodi'])) {
-            $user->load(['programStudi', 'notifikasis']);
-        } else if ($user) {
-            $user->load('notifikasis');
+            $user->load('programStudi');
         }
 
         $locale = $request->session()->get('locale')
@@ -58,7 +56,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
-                'notifications' => $user ? $user->notifikasis()->latest()->take(5)->get() : [],
+                'notifications' => $user ? $user->notifikasis()->latest()->take(10)->get() : [],
             ],
             'locale' => $locale,
             'translations' => $translations,

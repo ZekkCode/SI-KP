@@ -35,10 +35,22 @@ class TUVerifikasiPendaftaranController extends Controller
             $mahasiswa = $pendaftaran->mahasiswa;
             $dosenWaliId = $mahasiswa?->dosen_wali_id;
 
-            // Jika pendaftaran belum memiliki dosen pembimbing tetapi mahasiswa punya dosen wali, pasangkan otomatis
+            // Jika dosen_wali_id belum terhubung pada akun user, cari dari data master mahasiswa
+            if (! $dosenWaliId && $mahasiswa?->nim) {
+                $nipWali = \App\Models\MasterMahasiswa::where('nim', $mahasiswa->nim)->value('nip_dosen_wali');
+                if ($nipWali) {
+                    $dosen = \App\Models\User::where('nip', $nipWali)->where('role', 'dosen')->first();
+                    if ($dosen) {
+                        $mahasiswa->update(['dosen_wali_id' => $dosen->id]);
+                        $dosenWaliId = $dosen->id;
+                    }
+                }
+            }
+
+            // Dosen pembimbing otomatis ditetapkan dari Dosen Wali tanpa perlu plotting manual
             $dosenPembimbingId = $pendaftaran->dosen_pembimbing_id ?: $dosenWaliId;
 
-            // Jika sudah ada dosen pembimbing (dari dosen wali), status lanjut ke 'disetujui_tu', jika belum maka 'plotting_dosen'
+            // Jika ada dosen pembimbing (dari dosen wali), langsung ke 'disetujui_tu', fallback 'plotting_dosen' jika belum ada
             $status = $dosenPembimbingId ? 'disetujui_tu' : 'plotting_dosen';
 
             $pendaftaran->update([
@@ -47,6 +59,22 @@ class TUVerifikasiPendaftaranController extends Controller
                 'diverifikasi_oleh' => auth()->id(),
                 'diverifikasi_pada' => now(),
             ]);
+
+            // Kirim notifikasi prioritas tinggi kepada mahasiswa
+            if ($mahasiswa) {
+                $pendaftaran->load('dosenPembimbing');
+                $dosenName = $pendaftaran->dosenPembimbing?->name ?? 'Dosen Wali';
+                \App\Models\Notifikasi::create([
+                    'user_id' => $mahasiswa->id,
+                    'judul' => 'Pendaftaran KP Disetujui',
+                    'pesan' => $dosenPembimbingId 
+                        ? "Pendaftaran Kerja Praktik Anda telah disetujui TU. Dosen pembimbing otomatis ditetapkan: {$dosenName}."
+                        : 'Pendaftaran Kerja Praktik Anda telah disetujui TU dan dalam antrean pembagian dosen pembimbing.',
+                    'tipe' => 'sukses',
+                    'priority' => 'high',
+                    'link' => '/mahasiswa/status-pengajuan',
+                ]);
+            }
             
             DB::commit();
             $pesan = $dosenPembimbingId 
@@ -72,6 +100,18 @@ class TUVerifikasiPendaftaranController extends Controller
                 'status' => 'perlu_perbaikan',
                 'catatan_tu' => $request->catatan_tu,
             ]);
+
+            // Kirim notifikasi prioritas tinggi revisi kepada mahasiswa
+            if ($mahasiswa = $pendaftaran->mahasiswa) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $mahasiswa->id,
+                    'judul' => 'Berkas Pendaftaran Perlu Perbaikan',
+                    'pesan' => 'Pendaftaran Kerja Praktik memerlukan perbaikan: ' . $request->catatan_tu,
+                    'tipe' => 'peringatan',
+                    'priority' => 'high',
+                    'link' => '/mahasiswa/pendaftaran',
+                ]);
+            }
             
             DB::commit();
             return back()->with(

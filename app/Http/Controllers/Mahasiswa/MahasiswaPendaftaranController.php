@@ -73,6 +73,18 @@ class MahasiswaPendaftaranController extends Controller
                 'ipk' => $validated['ipk'],
             ]);
 
+            // Sinkronisasi otomatis dosen wali dari data master jika belum terhubung
+            if (empty($user->dosen_wali_id) && ! empty($user->nim)) {
+                $nipWali = \App\Models\MasterMahasiswa::where('nim', $user->nim)->value('nip_dosen_wali');
+                if ($nipWali) {
+                    $dosenWali = \App\Models\User::where('nip', $nipWali)->where('role', 'dosen')->first();
+                    if ($dosenWali) {
+                        $user->update(['dosen_wali_id' => $dosenWali->id]);
+                        $user->refresh();
+                    }
+                }
+            }
+
             // Find existing or create new pendaftaran
             $pendaftaran = Pendaftaran::firstOrCreate(
                 [

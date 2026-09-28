@@ -21,12 +21,14 @@ class StorePendaftaranRequest extends FormRequest
 
         $transkripUploaded = $pendaftaran && $pendaftaran->dokumenPendaftarans->where('jenis', 'transkrip')->isNotEmpty();
 
+        $minSks = (int) config('sikp.min_sks', 80);
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'no_telepon' => ['required', 'string', 'max:20'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'semester' => ['required', 'string', 'max:50'],
-            'total_sks' => ['required', 'integer', 'min:100'],
+            'total_sks' => ['required', 'integer', 'min:'.$minSks],
             'ipk' => ['required', 'numeric', 'between:0.00,4.00'],
             'transkrip_file' => [$transkripUploaded ? 'nullable' : 'required', 'file', 'mimes:pdf', 'max:2048'],
         ];
@@ -34,6 +36,8 @@ class StorePendaftaranRequest extends FormRequest
 
     public function messages(): array
     {
+        $minSks = (int) config('sikp.min_sks', 80);
+
         return [
             'name.required' => 'Nama lengkap wajib diisi.',
             'no_telepon.required' => 'Nomor WhatsApp wajib diisi.',
@@ -43,7 +47,7 @@ class StorePendaftaranRequest extends FormRequest
             'semester.required' => 'Semester wajib diisi.',
             'total_sks.required' => 'Total SKS wajib diisi.',
             'total_sks.integer' => 'Total SKS harus berupa angka.',
-            'total_sks.min' => 'Total SKS minimal adalah 100 SKS untuk mendaftar.',
+            'total_sks.min' => "Total SKS minimal adalah {$minSks} SKS untuk mendaftar.",
             'ipk.required' => 'IPK wajib diisi.',
             'ipk.numeric' => 'IPK harus berupa angka.',
             'ipk.between' => 'IPK harus bernilai antara 0.00 dan 4.00.',

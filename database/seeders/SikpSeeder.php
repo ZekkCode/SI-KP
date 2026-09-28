@@ -582,16 +582,16 @@ class SikpSeeder extends Seeder
         // ═══════════════════════════════════════════════════════════
         $allUsers = User::all();
         $notifTemplates = [
-            ['judul' => 'Pendaftaran KP Berhasil', 'pesan' => 'Pendaftaran kerja praktik Anda telah berhasil disubmit.', 'tipe' => 'sukses'],
-            ['judul' => 'Verifikasi Berkas Diperlukan', 'pesan' => 'Ada berkas pendaftaran baru yang memerlukan verifikasi.', 'tipe' => 'info'],
-            ['judul' => 'Proposal Perlu Revisi', 'pesan' => 'Dosen pembimbing memberikan catatan revisi pada proposal Anda.', 'tipe' => 'peringatan'],
-            ['judul' => 'Logbook Disetujui', 'pesan' => 'Logbook harian Anda telah disetujui oleh dosen pembimbing.', 'tipe' => 'sukses'],
-            ['judul' => 'Surat Pengantar Terbit', 'pesan' => 'Surat pengantar KP Anda telah diterbitkan.', 'tipe' => 'sukses'],
-            ['judul' => 'Deadline Logbook', 'pesan' => 'Anda belum mengisi logbook harian minggu ini.', 'tipe' => 'peringatan'],
-            ['judul' => 'Plotting Dosen Berhasil', 'pesan' => 'Dosen pembimbing telah ditetapkan.', 'tipe' => 'info'],
-            ['judul' => 'Nilai Akhir Tersedia', 'pesan' => 'Nilai akhir kerja praktik Anda telah dipublikasikan.', 'tipe' => 'sukses'],
-            ['judul' => 'Berita Acara Ditolak', 'pesan' => 'Berita acara memerlukan perbaikan.', 'tipe' => 'error'],
-            ['judul' => 'Kuota Bimbingan Penuh', 'pesan' => 'Kuota bimbingan telah mencapai batas maksimal.', 'tipe' => 'peringatan'],
+            ['judul' => 'Pendaftaran KP Berhasil', 'pesan' => 'Pendaftaran kerja praktik Anda telah berhasil disubmit.', 'tipe' => 'sukses', 'priority' => 'normal'],
+            ['judul' => 'Verifikasi Berkas Diperlukan', 'pesan' => 'Ada berkas pendaftaran baru yang memerlukan verifikasi.', 'tipe' => 'info', 'priority' => 'high'],
+            ['judul' => 'Proposal Perlu Revisi', 'pesan' => 'Dosen pembimbing memberikan catatan revisi pada proposal Anda.', 'tipe' => 'peringatan', 'priority' => 'high'],
+            ['judul' => 'Logbook Disetujui', 'pesan' => 'Logbook harian Anda telah disetujui oleh dosen pembimbing.', 'tipe' => 'sukses', 'priority' => 'normal'],
+            ['judul' => 'Surat Pengantar Terbit', 'pesan' => 'Surat pengantar KP Anda telah diterbitkan.', 'tipe' => 'sukses', 'priority' => 'high'],
+            ['judul' => 'Deadline Logbook', 'pesan' => 'Anda belum mengisi logbook harian minggu ini.', 'tipe' => 'peringatan', 'priority' => 'normal'],
+            ['judul' => 'Plotting Dosen Berhasil', 'pesan' => 'Dosen pembimbing telah ditetapkan.', 'tipe' => 'info', 'priority' => 'normal'],
+            ['judul' => 'Nilai Akhir Tersedia', 'pesan' => 'Nilai akhir kerja praktik Anda telah dipublikasikan.', 'tipe' => 'sukses', 'priority' => 'high'],
+            ['judul' => 'Berita Acara Ditolak', 'pesan' => 'Berita acara memerlukan perbaikan.', 'tipe' => 'error', 'priority' => 'high'],
+            ['judul' => 'Kuota Bimbingan Penuh', 'pesan' => 'Kuota bimbingan telah mencapai batas maksimal.', 'tipe' => 'peringatan', 'priority' => 'low'],
         ];
 
         for ($i = 0; $i < 30; $i++) {
@@ -601,6 +601,7 @@ class SikpSeeder extends Seeder
                 'judul' => $tmpl['judul'],
                 'pesan' => $tmpl['pesan'],
                 'tipe' => $tmpl['tipe'],
+                'priority' => $tmpl['priority'] ?? 'normal',
                 'is_read' => fake()->boolean(40),
                 'link' => null,
             ]);

@@ -15,9 +15,25 @@ class Notifikasi extends Model
         'judul',
         'pesan',
         'tipe',
+        'priority',
         'is_read',
         'link',
     ];
+
+    public function scopePriority($query, string $priority)
+    {
+        return $query->where('priority', $priority);
+    }
+
+    public function scopeImportant($query)
+    {
+        return $query->whereIn('priority', ['high', 'normal']);
+    }
+
+    public function scopeHigh($query)
+    {
+        return $query->where('priority', 'high');
+    }
 
     protected function casts(): array
     {
