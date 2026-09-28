@@ -70,6 +70,9 @@ class HandleInertiaRequests extends Middleware
                 'phone' => config('app.campus_phone'),
                 'email' => config('app.campus_email'),
             ],
+            'kp_progress' => fn () => ($user && $user->role === 'mahasiswa')
+                ? app(\App\Services\KpProgressService::class)->getProgress($user->id)
+                : null,
         ];
     }
 

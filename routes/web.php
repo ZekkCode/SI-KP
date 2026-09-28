@@ -94,101 +94,95 @@ Route::middleware(['auth', 'role:mahasiswa'])
             ->name('status-pengajuan');
 
         // =========================
-        // SURAT PENGANTAR
+        // SURAT PENGANTAR (Step 2)
         // =========================
-        Route::get('/surat-pengantar', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'index'])
-            ->name('surat-pengantar');
-
-        Route::post('/surat-pengantar', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'store'])
-            ->name('surat-pengantar.store');
-        
-        Route::get('/surat-pengantar/download',[App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class,'download'])
-            ->name('surat-pengantar.download');
-
-        Route::post('/surat-pengantar/upload', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'upload'])
-            ->name('surat-pengantar.upload');
-
-        Route::get('/surat-pengantar/{id}/cetak', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'cetak'])
-            ->name('surat-pengantar.cetak');
-        // =========================
-        // PROPOSAL
-        // =========================
-        Route::get('/proposal', [MahasiswaProposalController::class, 'index'])
-            ->name('proposal');
-
-        Route::post('/proposal', [MahasiswaProposalController::class, 'store'])
-            ->name('proposal.store');
-
-        Route::put('/proposal/{proposal}', [MahasiswaProposalController::class, 'update'])
-            ->name('proposal.update');
-
-        Route::delete('/proposal/{proposal}', [MahasiswaProposalController::class, 'destroy'])
-            ->name('proposal.destroy');
-
-        Route::get('/proposal/download/{proposal}', [MahasiswaProposalController::class, 'download'])
-            ->name('proposal.download');
-
-        Route::post('/proposal/note', [MahasiswaProposalController::class, 'sendNote'])
-            ->name('proposal.note');
+        Route::middleware('kp.step:2')->group(function () {
+            Route::get('/surat-pengantar', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'index'])
+                ->name('surat-pengantar');
+            Route::post('/surat-pengantar', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'store'])
+                ->name('surat-pengantar.store');
+            Route::get('/surat-pengantar/download', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'download'])
+                ->name('surat-pengantar.download');
+            Route::post('/surat-pengantar/upload', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'upload'])
+                ->name('surat-pengantar.upload');
+            Route::get('/surat-pengantar/{id}/cetak', [App\Http\Controllers\Mahasiswa\MahasiswaSuratPengantarController::class, 'cetak'])
+                ->name('surat-pengantar.cetak');
+        });
 
         // =========================
-        // LOGBOOK
+        // PROPOSAL (Step 4)
         // =========================
-        Route::get('/logbook', [MahasiswaLogbookController::class, 'index'])
-            ->name('logbook');
-
-        Route::get('/logbook/create', [MahasiswaLogbookController::class, 'create'])
-            ->name('logbook.create');
-
-        Route::post('/logbook', [MahasiswaLogbookController::class, 'store'])
-            ->name('logbook.store');
-
-        Route::get('/logbook/{logbook}/edit', [MahasiswaLogbookController::class, 'edit'])
-            ->name('logbook.edit');
-
-        Route::put('/logbook/{logbook}', [MahasiswaLogbookController::class, 'update'])
-            ->name('logbook.update');
-
-        Route::delete('/logbook/{logbook}', [MahasiswaLogbookController::class, 'destroy'])
-            ->name('logbook.destroy');
+        Route::middleware('kp.step:4')->group(function () {
+            Route::get('/proposal', [MahasiswaProposalController::class, 'index'])
+                ->name('proposal');
+            Route::post('/proposal', [MahasiswaProposalController::class, 'store'])
+                ->name('proposal.store');
+            Route::put('/proposal/{proposal}', [MahasiswaProposalController::class, 'update'])
+                ->name('proposal.update');
+            Route::delete('/proposal/{proposal}', [MahasiswaProposalController::class, 'destroy'])
+                ->name('proposal.destroy');
+            Route::get('/proposal/download/{proposal}', [MahasiswaProposalController::class, 'download'])
+                ->name('proposal.download');
+            Route::post('/proposal/note', [MahasiswaProposalController::class, 'sendNote'])
+                ->name('proposal.note');
+        });
 
         // =========================
-        // BERITA ACARA
+        // LOGBOOK (Step 6)
         // =========================
-        Route::get('/berita-acara',[App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'index'])
-            ->name('berita-acara');
-
-        Route::post('/berita-acara',[App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'store'])
-            ->name('berita-acara.store');
-
-        Route::get('/berita-acara/{id}/cetak',[App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'cetak'])
-            ->name('berita-acara.cetak');
-
-        // =========================
-        // DOKUMEN AKHIR
-        // =========================
-        Route::get('/dokumen-akhir', [App\Http\Controllers\Mahasiswa\MahasiswaDokumenAkhirController::class, 'index'])
-            ->name('dokumen-akhir.index');
-        Route::post('/dokumen-akhir', [App\Http\Controllers\Mahasiswa\MahasiswaDokumenAkhirController::class, 'store'])
-            ->name('dokumen-akhir.store');
+        Route::middleware('kp.step:6')->group(function () {
+            Route::get('/logbook', [MahasiswaLogbookController::class, 'index'])
+                ->name('logbook');
+            Route::get('/logbook/create', [MahasiswaLogbookController::class, 'create'])
+                ->name('logbook.create');
+            Route::post('/logbook', [MahasiswaLogbookController::class, 'store'])
+                ->name('logbook.store');
+            Route::get('/logbook/{logbook}/edit', [MahasiswaLogbookController::class, 'edit'])
+                ->name('logbook.edit');
+            Route::put('/logbook/{logbook}', [MahasiswaLogbookController::class, 'update'])
+                ->name('logbook.update');
+            Route::delete('/logbook/{logbook}', [MahasiswaLogbookController::class, 'destroy'])
+                ->name('logbook.destroy');
+        });
 
         // =========================
-        // SIDANG KERJA PRAKTIK
+        // DOKUMEN AKHIR & BERITA ACARA (Step 7)
         // =========================
-        Route::get('/sidang', [App\Http\Controllers\Mahasiswa\MahasiswaSidangController::class, 'index'])
-            ->name('sidang');
-        Route::post('/sidang', [App\Http\Controllers\Mahasiswa\MahasiswaSidangController::class, 'store'])
-            ->name('sidang.store');
+        Route::middleware('kp.step:7')->group(function () {
+            Route::get('/berita-acara', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'index'])
+                ->name('berita-acara');
+            Route::post('/berita-acara', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'store'])
+                ->name('berita-acara.store');
+            Route::get('/berita-acara/{id}/cetak', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'cetak'])
+                ->name('berita-acara.cetak');
+
+            Route::get('/dokumen-akhir', [App\Http\Controllers\Mahasiswa\MahasiswaDokumenAkhirController::class, 'index'])
+                ->name('dokumen-akhir.index');
+            Route::post('/dokumen-akhir', [App\Http\Controllers\Mahasiswa\MahasiswaDokumenAkhirController::class, 'store'])
+                ->name('dokumen-akhir.store');
+        });
 
         // =========================
-        // PENILAIAN
+        // SIDANG KERJA PRAKTIK (Step 8)
         // =========================
-        Route::get('/penilaian', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'index'])
-            ->name('penilaian.index');
-        Route::get('/penilaian/cetak', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'cetak'])
-            ->name('penilaian.cetak');
-        Route::get('/penilaian/cetak-instansi', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'cetakInstansi'])
-            ->name('penilaian.cetak-instansi');
+        Route::middleware('kp.step:8')->group(function () {
+            Route::get('/sidang', [App\Http\Controllers\Mahasiswa\MahasiswaSidangController::class, 'index'])
+                ->name('sidang');
+            Route::post('/sidang', [App\Http\Controllers\Mahasiswa\MahasiswaSidangController::class, 'store'])
+                ->name('sidang.store');
+        });
+
+        // =========================
+        // PENILAIAN (Step 9)
+        // =========================
+        Route::middleware('kp.step:9')->group(function () {
+            Route::get('/penilaian', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'index'])
+                ->name('penilaian.index');
+            Route::get('/penilaian/cetak', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'cetak'])
+                ->name('penilaian.cetak');
+            Route::get('/penilaian/cetak-instansi', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'cetakInstansi'])
+                ->name('penilaian.cetak-instansi');
+        });
     });
 
 // ============================================================

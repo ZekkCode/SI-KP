@@ -12,14 +12,20 @@ use App\Models\NilaiAkhir;
 use Carbon\Carbon;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
+use App\Services\KpProgressService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class MahasiswaDashboardController extends Controller
 {
+    public function __construct(
+        protected KpProgressService $progressService
+    ) {}
+
     public function index(Request $request): Response
     {
         $user = $request->user()->load('programStudi');
+        $kpProgress = $this->progressService->getProgress($user->id);
 
         // Get the latest pendaftaran with relations
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
@@ -146,13 +152,12 @@ class MahasiswaDashboardController extends Controller
             'beritaStatus' => $beritaStatus,
             'nilaiAkhir' => $nilaiAkhir,
             'unreadNotification' => $unreadNotification,
-            ]);
-        }
+            'kp_progress' => $kpProgress,
+        ]);
+    }
 
     /**
      * Determine the stepper step based on pendaftaran state.
-     *
-     * Steps: 0=Pendaftaran, 1=Verifikasi, 2=Surat Pengantar, 3=Proposal, 4=Pelaksanaan, 5=Laporan
      */
     private function determineStep(?Pendaftaran $pendaftaran): int
     {
@@ -164,10 +169,11 @@ class MahasiswaDashboardController extends Controller
             'draft' => 0,
             'diajukan', 'verifikasi_tu', 'perlu_perbaikan' => 1,
             'disetujui_tu' => 2,
-            'surat_terbit' => 3,
-            'diterima_instansi' => 3,
-            'aktif' => 4,
-            'selesai' => 5,
+            'surat_terbit', 'konfirmasi_instansi' => 3,
+            'diterima_instansi' => 4,
+            'aktif' => 5,
+            'seminar', 'sidang_requested', 'sidang_dijadwalkan' => 8,
+            'selesai' => 9,
             default => 0,
         };
     }
@@ -209,6 +215,10 @@ class MahasiswaDashboardController extends Controller
                 'label' => __('app.status.surat_terbit.label'),
                 'description' => __('app.status.surat_terbit.description'),
             ],
+            'konfirmasi_instansi' => [
+                'label' => 'Menunggu Konfirmasi Mitra',
+                'description' => 'Surat Pengantar terbit, menunggu konfirmasi penerimaan dari pihak instansi/PL.',
+            ],
             'diterima_instansi' => [
                 'label' => __('app.status.diterima_instansi.label'),
                 'description' => __('app.status.diterima_instansi.description'),
@@ -216,6 +226,18 @@ class MahasiswaDashboardController extends Controller
             'aktif' => [
                 'label' => __('app.status.aktif.label'),
                 'description' => __('app.status.aktif.description'),
+            ],
+            'seminar' => [
+                'label' => 'Pelaksanaan Sidang KP',
+                'description' => 'Kerja Praktik telah selesai dan mahasiswa dalam proses pengajuan/pelaksanaan sidang.',
+            ],
+            'sidang_requested' => [
+                'label' => 'Pengajuan Sidang Diajukan',
+                'description' => 'Pengajuan sidang telah terkirim dan menunggu verifikasi serta penetapan jadwal oleh Prodi.',
+            ],
+            'sidang_dijadwalkan' => [
+                'label' => 'Jadwal Sidang Ditetapkan',
+                'description' => 'Jadwal dan penguji sidang telah ditetapkan. Silakan persiapkan berkas dan presentasi.',
             ],
             'selesai' => [
                 'label' => __('app.status.selesai.label'),

@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import { Link, usePage } from '@inertiajs/react';
-import { School, ArrowRight, Mail, Megaphone, AlertCircle, Download, BookOpen, FileText, Edit3, Briefcase, Verified, CheckCircle2, Calendar, Clock } from 'lucide-react';
+import {
+    School, ArrowRight, Mail, Megaphone, AlertCircle, Download, BookOpen,
+    FileText, Edit3, Briefcase, Verified, CheckCircle2, Calendar, Clock,
+    Lock, Check, ChevronRight, Building2, Award, FileCheck, ClipboardEdit, CalendarDays
+} from 'lucide-react';
 
 interface Notification {
     id: number;
@@ -11,6 +15,28 @@ interface Notification {
     priority?: 'low' | 'normal' | 'high';
     is_read: boolean;
     created_at: string;
+}
+
+export interface StepInfo {
+    step: number;
+    title: string;
+    label: string;
+    description: string;
+    route: string;
+    is_completed: boolean;
+    is_current: boolean;
+    is_locked: boolean;
+    status_badge: string;
+}
+
+export interface KpProgressData {
+    pendaftaran_id?: number;
+    current_step: number;
+    max_unlocked_step: number;
+    progress_percent: number;
+    completed_steps_count: number;
+    current_step_info: StepInfo;
+    steps: StepInfo[];
 }
 
 interface DashboardProps extends Record<string, unknown> {
@@ -30,6 +56,22 @@ interface DashboardProps extends Record<string, unknown> {
     dosenPembimbing?: string;
     instansi?: string;
     pembimbingLapangan?: string;
+    kp_progress?: KpProgressData;
+}
+
+function getStepIcon(stepNumber: number) {
+    switch (stepNumber) {
+        case 1: return ClipboardEdit;
+        case 2: return FileText;
+        case 3: return Building2;
+        case 4: return FileText;
+        case 5: return Briefcase;
+        case 6: return BookOpen;
+        case 7: return FileCheck;
+        case 8: return CalendarDays;
+        case 9: return Award;
+        default: return CheckCircle2;
+    }
 }
 
 function getNotifIcon(tipe: string) {
@@ -50,8 +92,24 @@ function getNotifIcon(tipe: string) {
 import { PageProps } from '@/types';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export default function Dashboard({ userName, userProdi, userAngkatan, userKonsentrasi, statusInfo, currentStep, notifications, logbookCount, logbookTarget, hasPendaftaran, dosenPembimbing, instansi, pembimbingLapangan }: PageProps<DashboardProps>) {
+export default function Dashboard({
+    userName,
+    userProdi,
+    userAngkatan,
+    userKonsentrasi,
+    statusInfo,
+    currentStep,
+    notifications,
+    logbookCount,
+    logbookTarget,
+    hasPendaftaran,
+    dosenPembimbing,
+    instansi,
+    pembimbingLapangan,
+    kp_progress,
+}: PageProps<DashboardProps>) {
     const { props } = usePage();
+    const kpProgress = kp_progress || (props as any)?.kp_progress;
     const campusEmail = (props as any)?.campus?.email || 'tif@trunojoyo.ac.id';
     const { t } = useTranslation();
     const [notifFilter, setNotifFilter] = useState<'important' | 'all'>('important');
@@ -124,6 +182,179 @@ export default function Dashboard({ userName, userProdi, userAngkatan, userKonse
                     </div>
                 </div>
             </div>
+
+            {/* Gerbang Progres Kerja Praktik (9-Step Enforcement Stepper) */}
+            {kpProgress && (
+                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-6">
+                    {/* Header Stepper & Progress Bar */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <span className="flex h-2.5 w-2.5 rounded-full bg-[#00288e] animate-ping" />
+                                <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                                    Alur & Gerbang Progres Kerja Praktik
+                                </h3>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1">
+                                Alur bertahap: Selesaikan setiap langkah untuk membuka akses ke menu dan berkas tahapan berikutnya.
+                            </p>
+                        </div>
+                        <div className="flex flex-col items-start sm:items-end gap-1.5 w-full sm:w-auto">
+                            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                                <span>{kpProgress.completed_steps_count} dari 9 Tahap Selesai</span>
+                                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-[#00288e] border border-blue-200">
+                                    {kpProgress.progress_percent}%
+                                </span>
+                            </div>
+                            <div className="w-full sm:w-56 h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                                <div
+                                    className="h-full bg-gradient-to-r from-[#00288e] to-blue-500 rounded-full transition-all duration-500"
+                                    style={{ width: `${kpProgress.progress_percent}%` }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Active Step Highlight Card */}
+                    {kpProgress.current_step_info && (
+                        <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white border border-blue-200 rounded-xl p-4.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
+                            <div className="flex items-center gap-3.5">
+                                <div className="w-10 h-10 rounded-xl bg-[#00288e] text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
+                                    {kpProgress.current_step}
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#00288e]">
+                                            Tahap Saat Ini (Sedang Berjalan)
+                                        </span>
+                                        <span className="px-2 py-0.2 rounded text-[10px] font-bold bg-blue-100 text-[#00288e] border border-blue-200">
+                                            {kpProgress.current_step_info.status_badge}
+                                        </span>
+                                    </div>
+                                    <h4 className="text-base font-bold text-slate-900 mt-0.5">
+                                        {kpProgress.current_step_info.title}
+                                    </h4>
+                                    <p className="text-xs text-slate-600 mt-0.5 max-w-2xl leading-relaxed">
+                                        {kpProgress.current_step_info.description}
+                                    </p>
+                                </div>
+                            </div>
+                            <Link
+                                href={kpProgress.current_step_info.route}
+                                className="inline-flex items-center gap-2 bg-[#00288e] hover:bg-[#001f70] text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow-xs transition-colors shrink-0 cursor-pointer"
+                            >
+                                <span>Lanjutkan Tahap Ini</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                    )}
+
+                    {/* 9-Step Roadmap Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                        {kpProgress.steps.map((st: StepInfo) => {
+                            const IconComponent = getStepIcon(st.step);
+                            const isCompleted = st.is_completed;
+                            const isCurrent = st.is_current;
+                            const isLocked = st.is_locked;
+
+                            return (
+                                <div
+                                    key={st.step}
+                                    className={`relative rounded-xl border p-4 transition-all flex flex-col justify-between ${
+                                        isCompleted
+                                            ? 'bg-emerald-50/40 border-emerald-200 text-slate-900 hover:border-emerald-300'
+                                            : isCurrent
+                                            ? 'bg-white border-[#00288e] ring-2 ring-[#00288e]/15 shadow-xs'
+                                            : 'bg-slate-50/60 border-slate-200 text-slate-400 opacity-80'
+                                    }`}
+                                >
+                                    <div>
+                                        <div className="flex items-center justify-between gap-2 mb-2.5">
+                                            <div className="flex items-center gap-2.5">
+                                                <div
+                                                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                                                        isCompleted
+                                                            ? 'bg-emerald-600 text-white'
+                                                            : isCurrent
+                                                            ? 'bg-[#00288e] text-white'
+                                                            : 'bg-slate-200 text-slate-500'
+                                                    }`}
+                                                >
+                                                    {isCompleted ? (
+                                                        <Check className="w-4 h-4" />
+                                                    ) : isLocked ? (
+                                                        <Lock className="w-3.5 h-3.5" />
+                                                    ) : (
+                                                        st.step
+                                                    )}
+                                                </div>
+                                                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                                    Tahap {st.step}
+                                                </span>
+                                            </div>
+                                            <span
+                                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                                    isCompleted
+                                                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                                        : isCurrent
+                                                        ? 'bg-blue-100 text-[#00288e] border-blue-200'
+                                                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                                                }`}
+                                            >
+                                                {st.status_badge}
+                                            </span>
+                                        </div>
+
+                                        <h5
+                                            className={`text-sm font-bold leading-tight ${
+                                                isLocked ? 'text-slate-500' : 'text-slate-900'
+                                            }`}
+                                        >
+                                            {st.title}
+                                        </h5>
+                                        <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                                            {st.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
+                                        {isLocked ? (
+                                            <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5 cursor-not-allowed select-none">
+                                                <Lock className="w-3 h-3 text-slate-400" />
+                                                <span>Terkunci</span>
+                                            </span>
+                                        ) : (
+                                            <Link
+                                                href={st.route}
+                                                className={`text-[11px] font-bold flex items-center gap-1 hover:underline transition-colors ${
+                                                    isCurrent
+                                                        ? 'text-[#00288e]'
+                                                        : isCompleted
+                                                        ? 'text-emerald-700'
+                                                        : 'text-slate-700'
+                                                }`}
+                                            >
+                                                <span>{isCompleted ? 'Buka Kembali' : 'Masuk ke Menu'}</span>
+                                                <ChevronRight className="w-3.5 h-3.5" />
+                                            </Link>
+                                        )}
+
+                                        <IconComponent
+                                            className={`w-4 h-4 ${
+                                                isCompleted
+                                                    ? 'text-emerald-500'
+                                                    : isCurrent
+                                                    ? 'text-[#00288e]'
+                                                    : 'text-slate-300'
+                                            }`}
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
 
 
