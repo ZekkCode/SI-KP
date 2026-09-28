@@ -161,6 +161,9 @@ Route::middleware(['auth', 'role:mahasiswa'])
         Route::post('/berita-acara',[App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'store'])
             ->name('berita-acara.store');
 
+        Route::get('/berita-acara/{id}/cetak',[App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'cetak'])
+            ->name('berita-acara.cetak');
+
         // =========================
         // DOKUMEN AKHIR
         // =========================
@@ -168,6 +171,14 @@ Route::middleware(['auth', 'role:mahasiswa'])
             ->name('dokumen-akhir.index');
         Route::post('/dokumen-akhir', [App\Http\Controllers\Mahasiswa\MahasiswaDokumenAkhirController::class, 'store'])
             ->name('dokumen-akhir.store');
+
+        // =========================
+        // SIDANG KERJA PRAKTIK
+        // =========================
+        Route::get('/sidang', [App\Http\Controllers\Mahasiswa\MahasiswaSidangController::class, 'index'])
+            ->name('sidang');
+        Route::post('/sidang', [App\Http\Controllers\Mahasiswa\MahasiswaSidangController::class, 'store'])
+            ->name('sidang.store');
 
         // =========================
         // PENILAIAN
@@ -261,6 +272,14 @@ Route::middleware(['auth', 'role:instansi'])->prefix('instansi')->name('instansi
 // ============================================================
 Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Prodi\ProdiDashboardController::class, 'index'])->name('dashboard');
+    
+    // Sidang KP (Req 9 & Req 11)
+    Route::get('/sidang', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'index'])->name('sidang');
+    Route::post('/sidang/{id}/jadwalkan', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'jadwalkan'])->name('sidang.jadwalkan');
+    Route::post('/sidang/{id}/selesai', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'selesai'])->name('sidang.selesai');
+    Route::get('/mitra-instansi', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'mitraInstansi'])->name('mitra-instansi');
+    Route::get('/arsip-nilai', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'arsipNilai'])->name('arsip-nilai');
+
     Route::get('/dosen', [App\Http\Controllers\Prodi\ProdiDosenController::class, 'index'])->name('dosen.index');
     Route::get('/dosen/template', [App\Http\Controllers\Prodi\ProdiDosenController::class, 'downloadTemplate'])->name('dosen.template');
     Route::post('/dosen/import', [App\Http\Controllers\Prodi\ProdiDosenController::class, 'import'])->name('dosen.import');

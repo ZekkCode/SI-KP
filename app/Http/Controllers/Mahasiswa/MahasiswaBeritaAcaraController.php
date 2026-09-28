@@ -59,4 +59,24 @@ class MahasiswaBeritaAcaraController extends Controller
 
         return redirect()->back()->with('success', 'Berita Acara berhasil diunggah dan menunggu validasi.');
     }
+
+    /**
+     * Menampilkan lembar resmi Berita Acara Sidang KP untuk dicetak / simpan PDF.
+     */
+    public function cetak(Request $request, $id)
+    {
+        $pendaftaran = Pendaftaran::with([
+            'mahasiswa',
+            'instansi',
+            'dosenPembimbing',
+            'sidang.dosenPenguji',
+            'proposals',
+            'nilaiAkhir',
+        ])->findOrFail($id);
+
+        return view('cetak.berita-acara', [
+            'pendaftaran' => $pendaftaran,
+            'tanggal_hari' => now()->translatedFormat('l, d F Y'),
+        ]);
+    }
 }

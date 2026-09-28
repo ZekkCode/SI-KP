@@ -119,10 +119,13 @@
             </tr>
         </table>
         @php
-            $dekanNama = $surat->ditandatangani_oleh ?? config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.');
-            $dekanNip = $surat->nip_penandatangan ?? config('sikp.dekan.nip', '197801202003121002');
-            $ttdPath = config('sikp.dekan.ttd_path', 'assets/img/ttd-dekan.png');
-            $hasTtdFile = $ttdPath && file_exists(public_path($ttdPath));
+            $sigService = app(\App\Services\DigitalSignatureService::class);
+            $sigData = $sigService->getSignatureBlock('dekan', $surat->verification_id);
+            $dekanNama = $surat->ditandatangani_oleh ?? $sigData['nama'];
+            $dekanNip = $surat->nip_penandatangan ?? $sigData['nip'];
+            $hasTtdFile = $sigData['ttd_exists'];
+            $ttdPath = $sigData['ttd_path'];
+            $vId = $surat->verification_id ?? $sigData['verification_id'];
         @endphp
 
         <table align="center" style="width: 590px;">
@@ -138,7 +141,8 @@
                     @else
                         <div style="font-family: Arial, sans-serif; font-size: 10px; color: #0f766e; border: 1px dashed #0d9488; padding: 6px 10px; border-radius: 6px; display: inline-block; background-color: #f0fdfa;">
                             <b style="text-transform: uppercase;">Ditandatangani secara Digital</b><br>
-                            Fakultas Teknik Universitas Trunojoyo Madura
+                            Fakultas Teknik Universitas Trunojoyo Madura<br>
+                            <span style="font-size: 8.5px; color: #115e59;">ID: {{ $vId }}</span>
                         </div>
                     @endif
                 </td>

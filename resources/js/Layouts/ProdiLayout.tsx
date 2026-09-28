@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard, Users, ListOrdered, ClipboardCheck,
     BarChart3, Settings, LogOut, Menu, Bell, HelpCircle, Search, Plus, CalendarDays,
-    FileText, UserCircle, BellRing, Building2, BookOpen, X
+    FileText, UserCircle, BellRing, Building2, BookOpen, X, Calendar, Award
 } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 
@@ -19,11 +19,13 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
 
     const navItems = [
         { href: route('prodi.dashboard'), label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/panduan', label: 'Buku Panduan & SOP', icon: BookOpen },
+        { href: '/prodi/sidang', label: 'Penjadwalan Sidang', icon: Calendar },
         { href: route('prodi.periode'), label: 'Pendaftaran & Surat', icon: FileText },
         { href: route('prodi.dosen.index'), label: 'Daftar Dosen Pembimbing', icon: ListOrdered },
-        { href: route().has('prodi.instansi.index') ? route('prodi.instansi.index') : '#', label: 'Instansi & Pembimbing Lapangan', icon: Building2 },
+        { href: '/prodi/mitra-instansi', label: 'Mitra & Instansi', icon: Building2 },
+        { href: '/prodi/arsip-nilai', label: 'Arsip Nilai KP', icon: Award },
         { href: route('prodi.berita-acara.index'), label: 'Berita Acara', icon: ClipboardCheck },
+        { href: '/panduan', label: 'Buku Panduan & SOP', icon: BookOpen },
     ];
 
     return (

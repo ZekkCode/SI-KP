@@ -104,4 +104,9 @@ class Pendaftaran extends Model
     {
         return $this->belongsTo(PembimbingLapangan::class, 'pembimbing_lapangan_id');
     }
+
+    public function sidang(): HasOne
+    {
+        return $this->hasOne(Sidang::class);
+    }
 }

@@ -28,6 +28,7 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
         { href: '/mahasiswa/surat-pengantar', label: t('nav.surat_pengantar', undefined, 'Surat Pengantar'), icon: FileText },
         { href: '/mahasiswa/proposal', label: t('nav.proposal', undefined, 'Proposal'), icon: File },
         { href: '/mahasiswa/logbook', label: t('nav.monitoring', undefined, 'Monitoring Logbook'), icon: BookOpen },
+        { href: '/mahasiswa/sidang', label: 'Sidang KP', icon: CalendarDays },
         { href: '/mahasiswa/berita-acara', label: t('nav.berita_acara', undefined, 'Berita Acara'), icon: FileClock },
         { href: '/mahasiswa/dokumen-akhir', label: t('nav.laporan_akhir', undefined, 'Laporan Akhir'), icon: FileCheck },
         { href: '/mahasiswa/penilaian', label: t('nav.penilaian', undefined, 'Penilaian Akhir'), icon: Award },

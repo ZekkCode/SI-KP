@@ -48,6 +48,15 @@ class SuratPengantar extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (empty($model->verification_id)) {
+                $model->verification_id = (new \App\Services\DigitalSignatureService())->generateVerificationId('SP');
+            }
+        });
+    }
+
     public function pendaftaran(): BelongsTo
     {
         return $this->belongsTo(Pendaftaran::class);
@@ -56,5 +65,10 @@ class SuratPengantar extends Model
     public function generator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'generated_by');
+    }
+
+    public function getVerificationUrlAttribute(): string
+    {
+        return url('/verifikasi/surat-pengantar/' . ($this->verification_id ?? $this->id));
     }
 }
