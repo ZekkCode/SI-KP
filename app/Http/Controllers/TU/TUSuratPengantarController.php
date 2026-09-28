@@ -115,6 +115,8 @@ class TUSuratPengantarController extends Controller
                 'tanggal_terbit' => now(),
                 'confirmation_token' => $confirmationToken,
                 'confirmation_status' => $pendaftaran->suratPengantar->confirmation_status ?: 'pending',
+                'ditandatangani_oleh' => config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.'),
+                'nip_penandatangan' => config('sikp.dekan.nip', '197801202003121002'),
             ]);
 
             \App\Models\Notifikasi::create([

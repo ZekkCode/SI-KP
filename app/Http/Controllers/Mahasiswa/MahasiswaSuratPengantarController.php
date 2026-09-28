@@ -185,11 +185,17 @@ class MahasiswaSuratPengantarController extends Controller
             abort(404, 'Data surat belum ada.');
         }
 
+        $updateData = [];
         if (empty($surat->confirmation_token)) {
-            $surat->update([
-                'confirmation_token' => \Illuminate\Support\Str::random(64),
-                'confirmation_status' => $surat->confirmation_status ?: 'pending',
-            ]);
+            $updateData['confirmation_token'] = \Illuminate\Support\Str::random(64);
+            $updateData['confirmation_status'] = $surat->confirmation_status ?: 'pending';
+        }
+        if (empty($surat->ditandatangani_oleh)) {
+            $updateData['ditandatangani_oleh'] = config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.');
+            $updateData['nip_penandatangan'] = config('sikp.dekan.nip', '197801202003121002');
+        }
+        if (!empty($updateData)) {
+            $surat->update($updateData);
         }
 
         $nama_instansi = $surat->nama_instansi;

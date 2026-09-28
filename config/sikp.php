@@ -22,9 +22,9 @@ return [
     |
     */
     'dekan' => [
-        'nama' => env('DEKAN_NAMA', 'Prof. Dr. Ir. Dekan Teknik, M.T.'),
-        'nip' => env('DEKAN_NIP', '197501012000031001'),
-        'ttd_path' => env('DEKAN_TTD_PATH', null),
+        'nama' => env('DEKAN_NAMA', 'Ari Basuki, S.T., M.T.'),
+        'nip' => env('DEKAN_NIP', '197801202003121002'),
+        'ttd_path' => env('DEKAN_TTD_PATH', 'assets/img/ttd-dekan.png'),
     ],
 
     'kaprodi' => [

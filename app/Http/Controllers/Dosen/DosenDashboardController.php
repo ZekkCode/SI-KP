@@ -22,19 +22,30 @@ class DosenDashboardController extends Controller
         $kuota = KuotaDosen::where('dosen_id', $dosenId)->first();
         $kuotaMax = $kuota ? $kuota->kuota_max : 10;
 
-        // 2. Ambil daftar mahasiswa bimbingan (semua pendaftaran yang diplot ke dosen ini)
-        $bimbinganList = Pendaftaran::with(['mahasiswa', 'instansi', 'proposals' => function($q) {
-                // Ambil proposal terbaru
-                $q->latest()->limit(1);
-            }])
-            ->where('dosen_pembimbing_id', $dosenId)
-            ->whereNotIn('status', ['draft', 'diajukan', 'verifikasi_tu', 'perlu_perbaikan', 'disetujui_tu', 'ditolak_instansi']) // Hanya yang sudah di-plotting atau setelahnya
+        // 2. Ambil daftar mahasiswa bimbingan (baik via dosen_pembimbing_id maupun dosen_wali_id)
+        // Tanpa filter status agresif agar pendaftaran baru langsung terpantau
+        $bimbinganList = Pendaftaran::with([
+                'mahasiswa.programStudi',
+                'instansi',
+                'suratPengantar',
+                'proposals' => function ($q) {
+                    $q->latest();
+                },
+            ])
+            ->where(function ($query) use ($dosenId) {
+                $query->where('dosen_pembimbing_id', $dosenId)
+                      ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
+            })
             ->latest()
             ->get();
 
-        // 3. Hitung statistik
-        // Mahasiswa aktif: status aktif, selesai, diterima_instansi, verifikasi_surat_balasan, dll (pada dasarnya semua bimbingan list kecuali yang mungkin gagal/batal)
-        // Kita hitung semua yang ada di $bimbinganList sebagai bimbingan aktif karena mereka sudah di-plotting.
+        // 3. Identifikasi mahasiswa baru (status awal atau pendaftaran 14 hari terakhir)
+        $statusBaru = ['diajukan', 'verifikasi_tu', 'perlu_perbaikan', 'disetujui_tu', 'surat_terbit', 'diterima_instansi'];
+        $mahasiswaBaru = $bimbinganList->filter(function ($p) use ($statusBaru) {
+            return in_array($p->status, $statusBaru) || $p->created_at->diffInDays(now()) <= 14;
+        })->values();
+
+        // 4. Hitung statistik
         $totalBimbingan = $bimbinganList->count();
 
         // Menunggu Review Proposal: Ada proposal yang statusnya 'diajukan'
@@ -45,19 +56,23 @@ class DosenDashboardController extends Controller
 
         // Pelaksanaan KP: Status pendaftaran 'aktif'
         $pelaksanaanKp = $bimbinganList->where('status', 'aktif')->count();
+        $selesaiKp = $bimbinganList->where('status', 'selesai')->count();
 
         return Inertia::render('Dosen/Dashboard', [
             'kuota' => [
                 'max' => $kuotaMax,
                 'terpakai' => $totalBimbingan,
-                'sisa' => max(0, $kuotaMax - $totalBimbingan)
+                'sisa' => max(0, $kuotaMax - $totalBimbingan),
             ],
             'stats' => [
                 'totalBimbingan' => $totalBimbingan,
                 'pendingReview' => $pendingReview,
-                'pelaksanaanKp' => $pelaksanaanKp
+                'pelaksanaanKp' => $pelaksanaanKp,
+                'selesaiKp' => $selesaiKp,
+                'mahasiswaBaruCount' => $mahasiswaBaru->count(),
             ],
-            'bimbinganList' => $bimbinganList
+            'mahasiswaBaru' => $mahasiswaBaru,
+            'bimbinganList' => $bimbinganList,
         ]);
     }
 }
