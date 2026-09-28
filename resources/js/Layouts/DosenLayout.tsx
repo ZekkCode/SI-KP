@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, FileText, ClipboardList, Award, Bell, UserCircle, Search, Menu, LogOut, BookOpen } from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, Award, Bell, UserCircle, Search, Menu, LogOut, BookOpen, Activity } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 
 export default function DosenLayout({ children }: PropsWithChildren) {
@@ -10,10 +10,11 @@ export default function DosenLayout({ children }: PropsWithChildren) {
 
     const navItems = [
         { href: '/dosen/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/panduan', label: 'Buku Panduan & SOP', icon: BookOpen },
+        { href: '/dosen/monitoring', label: 'Monitoring Mahasiswa', icon: Activity },
         { href: '/dosen/review-proposal', label: 'Review Proposal', icon: FileText },
-        { href: '/dosen/logbook', label: 'Monitoring', icon: ClipboardList },
+        { href: '/dosen/logbook', label: 'Logbook Mahasiswa', icon: ClipboardList },
         { href: '/dosen/penilaian', label: 'Penilaian Akhir', icon: Award },
+        { href: '/panduan', label: 'Buku Panduan & SOP', icon: BookOpen },
     ];
 
     return (

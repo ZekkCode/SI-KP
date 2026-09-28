@@ -25,9 +25,11 @@ class DosenPenilaianController extends Controller
         $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($dosenId) {
                 $query->where('penilai_id', $dosenId)->where('tipe', 'pembimbing');
             }])
-            ->where('dosen_pembimbing_id', $dosenId)
-            // Bisa difilter hanya yang statusnya aktif, selesai, dll.
-            ->whereNotIn('status', ['draft', 'ditolak_instansi', 'verifikasi_tu']) 
+            ->where(function ($q) use ($dosenId) {
+                $q->where('dosen_pembimbing_id', $dosenId)
+                  ->orWhere('dosen_wali_id', $dosenId);
+            })
+            ->whereNotIn('status', ['draft', 'ditolak', 'ditolak_instansi']) 
             ->latest()
             ->get()
             ->map(function ($pendaftaran) {
@@ -56,7 +58,10 @@ class DosenPenilaianController extends Controller
         $pendaftaran = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($dosenId) {
             $query->where('penilai_id', $dosenId)->where('tipe', 'pembimbing');
         }])
-        ->where('dosen_pembimbing_id', $dosenId)
+        ->where(function ($q) use ($dosenId) {
+            $q->where('dosen_pembimbing_id', $dosenId)
+              ->orWhere('dosen_wali_id', $dosenId);
+        })
         ->findOrFail($id);
 
         $isDinilai = $pendaftaran->nilais->count() > 0;
@@ -86,8 +91,12 @@ class DosenPenilaianController extends Controller
             'catatan' => 'nullable|string'
         ]);
 
-        $pendaftaran = Pendaftaran::where('dosen_pembimbing_id', Auth::id())->findOrFail($id);
-        $penilaiId = Auth::id();
+        $dosenId = Auth::id();
+        $pendaftaran = Pendaftaran::where(function ($q) use ($dosenId) {
+            $q->where('dosen_pembimbing_id', $dosenId)
+              ->orWhere('dosen_wali_id', $dosenId);
+        })->findOrFail($id);
+        $penilaiId = $dosenId;
 
         DB::beginTransaction();
         try {
@@ -125,7 +134,6 @@ class DosenPenilaianController extends Controller
             $nilaiAkhir->nilai_pembimbing = $totalNilaiPembimbing;
             
             // Kalkulasi nilai_total jika nilai komponen lain sudah ada (opsional, disesuaikan)
-            // Misalnya: nilai ujian (40%), pembimbing (30%), instansi (30%)
             $total = 0;
             $status = 'proses';
             
@@ -145,15 +153,25 @@ class DosenPenilaianController extends Controller
             }
 
             if ($request->filled('catatan')) {
-                // Tambahkan atau gabungkan catatan
                 $catatanLama = $nilaiAkhir->catatan ? $nilaiAkhir->catatan . "\n" : "";
                 $nilaiAkhir->catatan = $catatanLama . "[Dosen Pembimbing]: " . $request->catatan;
             }
 
             $nilaiAkhir->save();
 
-            // Ubah status pendaftaran menjadi selesai
-            $pendaftaran->update(['status' => 'selesai']);
+            // Ubah status pendaftaran menjadi selesai jika belum
+            if ($pendaftaran->status !== 'selesai') {
+                $pendaftaran->update(['status' => 'selesai']);
+            }
+
+            // Notifikasi ke mahasiswa
+            \App\Models\Notifikasi::create([
+                'user_id' => $pendaftaran->mahasiswa_id,
+                'judul' => 'Nilai Dosen Pembimbing Diberikan',
+                'pesan' => 'Dosen Pembimbing telah menginputkan nilai evaluasi KP Anda (Nilai: ' . round($totalNilaiPembimbing, 1) . ').',
+                'tipe' => 'info',
+                'link' => '/mahasiswa/dashboard',
+            ]);
 
             DB::commit();
             return redirect()->route('dosen.penilaian.index')->with('success', 'Nilai berhasil disimpan.');

@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, Users, BarChart2, BookOpen, Award, Settings, LogOut, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart2, BookOpen, Award, Settings, LogOut, ClipboardCheck, CheckSquare } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 
 export default function InstansiLayout({ children }: PropsWithChildren) {
@@ -12,6 +12,8 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
         { href: '/instansi/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/panduan', label: 'Buku Panduan KP', icon: BookOpen },
         { href: '/instansi/pendaftaran', label: 'Pendaftaran Mahasiswa', icon: ClipboardCheck },
+        { href: '/instansi/monitoring', label: 'Monitoring Mahasiswa', icon: BarChart2 },
+        { href: '/instansi/logbook', label: 'Logbook Mahasiswa', icon: CheckSquare },
         { href: '/instansi/evaluation', label: 'Penilaian Mahasiswa', icon: Award },
     ];
 

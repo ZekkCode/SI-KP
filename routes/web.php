@@ -185,6 +185,7 @@ Route::middleware(['auth', 'role:mahasiswa'])
 // ============================================================
 Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Dosen\DosenDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/monitoring', [App\Http\Controllers\Dosen\DosenMonitoringController::class, 'index'])->name('monitoring');
     Route::get('/review-proposal', [App\Http\Controllers\Dosen\DosenProposalController::class, 'index'])->name('review');
     Route::get('/review-proposal/{id}', [App\Http\Controllers\Dosen\DosenProposalController::class, 'review'])->name('review.show');
     Route::put('/review-proposal/{id}', [App\Http\Controllers\Dosen\DosenProposalController::class, 'update'])->name('review.update');
@@ -242,8 +243,10 @@ Route::middleware(['auth', 'role:tu'])->prefix('tu')->name('tu.')->group(functio
 
 Route::middleware(['auth', 'role:instansi'])->prefix('instansi')->name('instansi.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Instansi\InstansiDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/monitoring', [App\Http\Controllers\Instansi\InstansiMonitoringController::class, 'index'])->name('monitoring');
     Route::get('/pendaftaran', [App\Http\Controllers\Instansi\InstansiPendaftaranController::class, 'index'])->name('pendaftaran');
     Route::put('/pendaftaran/{id}', [App\Http\Controllers\Instansi\InstansiPendaftaranController::class, 'update'])->name('pendaftaran.update');
+    Route::get('/proposal/{id}/download', [App\Http\Controllers\Instansi\InstansiPendaftaranController::class, 'downloadProposal'])->name('proposal.download');
     Route::get('/evaluation', [App\Http\Controllers\Instansi\InstansiPenilaianController::class, 'index'])->name('evaluation');
     Route::post('/evaluation/{id}', [App\Http\Controllers\Instansi\InstansiPenilaianController::class, 'store'])->name('evaluation.store');
     Route::get('/logbook', [App\Http\Controllers\Instansi\InstansiLogbookController::class, 'index'])->name('logbook');

@@ -17,12 +17,25 @@ interface SuratPengantar {
   path_file: string;
 }
 
+interface ProposalInfo {
+  id: number;
+  judul: string;
+  abstrak?: string;
+  status: string;
+  versi: number;
+  path_file: string;
+  submitted_at?: string;
+}
+
 interface Pendaftaran {
   id: number;
   mahasiswa: Mahasiswa;
   surat_pengantar: SuratPengantar | null;
+  proposal: ProposalInfo | null;
   status: string;
   tanggal_pengajuan: string;
+  tanggal_mulai?: string;
+  tanggal_selesai?: string;
 }
 
 interface Props {
@@ -102,8 +115,9 @@ export default function PendaftaranScreen({ pendaftarans, error }: Props) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-surface-container-lowest border-b border-outline-variant text-on-surface-variant text-sm font-medium">
-                  <th className="py-4 px-5 w-1/4">Profil Mahasiswa</th>
+                  <th className="py-4 px-5 w-1/5">Profil Mahasiswa</th>
                   <th className="py-4 px-5">Surat Pengantar</th>
+                  <th className="py-4 px-5">Proposal KP</th>
                   <th className="py-4 px-5">Status Terkini</th>
                   <th className="py-4 px-5 text-center">Keputusan Instansi</th>
                 </tr>
@@ -116,28 +130,53 @@ export default function PendaftaranScreen({ pendaftarans, error }: Props) {
                     <tr key={p.id} className="hover:bg-surface-container-lowest/50 transition-colors">
                       <td className="py-4 px-5 align-top">
                         <div className="font-medium text-on-surface">{p.mahasiswa.name}</div>
-                        <div className="text-sm text-secondary">{p.mahasiswa.nim}</div>
+                        <div className="text-sm text-secondary font-mono">{p.mahasiswa.nim}</div>
                         {p.mahasiswa.program_studi && (
                           <div className="text-xs text-on-surface-variant mt-1">{p.mahasiswa.program_studi.nama}</div>
                         )}
                       </td>
                       <td className="py-4 px-5 align-top">
                         {p.surat_pengantar ? (
-                          <div className="flex flex-col gap-2">
-                            <span className="text-sm font-medium text-on-surface">No: {p.surat_pengantar.nomor_surat}</span>
+                          <div className="flex flex-col gap-1.5">
+                            <span className="text-xs font-semibold text-on-surface font-mono">{p.surat_pengantar.nomor_surat}</span>
                             <a 
                               href={`/storage/${p.surat_pengantar.path_file}`} 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline w-max"
                             >
-                              <Download size={14} /> Unduh Surat
+                              <Download size={13} /> Unduh Surat
                             </a>
                           </div>
                         ) : (
-                          <span className="text-sm text-outline italic">Dokumen belum terbit</span>
+                          <span className="text-xs text-outline italic">Dokumen belum terbit</span>
                         )}
-                        <div className="text-xs text-secondary mt-2">Diajukan pada: {p.tanggal_pengajuan}</div>
+                        <div className="text-[11px] text-secondary mt-2">Diajukan: {p.tanggal_pengajuan}</div>
+                      </td>
+                      <td className="py-4 px-5 align-top">
+                        {p.proposal ? (
+                          <div className="flex flex-col gap-1.5 max-w-xs">
+                            <span className="text-xs font-semibold text-on-surface line-clamp-2" title={p.proposal.judul}>
+                              {p.proposal.judul}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] text-secondary font-mono">v{p.proposal.versi}</span>
+                              <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                                p.proposal.status === 'disetujui' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                              }`}>
+                                {p.proposal.status.toUpperCase()}
+                              </span>
+                            </div>
+                            <a 
+                              href={route('instansi.proposal.download', p.proposal.id)}
+                              className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 hover:text-teal-900 hover:underline w-max mt-0.5"
+                            >
+                              <Download size={13} /> Unduh Proposal
+                            </a>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-secondary italic">Proposal belum diunggah</span>
+                        )}
                       </td>
                       <td className="py-4 px-5 align-top">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border ${statusUi.color}`}>

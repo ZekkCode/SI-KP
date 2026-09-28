@@ -20,20 +20,20 @@ class InstansiPenilaianController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $instansi = $user->instansi;
+        $instansi = $user->instansi ?? $user->pembimbingLapangan?->instansi;
 
         if (!$instansi) {
             return Inertia::render('Instansi/Evaluation', [
                 'pendaftarans' => []
-            ])->with('error', 'Profil instansi belum diatur.');
+            ])->with('error', 'Profil instansi atau pembimbing lapangan belum diatur.');
         }
 
-        // Ambil pendaftaran yang aktif atau selesai di instansi ini
+        // Ambil pendaftaran yang ada di instansi ini (semua status aktif, bimbingan, atau selesai)
         $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($user) {
                 $query->where('penilai_id', $user->id)->where('tipe', 'instansi');
             }])
             ->where('instansi_id', $instansi->id)
-            ->whereIn('status', ['aktif', 'selesai']) 
+            ->whereNotIn('status', ['draft', 'ditolak', 'ditolak_instansi']) 
             ->latest()
             ->get()
             ->map(function ($pendaftaran) {
@@ -66,10 +66,10 @@ class InstansiPenilaianController extends Controller
         ]);
 
         $user = Auth::user();
-        $instansi = $user->instansi;
+        $instansi = $user->instansi ?? $user->pembimbingLapangan?->instansi;
 
         if (!$instansi) {
-            return back()->with('error', 'Profil instansi belum diatur.');
+            return back()->with('error', 'Profil instansi atau pembimbing lapangan belum diatur.');
         }
 
         $pendaftaran = Pendaftaran::where('instansi_id', $instansi->id)->findOrFail($id);
@@ -83,8 +83,7 @@ class InstansiPenilaianController extends Controller
                 ->where('tipe', 'instansi')
                 ->delete();
 
-            // Simpan komponen nilai (contoh bobot merata atau disesuaikan)
-            // Kedisiplinan 30%, Kerjasama 30%, Kinerja Praktis 40%
+            // Simpan komponen nilai (Kedisiplinan 30%, Kerjasama 30%, Kinerja Praktis 40%)
             $komponen = [
                 ['nama' => 'kedisiplinan', 'bobot' => 30, 'nilai' => $request->kedisiplinan],
                 ['nama' => 'kerjasama', 'bobot' => 30, 'nilai' => $request->kerjasama],
@@ -111,7 +110,6 @@ class InstansiPenilaianController extends Controller
             $nilaiAkhir->nilai_instansi = $totalNilaiInstansi;
             
             // Kalkulasi nilai_total jika nilai komponen lain sudah ada (nilai_pembimbing)
-            // Misalnya: nilai ujian (40%), pembimbing (30%), instansi (30%)
             $total = 0;
             $status = 'proses';
             
@@ -131,12 +129,20 @@ class InstansiPenilaianController extends Controller
             }
 
             if ($request->filled('catatan')) {
-                // Tambahkan atau gabungkan catatan
                 $catatanLama = $nilaiAkhir->catatan ? $nilaiAkhir->catatan . "\n" : "";
                 $nilaiAkhir->catatan = $catatanLama . "[Instansi]: " . $request->catatan;
             }
 
             $nilaiAkhir->save();
+
+            // Notifikasi ke mahasiswa
+            \App\Models\Notifikasi::create([
+                'user_id' => $pendaftaran->mahasiswa_id,
+                'judul' => 'Nilai Instansi Telah Diberikan',
+                'pesan' => 'Pembimbing Lapangan / Instansi ' . ($instansi->nama ?? '') . ' telah memberikan nilai evaluasi magang Anda (Nilai: ' . round($totalNilaiInstansi, 1) . ').',
+                'tipe' => 'info',
+                'link' => '/mahasiswa/dashboard',
+            ]);
 
             DB::commit();
             return back()->with('success', 'Nilai berhasil disimpan.');

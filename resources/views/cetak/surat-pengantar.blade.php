@@ -118,19 +118,36 @@
                 <td></td>
             </tr>
         </table>
+        @php
+            $dekanNama = $surat->ditandatangani_oleh ?? config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.');
+            $dekanNip = $surat->nip_penandatangan ?? config('sikp.dekan.nip', '197801202003121002');
+            $ttdPath = config('sikp.dekan.ttd_path', 'assets/img/ttd-dekan.png');
+            $hasTtdFile = $ttdPath && file_exists(public_path($ttdPath));
+        @endphp
+
         <table align="center" style="width: 590px;">
             <tr>
                 <td style="width: 320px;"></td>
                 <td style="text-align: left;">Dekan,</td>
             </tr>
-            <tr style="height: 70px;">
-                <td colspan="2"></td>
+            <tr>
+                <td></td>
+                <td style="text-align: left; height: 75px; vertical-align: middle;">
+                    @if($hasTtdFile)
+                        <img src="{{ asset($ttdPath) }}" alt="Tanda Tangan Dekan" style="max-height: 70px; width: auto;">
+                    @else
+                        <div style="font-family: Arial, sans-serif; font-size: 10px; color: #0f766e; border: 1px dashed #0d9488; padding: 6px 10px; border-radius: 6px; display: inline-block; background-color: #f0fdfa;">
+                            <b style="text-transform: uppercase;">Ditandatangani secara Digital</b><br>
+                            Fakultas Teknik Universitas Trunojoyo Madura
+                        </div>
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td></td>
                 <td style="text-align: left;">
-                    <b>Ari Basuki, S.T., M.T.</b><br>
-                    NIP. 197801202003121002
+                    <b>{{ $dekanNama }}</b><br>
+                    NIP. {{ $dekanNip }}
                 </td>
             </tr>
         </table>

@@ -140,12 +140,38 @@ class MahasiswaProposalController extends Controller
         
         Notifikasi::create([
             'user_id' => $user->id,
-            'judul' => 'Proposal KP',
-            'pesan' => 'Proposal berhasil dikirim.',
-            'tipe' => 'info',
+            'judul' => 'Proposal KP Berhasil Dikirim',
+            'pesan' => 'Proposal Anda telah berhasil dikirim dan menunggu review dari Dosen Pembimbing.',
+            'tipe' => 'sukses',
             'priority' => 'high',
             'is_read' => false,
+            'link' => '/mahasiswa/proposal',
         ]);
+
+        // Notifikasi ke Dosen Pembimbing
+        if ($pendaftaran->dosen_pembimbing_id) {
+            Notifikasi::create([
+                'user_id' => $pendaftaran->dosen_pembimbing_id,
+                'judul' => 'Proposal KP Baru Masuk',
+                'pesan' => "Mahasiswa bimbingan {$user->name} ({$user->nim}) telah mengunggah proposal Kerja Praktik untuk direview.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/dosen/review-proposal',
+            ]);
+        }
+
+        // Notifikasi ke Pembimbing Lapangan / Instansi
+        $plUserId = $pendaftaran->pembimbingLapangan?->user_id ?? $pendaftaran->instansi?->user_id;
+        if ($plUserId) {
+            Notifikasi::create([
+                'user_id' => $plUserId,
+                'judul' => 'Proposal Mahasiswa Bimbingan',
+                'pesan' => "Mahasiswa {$user->name} ({$user->nim}) telah mengunggah proposal Kerja Praktik.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/instansi/pendaftaran',
+            ]);
+        }
 
         return redirect()
             ->route('mahasiswa.proposal')
@@ -277,12 +303,37 @@ class MahasiswaProposalController extends Controller
 
         Notifikasi::create([
             'user_id' => auth()->id(),
-            'judul' => 'Proposal KP',
-            'pesan' => 'Proposal berhasil diperbarui.',
-            'tipe' => 'info',
+            'judul' => 'Revisi Proposal Dikirim',
+            'pesan' => 'Revisi proposal berhasil dikirim.',
+            'tipe' => 'sukses',
             'priority' => 'high',
             'is_read' => false,
+            'link' => '/mahasiswa/proposal',
         ]);
+
+        $pendaftaran = $proposal->pendaftaran;
+        if ($pendaftaran && $pendaftaran->dosen_pembimbing_id) {
+            Notifikasi::create([
+                'user_id' => $pendaftaran->dosen_pembimbing_id,
+                'judul' => 'Revisi Proposal KP Dikirim',
+                'pesan' => "Mahasiswa {$request->user()->name} telah memperbarui/mengunggah revisi proposal Kerja Praktik.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/dosen/review-proposal',
+            ]);
+        }
+
+        $plUserId = $pendaftaran?->pembimbingLapangan?->user_id ?? $pendaftaran?->instansi?->user_id;
+        if ($plUserId) {
+            Notifikasi::create([
+                'user_id' => $plUserId,
+                'judul' => 'Revisi Proposal Mahasiswa Bimbingan',
+                'pesan' => "Mahasiswa {$request->user()->name} telah memperbarui proposal Kerja Praktik.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/instansi/pendaftaran',
+            ]);
+        }
 
         return back()->with(
             'success',
