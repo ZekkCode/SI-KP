@@ -108,10 +108,13 @@ class TUSuratPengantarController extends Controller
             ]);
 
             $nomorSurat = $pendaftaran->suratPengantar->nomor_surat ?? uniqid('SP-');
+            $confirmationToken = $pendaftaran->suratPengantar->confirmation_token ?? \Illuminate\Support\Str::random(64);
             $pendaftaran->suratPengantar()->update([
                 'status' => 'terverifikasi',
                 'nomor_surat' => $nomorSurat,
                 'tanggal_terbit' => now(),
+                'confirmation_token' => $confirmationToken,
+                'confirmation_status' => $pendaftaran->suratPengantar->confirmation_status ?: 'pending',
             ]);
 
             \App\Models\Notifikasi::create([

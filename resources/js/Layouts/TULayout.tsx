@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell, Users, ClipboardCheck, UserCheck, Database, BookOpen } from 'lucide-react';
+import { LayoutDashboard, FileText, FileSignature, LogOut, Menu, Bell, Users, ClipboardCheck, UserCheck, Database, BookOpen, Briefcase } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 
 export default function TULayout({ children }: PropsWithChildren) {
@@ -15,6 +15,7 @@ export default function TULayout({ children }: PropsWithChildren) {
         { href: '/tu/persetujuan-akun', label: 'Permohonan Akun', icon: UserCheck },
         { href: '/tu/master-mahasiswa', label: 'Master Mahasiswa', icon: Database },
         { href: '/tu/mahasiswa', label: 'Daftar Mahasiswa', icon: Users },
+        { href: '/tu/pembimbing-lapangan', label: 'Pembimbing Lapangan', icon: Briefcase },
         { href: '/tu/verifikasi-pendaftaran', label: 'Verifikasi Mahasiswa', icon: ClipboardCheck },
         { href: '/tu/generate-surat', label: 'Surat Pengantar', icon: FileText },
         { href: '/tu/surat-balasan', label: 'Surat Balasan', icon: FileSignature },

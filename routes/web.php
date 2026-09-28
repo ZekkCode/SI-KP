@@ -31,6 +31,14 @@ Route::get('/panduan', function () {
     return Inertia::render('Panduan');
 })->name('panduan');
 
+// ============================================================
+// KONFIRMASI INSTANSI ROUTES (PUBLIC / TANPA LOGIN)
+// ============================================================
+Route::get('/konfirmasi/{token}', [\App\Http\Controllers\KonfirmasiInstansiController::class, 'show'])
+    ->name('konfirmasi.show');
+Route::post('/konfirmasi/{token}', [\App\Http\Controllers\KonfirmasiInstansiController::class, 'confirm'])
+    ->name('konfirmasi.confirm');
+
 // Switch Language / Ganti Bahasa
 Route::get('/locale/{locale}', function (string $locale) {
     if (in_array($locale, ['id', 'en'])) {
@@ -219,6 +227,13 @@ Route::middleware(['auth', 'role:tu'])->prefix('tu')->name('tu.')->group(functio
     Route::put('/master-mahasiswa/{masterMahasiswa}', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'update'])->name('master-mahasiswa.update');
     Route::delete('/master-mahasiswa/{masterMahasiswa}', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'destroy'])->name('master-mahasiswa.destroy');
     Route::delete('/master-mahasiswa-truncate', [\App\Http\Controllers\TU\TUMasterMahasiswaController::class, 'truncate'])->name('master-mahasiswa.truncate');
+
+    // Pembimbing Lapangan (Kelola Akun, Aktivasi, Reset Password, Kirim Ulang)
+    Route::get('/pembimbing-lapangan', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'index'])->name('pembimbing-lapangan.index');
+    Route::post('/pembimbing-lapangan/{user}/activate', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'activate'])->name('pembimbing-lapangan.activate');
+    Route::post('/pembimbing-lapangan/{user}/deactivate', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'deactivate'])->name('pembimbing-lapangan.deactivate');
+    Route::post('/pembimbing-lapangan/{user}/reset-password', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'resetPassword'])->name('pembimbing-lapangan.reset-password');
+    Route::post('/pembimbing-lapangan/{user}/resend', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'resend'])->name('pembimbing-lapangan.resend');
 });
 
 // ============================================================

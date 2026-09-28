@@ -20,6 +20,13 @@ class SuratPengantar extends Model
         'tanggal_selesai',
         'file_scan',
         'status',
+        'confirmation_token',
+        'confirmation_status',
+        'confirmed_at',
+        'pl_nama',
+        'pl_email',
+        'pl_telepon',
+        'catatan_instansi',
         'nomor_surat',
         'tanggal_terbit',
         'tanggal_berlaku',
@@ -37,6 +44,7 @@ class SuratPengantar extends Model
             'tanggal_selesai' => 'date',
             'tanggal_terbit' => 'date',
             'tanggal_berlaku' => 'date',
+            'confirmed_at' => 'datetime',
         ];
     }
 
