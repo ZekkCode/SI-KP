@@ -115,6 +115,7 @@ class TUSuratPengantarController extends Controller
                 'tanggal_terbit' => now(),
                 'confirmation_token' => $confirmationToken,
                 'confirmation_status' => $pendaftaran->suratPengantar->confirmation_status ?: 'pending',
+                'verification_id' => $pendaftaran->suratPengantar->verification_id ?: (new \App\Services\DigitalSignatureService())->generateVerificationId('SP'),
                 'ditandatangani_oleh' => config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.'),
                 'nip_penandatangan' => config('sikp.dekan.nip', '197801202003121002'),
             ]);
