@@ -9,6 +9,11 @@ interface Mahasiswa {
   id: number;
   name: string;
   nim: string;
+  dosen_wali_id?: number | null;
+  dosen_wali?: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 interface Dosen {
@@ -20,6 +25,7 @@ interface Dosen {
 
 interface Pendaftaran {
   id: number;
+  dosen_pembimbing_id?: number | null;
   mahasiswa: Mahasiswa;
   dosen_pembimbing?: Dosen;
 }
@@ -139,7 +145,16 @@ export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = []
                 <tr key={h.id} className="hover:bg-slate-50 transition-colors">
                   <ModernTableTd>{h.mahasiswa?.nim}</ModernTableTd>
                   <ModernTableTd>{h.mahasiswa?.name}</ModernTableTd>
-                  <ModernTableTd>{h.dosen_pembimbing?.name || '-'}</ModernTableTd>
+                  <ModernTableTd>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-slate-800">{h.dosen_pembimbing?.name || '-'}</span>
+                      {h.dosen_pembimbing_id && h.mahasiswa?.dosen_wali_id && h.dosen_pembimbing_id === h.mahasiswa.dosen_wali_id && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Otomatis (Dosen Wali)
+                        </span>
+                      )}
+                    </div>
+                  </ModernTableTd>
                   <ModernTableTd>
                     <button className="text-blue-600 hover:text-blue-800 font-semibold text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                       Edit

@@ -107,11 +107,20 @@ class TUSuratPengantarController extends Controller
                 'catatan_tu' => null,
             ]);
 
+            $nomorSurat = $pendaftaran->suratPengantar->nomor_surat ?? uniqid('SP-');
             $pendaftaran->suratPengantar()->update([
                 'status' => 'terverifikasi',
-                // Optional: we can generate a nomor_surat automatically if we want, or leave it null since it's an offline signed document
-                'nomor_surat' => $pendaftaran->suratPengantar->nomor_surat ?? uniqid('SP-'),
+                'nomor_surat' => $nomorSurat,
                 'tanggal_terbit' => now(),
+            ]);
+
+            \App\Models\Notifikasi::create([
+                'user_id' => $pendaftaran->mahasiswa_id,
+                'judul' => 'Surat Pengantar Diterbitkan',
+                'pesan' => 'Surat pengantar Kerja Praktik resmi telah diterbitkan oleh TU. Anda dapat mengunduhnya sekarang.',
+                'tipe' => 'sukses',
+                'priority' => 'high',
+                'link' => '/mahasiswa/status-pengajuan',
             ]);
         });
 
@@ -136,6 +145,15 @@ class TUSuratPengantarController extends Controller
         
         $pendaftaran->suratPengantar()->update([
             'status' => 'revisi'
+        ]);
+
+        \App\Models\Notifikasi::create([
+            'user_id' => $pendaftaran->mahasiswa_id,
+            'judul' => 'Pengajuan Surat Pengantar Perlu Perbaikan',
+            'pesan' => 'Pengajuan surat pengantar memerlukan perbaikan: ' . $validated['catatan_tu'],
+            'tipe' => 'peringatan',
+            'priority' => 'high',
+            'link' => '/mahasiswa/status-pengajuan',
         ]);
 
         return redirect()

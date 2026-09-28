@@ -33,16 +33,17 @@ class MahasiswaDashboardController extends Controller
         // Status info for the status card
         $statusInfo = $this->getStatusInfo($pendaftaran);
 
-        // Get recent notifications (latest 5)
+        // Get recent notifications (latest 10)
         $notifications = Notifikasi::where('user_id', $user->id)
             ->orderByDesc('created_at')
-            ->limit(5)
+            ->limit(10)
             ->get()
             ->map(fn ($n) => [
                 'id' => $n->id,
                 'judul' => $n->judul,
                 'pesan' => $n->pesan,
                 'tipe' => $n->tipe,
+                'priority' => $n->priority ?? 'normal',
                 'is_read' => $n->is_read,
                 'created_at' => $n->created_at->diffForHumans(),
             ]);

@@ -57,7 +57,7 @@ class ProdiPlottingDosenController extends Controller
             ];
         });
 
-        $plottedHistory = Pendaftaran::with(['mahasiswa', 'dosenPembimbing'])
+        $plottedHistory = Pendaftaran::with(['mahasiswa.dosenWali', 'dosenPembimbing'])
             ->whereNotNull('dosen_pembimbing_id')
             ->latest()
             ->get();

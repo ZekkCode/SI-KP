@@ -44,7 +44,7 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
     });
 
     const sksValue = parseInt(form.data.total_sks);
-    const isValidSks = !isNaN(sksValue) && sksValue >= 100;
+    const isValidSks = !isNaN(sksValue) && sksValue >= 80;
 
     const isSubmitted = !!pendaftaran && !['draft', 'perlu_perbaikan'].includes(pendaftaran.status);
     const needsRevision = pendaftaran?.status === 'perlu_perbaikan';
@@ -121,7 +121,7 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                 <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                     <p className="text-sm">
-                        Total SKS Anda saat ini <strong>{form.data.total_sks} SKS</strong>. Prasyarat pendaftaran minimal <strong>100 SKS</strong>.
+                        Total SKS Anda saat ini <strong>{form.data.total_sks} SKS</strong>. Prasyarat pendaftaran minimal <strong>80 SKS</strong>.
                     </p>
                 </div>
             )}
@@ -239,7 +239,7 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                                     className={`w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition ${form.data.total_sks && !isValidSks ? 'border-amber-500 focus:ring-amber-500/20' : 'border-slate-300'}`}
                                 />
                                 <p className={`text-xs ${form.data.total_sks && !isValidSks ? 'text-amber-600 font-medium' : form.data.total_sks && isValidSks ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
-                                    {form.data.total_sks && !isValidSks ? 'Belum memenuhi prasyarat (minimal 100 SKS).' : form.data.total_sks && isValidSks ? 'Memenuhi syarat SKS.' : 'Prasyarat: minimal 100 SKS lulus.'}
+                                    {form.data.total_sks && !isValidSks ? 'Belum memenuhi prasyarat (minimal 80 SKS).' : form.data.total_sks && isValidSks ? 'Memenuhi syarat SKS.' : 'Prasyarat: minimal 80 SKS lulus.'}
                                 </p>
                             </div>
                             <div className="space-y-1.5">
