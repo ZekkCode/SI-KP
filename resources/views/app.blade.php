@@ -168,17 +168,25 @@
         </div>
 
         <script>
-            // Safety timeout to ensure splash screen is never stuck
+            // Fallback safety check: dismiss once React has mounted or display status
             window.addEventListener('load', function() {
                 setTimeout(function() {
                     var splash = document.getElementById('app-splash-screen');
+                    var app = document.getElementById('app');
                     if (splash && !splash.classList.contains('splash-hidden')) {
-                        splash.classList.add('splash-hidden');
-                        setTimeout(function() {
-                            if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
-                        }, 450);
+                        if (app && app.children.length > 0) {
+                            splash.classList.add('splash-hidden');
+                            setTimeout(function() {
+                                if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+                            }, 450);
+                        } else {
+                            var status = splash.querySelector('.splash-status');
+                            if (status) {
+                                status.textContent = 'Memuat antarmuka...';
+                            }
+                        }
                     }
-                }, 3500);
+                }, 4000);
             });
         </script>
 
