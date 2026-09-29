@@ -130,7 +130,7 @@ export default function ProdiDashboard({ stats, sidang_mendatang = [], error }: 
                   {card.icon}
                 </div>
                 {card.badge && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
                     {card.badge}
                   </span>
                 )}

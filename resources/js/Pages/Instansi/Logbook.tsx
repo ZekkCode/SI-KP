@@ -104,7 +104,7 @@ export default function LogbookIndex({ logbooks, error }: Props) {
         <div className="bg-amber-50/60 p-5 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Menunggu Validasi</span>
-            {pendingCount > 0 && <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />}
+            {pendingCount > 0 && <span className="w-2 h-2 rounded-full bg-amber-500" />}
           </div>
           <span className="text-3xl font-bold text-amber-700 mt-2">{pendingCount}</span>
         </div>

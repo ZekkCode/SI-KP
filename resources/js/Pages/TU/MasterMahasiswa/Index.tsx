@@ -342,7 +342,7 @@ export default function Index({ masterMahasiswas, registeredNims, pendingNims = 
                                         className="text-[11px] font-bold text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200"
                                         title="Ada permohonan akun yang menunggu verifikasi TU"
                                     >
-                                        <Clock className="w-3 h-3 animate-pulse" />
+                                        <Clock className="w-3 h-3 text-amber-600" />
                                         <span>{stats.pending} Menunggu</span>
                                     </Link>
                                 )}
@@ -498,7 +498,7 @@ export default function Index({ masterMahasiswas, registeredNims, pendingNims = 
                                                             className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
                                                             title="Permohonan akun sedang menunggu verifikasi TU. Klik untuk memverifikasi."
                                                         >
-                                                            <Clock className="w-3 h-3 animate-pulse text-amber-600" />
+                                                            <Clock className="w-3 h-3 text-amber-600" />
                                                             Menunggu Verifikasi
                                                         </Link>
                                                     ) : isRejected ? (

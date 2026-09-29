@@ -256,7 +256,7 @@ export default function InterfaceTour({
                         width: `${targetRect.width + 12}px`,
                         height: `${targetRect.height + 12}px`,
                     }}
-                    className="fixed pointer-events-none rounded-xl border-2 border-amber-400 ring-4 ring-amber-400/40 shadow-[0_0_0_9999px_rgba(2,6,23,0.55)] transition-all duration-300 z-50 animate-pulse"
+                    className="fixed pointer-events-none rounded-xl border-2 border-amber-400 ring-4 ring-amber-400/40 shadow-[0_0_0_9999px_rgba(2,6,23,0.55)] transition-all duration-300 z-50"
                 />
             )}
 

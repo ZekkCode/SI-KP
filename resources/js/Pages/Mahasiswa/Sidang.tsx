@@ -82,7 +82,7 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
       case 'dijadwalkan':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-blue-600" />
             Sidang Dijadwalkan
           </span>
         );
