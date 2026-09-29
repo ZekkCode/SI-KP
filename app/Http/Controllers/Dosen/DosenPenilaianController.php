@@ -27,7 +27,7 @@ class DosenPenilaianController extends Controller
             }])
             ->where(function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId)
-                  ->orWhere('dosen_wali_id', $dosenId);
+                  ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
             })
             ->whereNotIn('status', ['draft', 'ditolak', 'ditolak_instansi']) 
             ->latest()
@@ -60,7 +60,7 @@ class DosenPenilaianController extends Controller
         }])
         ->where(function ($q) use ($dosenId) {
             $q->where('dosen_pembimbing_id', $dosenId)
-              ->orWhere('dosen_wali_id', $dosenId);
+              ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
         })
         ->findOrFail($id);
 
@@ -94,7 +94,7 @@ class DosenPenilaianController extends Controller
         $dosenId = Auth::id();
         $pendaftaran = Pendaftaran::where(function ($q) use ($dosenId) {
             $q->where('dosen_pembimbing_id', $dosenId)
-              ->orWhere('dosen_wali_id', $dosenId);
+              ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
         })->findOrFail($id);
         $penilaiId = $dosenId;
 

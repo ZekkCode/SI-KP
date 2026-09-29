@@ -35,8 +35,10 @@ Route::get('/panduan', function () {
 // KONFIRMASI INSTANSI ROUTES (PUBLIC / TANPA LOGIN)
 // ============================================================
 Route::get('/konfirmasi/{token}', [\App\Http\Controllers\KonfirmasiInstansiController::class, 'show'])
+    ->middleware('throttle:15,1')
     ->name('konfirmasi.show');
 Route::post('/konfirmasi/{token}', [\App\Http\Controllers\KonfirmasiInstansiController::class, 'confirm'])
+    ->middleware('throttle:15,1')
     ->name('konfirmasi.confirm');
 
 // Switch Language / Ganti Bahasa

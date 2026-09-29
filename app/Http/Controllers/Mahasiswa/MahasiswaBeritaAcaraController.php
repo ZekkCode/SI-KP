@@ -74,6 +74,8 @@ class MahasiswaBeritaAcaraController extends Controller
             'nilaiAkhir',
         ])->findOrFail($id);
 
+        abort_unless($pendaftaran->mahasiswa_id == auth()->id(), 403, 'Akses tidak sah.');
+
         return view('cetak.berita-acara', [
             'pendaftaran' => $pendaftaran,
             'tanggal_hari' => now()->translatedFormat('l, d F Y'),

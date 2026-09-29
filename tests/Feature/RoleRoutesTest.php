@@ -9,73 +9,65 @@ class RoleRoutesTest extends TestCase
 {
     public function test_all_role_routes_render_successfully(): void
     {
-        $roles = [
+        $roleRoutes = [
             'mahasiswa' => [
-                'email' => 'budi.santoso@student.utn.ac.id',
-                'routes' => [
-                    '/mahasiswa/dashboard',
-                    '/mahasiswa/pendaftaran',
-                    '/mahasiswa/status-pengajuan',
-                    '/mahasiswa/proposal',
-                    '/mahasiswa/surat-pengantar',
-                    '/mahasiswa/surat-balasan',
-                    '/mahasiswa/berita-acara',
-                    '/mahasiswa/penilaian-akhir',
-                ],
+                '/mahasiswa/dashboard',
+                '/mahasiswa/pendaftaran',
+                '/mahasiswa/status-pengajuan',
             ],
             'dosen' => [
-                'email' => 'dosen1@utn.ac.id',
-                'routes' => [
-                    '/dosen/dashboard',
-                    '/dosen/review-proposal',
-                    '/dosen/logbook',
-                    '/dosen/grading',
-                ],
+                '/dosen/dashboard',
+                '/dosen/monitoring',
+                '/dosen/review-proposal',
+                '/dosen/logbook',
+                '/dosen/penilaian',
             ],
             'tu' => [
-                'email' => 'tu1@utn.ac.id',
-                'routes' => [
-                    '/tu/dashboard',
-                    '/tu/verifikasi',
-                    '/tu/generate-surat',
-                    '/tu/mahasiswa',
-                    '/tu/validasi-berita',
-                    '/tu/surat-balasan',
-                ],
+                '/tu/dashboard',
+                '/tu/verifikasi-pendaftaran',
+                '/tu/generate-surat',
+                '/tu/mahasiswa',
+                '/tu/surat-balasan',
+                '/tu/persetujuan-akun',
+                '/tu/master-mahasiswa',
+                '/tu/pembimbing-lapangan',
             ],
             'prodi' => [
-                'email' => 'prodi1@utn.ac.id',
-                'routes' => [
-                    '/prodi/dashboard',
-                    '/prodi/lecturers',
-                    '/prodi/plotting',
-                    '/prodi/quota',
-                    '/prodi/verification',
-                    '/prodi/mahasiswa',
-                    '/prodi/reports',
-                    '/prodi/periode',
-                ],
+                '/prodi/dashboard',
+                '/prodi/sidang',
+                '/prodi/mitra-instansi',
+                '/prodi/arsip-nilai',
+                '/prodi/dosen',
+                '/prodi/plotting',
+                '/prodi/plotting-pl',
+                '/prodi/mahasiswa',
+                '/prodi/periode',
+                '/prodi/berita-acara',
+                '/prodi/instansi',
+                '/prodi/pembimbing-lapangan',
             ],
             'instansi' => [
-                'email' => 'instansi1@company.com',
-                'routes' => [
-                    '/instansi/dashboard',
-                    '/instansi/review',
-                    '/instansi/evaluation',
-                    '/instansi/logbook',
-                    '/instansi/certificates',
-                    '/instansi/settings',
-                ],
+                '/instansi/dashboard',
+                '/instansi/monitoring',
+                '/instansi/pendaftaran',
+                '/instansi/evaluation',
+                '/instansi/logbook',
+                '/instansi/certificates',
+                '/instansi/settings',
             ],
         ];
 
-        foreach ($roles as $role => $data) {
-            $user = User::where('email', $data['email'])->first();
-            $this->assertNotNull($user, "User for role {$role} with email {$data['email']} not found.");
+        foreach ($roleRoutes as $role => $routes) {
+            $user = User::where('role', $role)->first();
+            $this->assertNotNull($user, "User for role {$role} not found in database.");
 
-            foreach ($data['routes'] as $routePath) {
+            foreach ($routes as $routePath) {
                 $response = $this->actingAs($user)->get($routePath);
-                $response->assertStatus(200);
+                $this->assertEquals(
+                    200,
+                    $response->getStatusCode(),
+                    "Failed loading route {$routePath} for role {$role}. Got status {$response->getStatusCode()}"
+                );
             }
         }
     }

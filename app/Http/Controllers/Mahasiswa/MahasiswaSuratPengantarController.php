@@ -180,6 +180,8 @@ class MahasiswaSuratPengantarController extends Controller
         $data = Pendaftaran::with(['instansi', 'mahasiswa', 'suratPengantar'])
             ->findOrFail($id);
 
+        abort_unless($data->mahasiswa_id == auth()->id(), 403, 'Akses tidak sah.');
+
         $surat = $data->suratPengantar;
         if (!$surat) {
             abort(404, 'Data surat belum ada.');
