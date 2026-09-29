@@ -35,7 +35,8 @@ class DosenMonitoringController extends Controller
         ])
         ->where(function ($q) use ($dosenId) {
             $q->where('dosen_pembimbing_id', $dosenId)
-              ->orWhere('dosen_wali_id', $dosenId);
+              ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId))
+              ->orWhereHas('sidang', fn($sq) => $sq->where('dosen_penguji_id', $dosenId));
         });
 
         // Filter status jika ada
