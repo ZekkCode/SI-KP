@@ -119,68 +119,67 @@ export default function Dashboard({
         : notifications;
 
     return (
-        <div className="p-6 max-w-[1280px] mx-auto w-full flex-1 space-y-8">
-            <div className="grid grid-cols-12 gap-6">
-                {/* Welcome & Brief Profile Card */}
-                <div className="col-span-12 lg:col-span-8 bg-white border border-slate-200 rounded-xl p-6 flex flex-col md:flex-row items-center gap-6 shadow-xs">
-                    <div className="flex-1 space-y-4">
-                        <div>
-                            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
-                                {t('dashboard.welcome', { name: userName }, `Selamat Datang, ${userName}`)}
-                            </h3>
-                            <p className="text-sm font-semibold text-[#00288e]">
-                                {userProdi} • {t('dashboard.class_year', undefined, 'Angkatan')} {userAngkatan}
-                            </p>
-                        </div>
-                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                            {t('dashboard.welcome_desc', undefined, 'Kelola pendaftaran mitra, pencatatan logbook kegiatan harian, dan berkas evaluasi akhir Kerja Praktik melalui portal ini.')}
-                        </p>
-                        <div className="flex flex-wrap gap-2.5 pt-2">
-                            <Link 
-                                href="/panduan" 
-                                className="bg-[#00288e] hover:bg-[#001f70] text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
-                            >
-                                <BookOpen className="w-4 h-4" />
-                                <span>{t('dashboard.guidebook', undefined, 'Panduan & Berkas')}</span>
-                            </Link>
-                            <a 
-                                href="/dokumen/buku_panduan_kp.pdf" 
-                                download 
-                                className="border border-slate-300 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
-                            >
-                                <Download className="w-4 h-4 text-slate-500" />
-                                <span>Unduh PDF</span>
-                            </a>
-                            <a 
-                                href={`mailto:${campusEmail}`} 
-                                className="border border-slate-300 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-xs"
-                            >
-                                {t('dashboard.coordinator_help', undefined, 'Bantuan Koordinator')}
-                            </a>
-                        </div>
-                    </div>
-                    <div className="w-full md:w-48 h-32 md:h-40 rounded-xl overflow-hidden shadow-2xs relative flex-shrink-0 border border-slate-200">
-                        <img
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXQKsbzd0HD4f87_TGfq2xTvVtGgchivENcvI5tuAqWBzCZ4NTAqck8TfJWnxGrLU8E7mQBzg8jQrXtTTWvKO7-3vdt8qaMNVjriuIkU387_tBzIULkAu87DgtHWZk2k-rG9AuDj-Aq4trJR2gXUbtBseLTunRNoHlxwHiggYt2lHFsxqXBGitSitJ6JqWO7Inv72Y2OvpN12fMOv0eAUroC_lewtjrRmCa_K0pPAvbL56Iz6Yq9whcXPcRdbtu9XuV21deV-yHag"
-                            alt="Teknik Informatika UTM"
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
+        <div className="p-6 max-w-[1280px] mx-auto w-full flex-1 space-y-6">
+            {/* Page Header (Unboxed, direct on canvas, professional academic tone) */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                        {t('dashboard.welcome', { name: userName }, `Selamat Datang, ${userName}`)}
+                    </h1>
+                    <p className="text-sm text-slate-600 mt-1">
+                        <span className="font-semibold text-[#00288e]">{userProdi}</span> • {t('dashboard.class_year', undefined, 'Angkatan')} {userAngkatan}
+                    </p>
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Link 
+                        href="/panduan" 
+                        className="bg-[#00288e] hover:bg-[#001f70] text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                    >
+                        <BookOpen className="w-4 h-4" />
+                        <span>{t('dashboard.guidebook', undefined, 'Panduan & Berkas')}</span>
+                    </Link>
+                    <a 
+                        href="/dokumen/buku_panduan_kp.pdf" 
+                        download 
+                        className="border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                    >
+                        <Download className="w-4 h-4 text-slate-500" />
+                        <span>Unduh PDF</span>
+                    </a>
+                    <a 
+                        href={`mailto:${campusEmail}`} 
+                        className="border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-xs"
+                    >
+                        {t('dashboard.coordinator_help', undefined, 'Bantuan Koordinator')}
+                    </a>
+                </div>
+            </div>
 
-                {/* Status Chip Card */}
-                <div className="col-span-12 lg:col-span-4 bg-[#00288e] text-white border border-[#00288e] rounded-xl p-6 flex flex-col justify-between shadow-xs">
-                    <div>
-                        <span className="text-[11px] uppercase tracking-wider font-semibold opacity-75">{t('dashboard.current_status', undefined, 'Status Pengajuan')}</span>
-                        <h4 className="text-xl font-bold mt-1.5">{statusInfo.label}</h4>
-                        <p className="text-xs mt-1.5 text-blue-100/90 leading-relaxed">{statusInfo.description}</p>
+            {/* Status Info Strip */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#00288e] flex items-center justify-center font-bold text-sm border border-blue-200 shrink-0">
+                        <CheckCircle2 className="w-5 h-5 text-[#00288e]" />
                     </div>
-                    <div className="mt-5">
-                        <Link href="/mahasiswa/status-pengajuan" className="inline-flex items-center gap-1.5 bg-white text-[#00288e] hover:bg-slate-100 px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-2xs">
-                            <span>{t('dashboard.status_detail', undefined, 'Detail Status')}</span>
-                        </Link>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                                {t('dashboard.current_status', undefined, 'Status Pengajuan')}
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-[#00288e] border border-blue-200">
+                                {statusInfo.label}
+                            </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">{statusInfo.description}</p>
                     </div>
                 </div>
+                <Link
+                    href="/mahasiswa/status-pengajuan"
+                    className="inline-flex items-center gap-1.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-lg font-semibold text-xs transition-colors shrink-0 shadow-2xs"
+                >
+                    <span>{t('dashboard.status_detail', undefined, 'Detail Status')}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
             </div>
 
             {/* Gerbang Progres Kerja Praktik (9-Step Enforcement Stepper) */}
@@ -189,12 +188,9 @@ export default function Dashboard({
                     {/* Header Stepper & Progress Bar */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
                         <div>
-                            <div className="flex items-center gap-2">
-                                <span className="flex h-2.5 w-2.5 rounded-full bg-[#00288e] animate-ping" />
-                                <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                                    Alur & Gerbang Progres Kerja Praktik
-                                </h3>
-                            </div>
+                            <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                                Alur & Gerbang Progres Kerja Praktik
+                            </h3>
                             <p className="text-xs text-slate-500 mt-1">
                                 Alur bertahap: Selesaikan setiap langkah untuk membuka akses ke menu dan berkas tahapan berikutnya.
                             </p>
@@ -208,7 +204,7 @@ export default function Dashboard({
                             </div>
                             <div className="w-full sm:w-56 h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                                 <div
-                                    className="h-full bg-gradient-to-r from-[#00288e] to-blue-500 rounded-full transition-all duration-500"
+                                    className="h-full bg-[#00288e] rounded-full transition-all duration-500"
                                     style={{ width: `${kpProgress.progress_percent}%` }}
                                 />
                             </div>
@@ -217,7 +213,7 @@ export default function Dashboard({
 
                     {/* Active Step Highlight Card */}
                     {kpProgress.current_step_info && (
-                        <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white border border-blue-200 rounded-xl p-4.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
+                        <div className="bg-blue-50/60 border border-blue-200 rounded-xl p-4.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
                             <div className="flex items-center gap-3.5">
                                 <div className="w-10 h-10 rounded-xl bg-[#00288e] text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
                                     {kpProgress.current_step}

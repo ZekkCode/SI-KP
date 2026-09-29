@@ -335,7 +335,7 @@ export default function InstansiMonitoringScreen({ mahasiswas, stats, filters, e
                               href={route('instansi.logbook')}
                               className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 hover:bg-amber-100 transition-colors"
                             >
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                               {item.logbook.pending_instansi} menunggu validasi
                             </Link>
                           ) : (

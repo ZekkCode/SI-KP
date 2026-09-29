@@ -177,7 +177,7 @@ export default function SidangScreen({ sidangs, stats, filters }: Props) {
         <div className="bg-amber-50/60 p-5 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Perlu Dijadwalkan</span>
-            {stats.diajukan > 0 && <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />}
+            {stats.diajukan > 0 && <span className="w-2 h-2 rounded-full bg-amber-500" />}
           </div>
           <span className="text-3xl font-bold text-amber-700 mt-2">{stats.diajukan}</span>
         </div>
