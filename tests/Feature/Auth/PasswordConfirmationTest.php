@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class PasswordConfirmationTest extends TestCase
 {
-    use RefreshDatabase;
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     public function test_confirm_password_screen_can_be_rendered(): void
     {

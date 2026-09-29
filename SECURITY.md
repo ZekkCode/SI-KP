@@ -189,16 +189,23 @@ Mahasiswa tidak dapat melompati tahapan kerja praktik secara acak melalui URL di
 
 ## 6. Ringkasan Eksekusi Pengujian Otomatis
 
-Hasil eksekusi automated test runner:
+Hasil eksekusi automated test runner (`php artisan test`):
 ```text
-PHPUnit 12.5.33 by Sebastian Bergmann and contributors.
-Runtime:       PHP 8.5.10
-Configuration: phpunit.xml
+   PASS  Tests\Unit\ExampleTest (1 test)
+   PASS  Tests\Feature\Auth\AuthenticationTest (4 tests)
+   PASS  Tests\Feature\Auth\EmailVerificationTest (3 tests)
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest (3 tests)
+   PASS  Tests\Feature\Auth\PasswordResetTest (4 tests)
+   PASS  Tests\Feature\Auth\PasswordUpdateTest (2 tests)
+   PASS  Tests\Feature\Auth\RegistrationTest (3 tests)
+   PASS  Tests\Feature\ExampleTest (1 test)
+   PASS  Tests\Feature\ProfileTest (6 tests)
+   PASS  Tests\Feature\RoleRoutesTest (1 test, 40 route checks)
+   PASS  Tests\Feature\SecurityPentestTest (20 tests)
 
-......................                                            22 / 22 (100%)
-
-Time: 00:05.155, Memory: 36.00 MB
-OK (22 tests, 76 assertions)
+Total: 48 passed (138 assertions)
+Duration: ~6.84s
+Status: 100% PASS
 ```
 
 Daftar pengujian yang dijalankan:
