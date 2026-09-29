@@ -18,8 +18,29 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(<App {...props} />);
+
+        // Smoothly dismiss the initial entrance splash screen
+        const dismissSplash = () => {
+            const splash = document.getElementById('app-splash-screen');
+            if (splash && !splash.classList.contains('splash-hidden')) {
+                splash.classList.add('splash-hidden');
+                setTimeout(() => {
+                    if (splash.parentNode) {
+                        splash.parentNode.removeChild(splash);
+                    }
+                }, 450);
+            }
+        };
+
+        // Allow entrance animation and loading bar to gracefully present before transitioning
+        if (document.readyState === 'complete') {
+            setTimeout(dismissSplash, 400);
+        } else {
+            window.addEventListener('load', () => setTimeout(dismissSplash, 350));
+            setTimeout(dismissSplash, 1200);
+        }
     },
     progress: {
-        color: '#4B5563',
+        color: '#00288e',
     },
 });
