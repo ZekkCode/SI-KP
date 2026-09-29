@@ -7,6 +7,8 @@ use Tests\TestCase;
 
 class RoleRoutesTest extends TestCase
 {
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+
     public function test_all_role_routes_render_successfully(): void
     {
         $roleRoutes = [
@@ -58,7 +60,8 @@ class RoleRoutesTest extends TestCase
         ];
 
         foreach ($roleRoutes as $role => $routes) {
-            $user = User::where('role', $role)->first();
+            $user = User::where('role', $role)->first()
+                ?? User::factory()->create(['role' => $role, 'status_akun' => 'aktif']);
             $this->assertNotNull($user, "User for role {$role} not found in database.");
 
             foreach ($routes as $routePath) {

@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class PasswordUpdateTest extends TestCase
 {
-    use RefreshDatabase;
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     public function test_password_can_be_updated(): void
     {

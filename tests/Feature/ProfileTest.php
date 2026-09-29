@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class ProfileTest extends TestCase
 {
-    use RefreshDatabase;
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     public function test_profile_page_is_displayed(): void
     {
@@ -63,7 +63,7 @@ class ProfileTest extends TestCase
 
     public function test_user_can_delete_their_account(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'dosen']);
 
         $response = $this
             ->actingAs($user)
@@ -77,6 +77,20 @@ class ProfileTest extends TestCase
 
         $this->assertGuest();
         $this->assertNull($user->fresh());
+    }
+
+    public function test_mahasiswa_cannot_delete_their_own_account(): void
+    {
+        $user = User::factory()->create(['role' => 'mahasiswa']);
+
+        $response = $this
+            ->actingAs($user)
+            ->delete('/profile', [
+                'password' => 'password',
+            ]);
+
+        $response->assertSessionHas('error');
+        $this->assertNotNull($user->fresh());
     }
 
     public function test_correct_password_must_be_provided_to_delete_account(): void

@@ -26,6 +26,14 @@ Route::get('/', function (Illuminate\Http\Request $request) {
     return redirect()->route('login');
 });
 
+// Generic dashboard named route redirecting to role-specific dashboard
+Route::get('/dashboard', function (Illuminate\Http\Request $request) {
+    if ($user = $request->user()) {
+        return redirect($user->dashboardRoute());
+    }
+    return redirect()->route('login');
+})->middleware('auth')->name('dashboard');
+
 // Halaman Panduan & Berkas Resmi KP
 Route::get('/panduan', function () {
     return Inertia::render('Panduan');

@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    use RefreshDatabase;
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     public function test_login_screen_can_be_rendered(): void
     {
@@ -27,7 +27,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect($user->dashboardRoute());
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
