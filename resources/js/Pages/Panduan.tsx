@@ -19,7 +19,11 @@ import {
     Award,
     HelpCircle,
     Info,
-    FileCheck2
+    FileCheck2,
+    Search,
+    Filter,
+    Layers,
+    FileDown
 } from 'lucide-react';
 
 interface DocumentItem {
@@ -61,6 +65,15 @@ const DOCUMENTS: DocumentItem[] = [
         filesize: '581 KB',
     },
     {
+        title: 'Bundel Lengkap Seluruh Lampiran (Form KP-1 s.d. KP-8)',
+        category: 'Lampiran Lengkap',
+        badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        description: 'Koleksi lengkap 21 format formulir resmi KP (Halaman 47 s.d. 68) dalam satu berkas PDF gabungan.',
+        filename: 'lampiran_lengkap_buku_panduan_kp.pdf',
+        url: '/dokumen/lampiran_lengkap_buku_panduan_kp.pdf',
+        filesize: '2.5 MB',
+    },
+    {
         title: 'Referensi Laporan Akhir (Studi Kasus)',
         category: 'Format Laporan',
         badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
@@ -68,6 +81,320 @@ const DOCUMENTS: DocumentItem[] = [
         filename: 'Optimasi Model BiLSTM Berbasis FastText pada Data Augmentasi.pdf',
         url: '/dokumen/Optimasi%20Model%20BiLSTM%20Berbasis%20FastText%20pada%20Data%20Augmentasi.pdf',
         filesize: '783 KB',
+    },
+];
+
+interface LampiranItem {
+    id: string;
+    kode: string;
+    lampiranNo: number;
+    title: string;
+    category: 'Pengajuan' | 'Pelaksanaan' | 'Seminar & Nilai' | 'Format Naskah' | 'SOP';
+    desc: string;
+    filename: string;
+    url: string;
+    filesize: string;
+    badgeBg: string;
+    badgeText: string;
+    badgeBorder: string;
+    highlight?: boolean;
+}
+
+const LAMPIRAN_ITEMS: LampiranItem[] = [
+    {
+        id: 'lampiran-1',
+        kode: 'Form KP-1',
+        lampiranNo: 1,
+        title: 'Format Bidang Minat dan Usulan Judul (Form KP-1)',
+        category: 'Pengajuan',
+        desc: 'Formulir usulan bidang minat, 3 alternatif judul topik KP, dan identitas tempat magang untuk disetujui Dosen Wali & Koordinator KP.',
+        filename: 'Lampiran_01_Format_Bidang_Minat_Usulan_Judul_Form_KP-1.pdf',
+        url: '/dokumen/lampiran/Lampiran_01_Format_Bidang_Minat_Usulan_Judul_Form_KP-1.pdf',
+        filesize: '314 KB',
+        badgeBg: 'bg-blue-50',
+        badgeText: 'text-[#00288e]',
+        badgeBorder: 'border-blue-200',
+        highlight: true,
+    },
+    {
+        id: 'lampiran-2',
+        kode: 'Form KP-2',
+        lampiranNo: 2,
+        title: 'Format Kesediaan Menerima Kerja Praktik (Form KP-2)',
+        category: 'Pengajuan',
+        desc: 'Formulir persetujuan dan kesediaan dari pimpinan perusahaan/instansi mitra untuk menerima mahasiswa kerja praktik.',
+        filename: 'Lampiran_02_Kesediaan_Menerima_KP_Form_KP-2.pdf',
+        url: '/dokumen/lampiran/Lampiran_02_Kesediaan_Menerima_KP_Form_KP-2.pdf',
+        filesize: '247 KB',
+        badgeBg: 'bg-blue-50',
+        badgeText: 'text-blue-700',
+        badgeBorder: 'border-blue-200',
+    },
+    {
+        id: 'lampiran-3',
+        kode: 'Logbook',
+        lampiranNo: 3,
+        title: 'Format Rekap Absensi Harian KP (Logbook)',
+        category: 'Pelaksanaan',
+        desc: 'Lembar rekapitulasi daftar hadir harian dan ringkasan aktivitas kerja mahasiswa selama berada di tempat magang.',
+        filename: 'Lampiran_03_Format_Absensi_Harian_Logbook.pdf',
+        url: '/dokumen/lampiran/Lampiran_03_Format_Absensi_Harian_Logbook.pdf',
+        filesize: '120 KB',
+        badgeBg: 'bg-emerald-50',
+        badgeText: 'text-emerald-700',
+        badgeBorder: 'border-emerald-200',
+    },
+    {
+        id: 'lampiran-4',
+        kode: 'Form KP-3a',
+        lampiranNo: 4,
+        title: 'Format Lembar Konsultasi Dosen Pembimbing (Form KP-3a)',
+        category: 'Pelaksanaan',
+        desc: 'Kartu kendali asistensi, bimbingan berkala, dan verifikasi progres kegiatan bersama Dosen Pembimbing KP.',
+        filename: 'Lampiran_04_Lembar_Konsultasi_Dosen_Pembimbing_Form_KP-3a.pdf',
+        url: '/dokumen/lampiran/Lampiran_04_Lembar_Konsultasi_Dosen_Pembimbing_Form_KP-3a.pdf',
+        filesize: '352 KB',
+        badgeBg: 'bg-emerald-50',
+        badgeText: 'text-emerald-700',
+        badgeBorder: 'border-emerald-200',
+    },
+    {
+        id: 'lampiran-5',
+        kode: 'Form KP-3b',
+        lampiranNo: 5,
+        title: 'Format Lembar Konsultasi Pembimbing Lapangan (Form KP-3b)',
+        category: 'Pelaksanaan',
+        desc: 'Kartu kendali catatan pengarahan teknis operasional dan monitoring harian bersama Pembimbing Lapangan di instansi mitra.',
+        filename: 'Lampiran_05_Lembar_Konsultasi_Pembimbing_Lapangan_Form_KP-3b.pdf',
+        url: '/dokumen/lampiran/Lampiran_05_Lembar_Konsultasi_Pembimbing_Lapangan_Form_KP-3b.pdf',
+        filesize: '352 KB',
+        badgeBg: 'bg-emerald-50',
+        badgeText: 'text-emerald-700',
+        badgeBorder: 'border-emerald-200',
+    },
+    {
+        id: 'lampiran-6',
+        kode: 'Form KP-8',
+        lampiranNo: 6,
+        title: 'Format Lembar Persetujuan Seminar KP (Form KP-8)',
+        category: 'Seminar & Nilai',
+        desc: 'Lembar persetujuan (ACC Ujian) dari Dosen Pembimbing dan Pembimbing Lapangan untuk mendaftar seminar hasil KP.',
+        filename: 'Lampiran_06_Lembar_Persetujuan_Seminar_KP_Form_KP-8.pdf',
+        url: '/dokumen/lampiran/Lampiran_06_Lembar_Persetujuan_Seminar_KP_Form_KP-8.pdf',
+        filesize: '228 KB',
+        badgeBg: 'bg-indigo-50',
+        badgeText: 'text-indigo-700',
+        badgeBorder: 'border-indigo-200',
+    },
+    {
+        id: 'lampiran-7',
+        kode: 'Form KP-6a',
+        lampiranNo: 7,
+        title: 'Formulir Penilaian KP dari Pembimbing Lapangan (Form KP-6a)',
+        category: 'Seminar & Nilai',
+        desc: 'Lembar instrumen penilaian kinerja lapangan (kedisiplinan, tanggung jawab, inisiatif, dan capaian) oleh mitra instansi.',
+        filename: 'Lampiran_07_Penilaian_Pembimbing_Lapangan_Form_KP-6a.pdf',
+        url: '/dokumen/lampiran/Lampiran_07_Penilaian_Pembimbing_Lapangan_Form_KP-6a.pdf',
+        filesize: '303 KB',
+        badgeBg: 'bg-rose-50',
+        badgeText: 'text-rose-700',
+        badgeBorder: 'border-rose-200',
+    },
+    {
+        id: 'lampiran-8',
+        kode: 'Form KP-4a',
+        lampiranNo: 8,
+        title: 'Format Lembar Revisi Seminar Dosen Penguji 1 (Form KP-4a)',
+        category: 'Seminar & Nilai',
+        desc: 'Lembar catatan koreksi dan perbaikan naskah laporan hasil kerja praktik dari Dosen Penguji 1.',
+        filename: 'Lampiran_08_Lembar_Revisi_Dosen_Penguji_1_Form_KP-4a.pdf',
+        url: '/dokumen/lampiran/Lampiran_08_Lembar_Revisi_Dosen_Penguji_1_Form_KP-4a.pdf',
+        filesize: '245 KB',
+        badgeBg: 'bg-indigo-50',
+        badgeText: 'text-indigo-700',
+        badgeBorder: 'border-indigo-200',
+    },
+    {
+        id: 'lampiran-9',
+        kode: 'Form KP-4b',
+        lampiranNo: 9,
+        title: 'Format Lembar Revisi Seminar Dosen Penguji 2 (Form KP-4b)',
+        category: 'Seminar & Nilai',
+        desc: 'Lembar catatan koreksi dan perbaikan naskah laporan hasil kerja praktik dari Dosen Penguji 2.',
+        filename: 'Lampiran_09_Lembar_Revisi_Dosen_Penguji_2_Form_KP-4b.pdf',
+        url: '/dokumen/lampiran/Lampiran_09_Lembar_Revisi_Dosen_Penguji_2_Form_KP-4b.pdf',
+        filesize: '292 KB',
+        badgeBg: 'bg-indigo-50',
+        badgeText: 'text-indigo-700',
+        badgeBorder: 'border-indigo-200',
+    },
+    {
+        id: 'lampiran-10',
+        kode: 'Form KP-5',
+        lampiranNo: 10,
+        title: 'Format Berita Acara Ujian Kerja Praktik (Form KP-5)',
+        category: 'Seminar & Nilai',
+        desc: 'Berita acara resmi pelaksanaan pengujian seminar kerja praktik bertandatangan dewan penguji dan koordinator.',
+        filename: 'Lampiran_10_Berita_Acara_Ujian_KP_Form_KP-5.pdf',
+        url: '/dokumen/lampiran/Lampiran_10_Berita_Acara_Ujian_KP_Form_KP-5.pdf',
+        filesize: '268 KB',
+        badgeBg: 'bg-indigo-50',
+        badgeText: 'text-indigo-700',
+        badgeBorder: 'border-indigo-200',
+    },
+    {
+        id: 'lampiran-11',
+        kode: 'Form KP-6b',
+        lampiranNo: 11,
+        title: 'Formulir Penilaian KP Dosen Penguji & Pembimbing (Form KP-6b)',
+        category: 'Seminar & Nilai',
+        desc: 'Formulir instrumen penilaian komprehensif pengujian seminar laporan dan bimbingan akademik dosen.',
+        filename: 'Lampiran_11_Penilaian_Penguji_dan_Pembimbing_Form_KP-6b.pdf',
+        url: '/dokumen/lampiran/Lampiran_11_Penilaian_Penguji_dan_Pembimbing_Form_KP-6b.pdf',
+        filesize: '302 KB',
+        badgeBg: 'bg-rose-50',
+        badgeText: 'text-rose-700',
+        badgeBorder: 'border-rose-200',
+    },
+    {
+        id: 'lampiran-12',
+        kode: 'Form KP-7',
+        lampiranNo: 12,
+        title: 'Formulir Tanda Terima Laporan KP (Form KP-7)',
+        category: 'Seminar & Nilai',
+        desc: 'Bukti tanda terima penyerahan naskah laporan final kerja praktik yang telah dijilid dan disahkan.',
+        filename: 'Lampiran_12_Tanda_Terima_Laporan_KP_Form_KP-7.pdf',
+        url: '/dokumen/lampiran/Lampiran_12_Tanda_Terima_Laporan_KP_Form_KP-7.pdf',
+        filesize: '235 KB',
+        badgeBg: 'bg-slate-50',
+        badgeText: 'text-slate-700',
+        badgeBorder: 'border-slate-200',
+    },
+    {
+        id: 'lampiran-13',
+        kode: 'Sampul',
+        lampiranNo: 13,
+        title: 'Format Halaman Sampul Proposal KP',
+        category: 'Format Naskah',
+        desc: 'Format baku tata letak halaman sampul depan (cover) proposal pengajuan Kerja Praktik.',
+        filename: 'Lampiran_13_Sampul_Proposal_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_13_Sampul_Proposal_KP.pdf',
+        filesize: '60 KB',
+        badgeBg: 'bg-amber-50',
+        badgeText: 'text-amber-700',
+        badgeBorder: 'border-amber-200',
+    },
+    {
+        id: 'lampiran-14',
+        kode: 'Pengesahan',
+        lampiranNo: 14,
+        title: 'Format Halaman Pengesahan Proposal KP',
+        category: 'Format Naskah',
+        desc: 'Lembar pengesahan naskah proposal KP oleh Dosen Pembimbing dan Koordinator Program Studi.',
+        filename: 'Lampiran_14_Pengesahan_Proposal_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_14_Pengesahan_Proposal_KP.pdf',
+        filesize: '62 KB',
+        badgeBg: 'bg-amber-50',
+        badgeText: 'text-amber-700',
+        badgeBorder: 'border-amber-200',
+    },
+    {
+        id: 'lampiran-15',
+        kode: 'Jadwal',
+        lampiranNo: 15,
+        title: 'Format Rencana Jadwal Pelaksanaan KP',
+        category: 'Format Naskah',
+        desc: 'Tabel timeline dan time-schedule / Gantt Chart rencana tahapan kegiatan kerja praktik per minggu.',
+        filename: 'Lampiran_15_Rencana_Jadwal_Pelaksanaan_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_15_Rencana_Jadwal_Pelaksanaan_KP.pdf',
+        filesize: '54 KB',
+        badgeBg: 'bg-amber-50',
+        badgeText: 'text-amber-700',
+        badgeBorder: 'border-amber-200',
+    },
+    {
+        id: 'lampiran-16',
+        kode: 'Sampul',
+        lampiranNo: 16,
+        title: 'Format Halaman Sampul Laporan Akhir KP',
+        category: 'Format Naskah',
+        desc: 'Tata letak baku sampul depan laporan akhir kerja praktik (warna cover, font, dan identitas kampus).',
+        filename: 'Lampiran_16_Sampul_Laporan_Akhir_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_16_Sampul_Laporan_Akhir_KP.pdf',
+        filesize: '60 KB',
+        badgeBg: 'bg-purple-50',
+        badgeText: 'text-purple-700',
+        badgeBorder: 'border-purple-200',
+    },
+    {
+        id: 'lampiran-17',
+        kode: 'Pengesahan',
+        lampiranNo: 17,
+        title: 'Format Halaman Pengesahan Laporan Akhir KP',
+        category: 'Format Naskah',
+        desc: 'Lembar pengesahan resmi laporan akhir bertandatangan Dosen Pembimbing, Penguji, dan Koordinator.',
+        filename: 'Lampiran_17_Pengesahan_Laporan_Akhir_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_17_Pengesahan_Laporan_Akhir_KP.pdf',
+        filesize: '63 KB',
+        badgeBg: 'bg-purple-50',
+        badgeText: 'text-purple-700',
+        badgeBorder: 'border-purple-200',
+    },
+    {
+        id: 'lampiran-18',
+        kode: 'Pengesahan',
+        lampiranNo: 18,
+        title: 'Format Halaman Pengesahan Seminar KP',
+        category: 'Format Naskah',
+        desc: 'Lembar pengesahan bahwa mahasiswa telah melaksanakan seminar hasil kerja praktik di depan penguji.',
+        filename: 'Lampiran_18_Pengesahan_Seminar_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_18_Pengesahan_Seminar_KP.pdf',
+        filesize: '65 KB',
+        badgeBg: 'bg-purple-50',
+        badgeText: 'text-purple-700',
+        badgeBorder: 'border-purple-200',
+    },
+    {
+        id: 'lampiran-19',
+        kode: 'Pengesahan',
+        lampiranNo: 19,
+        title: 'Format Halaman Pengesahan Perusahaan / Instansi Mitra',
+        category: 'Format Naskah',
+        desc: 'Lembar pengesahan laporan akhir bertandatangan Pembimbing Lapangan dan dicap resmi perusahaan.',
+        filename: 'Lampiran_19_Pengesahan_Instansi_Perusahaan_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_19_Pengesahan_Instansi_Perusahaan_KP.pdf',
+        filesize: '61 KB',
+        badgeBg: 'bg-purple-50',
+        badgeText: 'text-purple-700',
+        badgeBorder: 'border-purple-200',
+    },
+    {
+        id: 'lampiran-20',
+        kode: 'Relasi',
+        lampiranNo: 20,
+        title: 'Format Daftar Relasi Kerja Praktik',
+        category: 'Format Naskah',
+        desc: 'Format tabel dokumentasi relasi dan jejaring kerja institusi yang diperoleh selama kerja praktik.',
+        filename: 'Lampiran_20_Daftar_Relasi_Kerja_Praktik.pdf',
+        url: '/dokumen/lampiran/Lampiran_20_Daftar_Relasi_Kerja_Praktik.pdf',
+        filesize: '64 KB',
+        badgeBg: 'bg-purple-50',
+        badgeText: 'text-purple-700',
+        badgeBorder: 'border-purple-200',
+    },
+    {
+        id: 'lampiran-21',
+        kode: 'SOP',
+        lampiranNo: 21,
+        title: 'Standar Operasional Prosedur (SOP) Kerja Praktik',
+        category: 'SOP',
+        desc: 'Diagram alir dan prosedur operasional standar tahapan pendaftaran, bimbingan, hingga kelulusan KP.',
+        filename: 'Lampiran_21_SOP_Standar_Operasional_Prosedur_KP.pdf',
+        url: '/dokumen/lampiran/Lampiran_21_SOP_Standar_Operasional_Prosedur_KP.pdf',
+        filesize: '98 KB',
+        badgeBg: 'bg-slate-50',
+        badgeText: 'text-slate-800',
+        badgeBorder: 'border-slate-300',
     },
 ];
 
@@ -113,6 +440,20 @@ export default function Panduan() {
     const cleanPhone = campusPhone.replace(/[^0-9]/g, '');
 
     const [selectedPdf, setSelectedPdf] = useState<{ url: string; title: string } | null>(null);
+    const [lampiranCategory, setLampiranCategory] = useState<string>('Semua');
+    const [lampiranSearch, setLampiranSearch] = useState<string>('');
+
+    const categories = ['Semua', 'Pengajuan', 'Pelaksanaan', 'Seminar & Nilai', 'Format Naskah', 'SOP'];
+
+    const filteredLampiran = LAMPIRAN_ITEMS.filter((item) => {
+        const matchesCat = lampiranCategory === 'Semua' || item.category === lampiranCategory;
+        const query = lampiranSearch.toLowerCase().trim();
+        const matchesSearch = !query || 
+            item.title.toLowerCase().includes(query) ||
+            item.kode.toLowerCase().includes(query) ||
+            item.desc.toLowerCase().includes(query);
+        return matchesCat && matchesSearch;
+    });
 
     return (
         <>
@@ -305,6 +646,136 @@ export default function Panduan() {
                                 </div>
                             ))}
                         </div>
+                    </section>
+
+                    {/* SECTION 1.5: FORMULIR & LAMPIRAN RESMI BUKU PANDUAN (FORM KP-1 s.d. KP-8) */}
+                    <section id="lampiran-section" className="space-y-6 pt-2">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-4">
+                            <div>
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-[#00288e] border border-blue-200 uppercase tracking-wider mb-1.5">
+                                    <Layers className="w-3.5 h-3.5" />
+                                    Ekstraksi Resmi Form KP-1 s.d. KP-8
+                                </div>
+                                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                                    Lampiran & Formulir Siap Unduh
+                                </h2>
+                                <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
+                                    Berkas formulir resmi yang diekstrak langsung dari Buku Panduan Kerja Praktik Teknik Informatika UTM untuk memudahkan pengisian dan pencetakan berkas fisik.
+                                </p>
+                            </div>
+
+                            <a
+                                href="/dokumen/lampiran_lengkap_buku_panduan_kp.pdf"
+                                download
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 hover:border-slate-400 rounded-lg text-xs font-semibold shadow-xs transition shrink-0"
+                            >
+                                <FileDown className="w-4 h-4 text-[#00288e]" />
+                                <span>Unduh Bundel 21 Lampiran (2.5 MB)</span>
+                            </a>
+                        </div>
+
+                        {/* Search & Filter Controls */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                            {/* Category Filter Pills */}
+                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                                {categories.map((cat) => (
+                                    <button
+                                        key={cat}
+                                        type="button"
+                                        onClick={() => setLampiranCategory(cat)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+                                            lampiranCategory === cat
+                                                ? 'bg-[#00288e] text-white shadow-xs'
+                                                : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/60'
+                                        }`}
+                                    >
+                                        {cat}
+                                        {cat === 'Semua' ? ` (${LAMPIRAN_ITEMS.length})` : ''}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Search Input */}
+                            <div className="relative w-full sm:w-64 shrink-0">
+                                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <input
+                                    type="text"
+                                    value={lampiranSearch}
+                                    onChange={(e) => setLampiranSearch(e.target.value)}
+                                    placeholder="Cari form (misal: KP-1, logbook)..."
+                                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Lampiran Cards Grid */}
+                        {filteredLampiran.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {filteredLampiran.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className={`bg-white border rounded-xl p-4.5 flex flex-col justify-between transition-all duration-200 shadow-xs hover:shadow-md ${
+                                            item.highlight
+                                                ? 'border-[#00288e]/40 ring-1 ring-blue-500/20'
+                                                : 'border-slate-200 hover:border-slate-300'
+                                        }`}
+                                    >
+                                        <div className="space-y-2.5">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${item.badgeBg} ${item.badgeBorder} ${item.badgeText}`}>
+                                                        {item.kode}
+                                                    </span>
+                                                    <span className="text-[10px] font-semibold text-slate-400">
+                                                        Lampiran {item.lampiranNo}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-slate-400">
+                                                    {item.filesize}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug line-clamp-2">
+                                                    {item.title}
+                                                </h4>
+                                                <p className="text-[11px] sm:text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                                                    {item.desc}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedPdf({ url: item.url, title: item.title })}
+                                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition cursor-pointer"
+                                                title="Pratinjau Halaman Lampiran"
+                                            >
+                                                <span>Pratinjau</span>
+                                                <ExternalLink className="w-3 h-3 text-slate-400" />
+                                            </button>
+
+                                            <a
+                                                href={item.url}
+                                                download
+                                                className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-white bg-[#00288e] hover:bg-[#001f70] rounded-md transition shadow-2xs"
+                                                title="Unduh Berkas Lampiran PDF"
+                                            >
+                                                <Download className="w-3 h-3" />
+                                                <span>Unduh PDF</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-10 bg-white border border-slate-200 rounded-xl space-y-2">
+                                <HelpCircle className="w-8 h-8 text-slate-300 mx-auto" />
+                                <p className="text-xs sm:text-sm font-semibold text-slate-700">Tidak ada lampiran yang cocok</p>
+                                <p className="text-xs text-slate-400">Coba ubah kata kunci pencarian atau kategori filter.</p>
+                            </div>
+                        )}
                     </section>
 
                     {/* SECTION 2: ALUR TAHAPAN KERJA PRAKTIK (SOP) */}
