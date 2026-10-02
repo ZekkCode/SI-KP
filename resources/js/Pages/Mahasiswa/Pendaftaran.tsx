@@ -1,9 +1,9 @@
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import React from 'react';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage, Link } from '@inertiajs/react';
 import { 
     UploadCloud, CheckCircle2, FileText, Info, AlertCircle, 
-    GraduationCap, Send, FileCheck2, FileUp, Phone, Mail, Award, BookOpen
+    GraduationCap, Send, FileCheck2, FileUp, Phone, Mail, Award, BookOpen, Download, Layers
 } from 'lucide-react';
 
 interface PendaftaranData {
@@ -77,6 +77,67 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Pendaftaran Kerja Praktik</h1>
                 <p className="text-sm text-slate-500 mt-1">Lengkapi data akademik dan unggah transkrip nilai prasyarat KP.</p>
+            </div>
+
+            {/* Berkas & Formulir Resmi Pendaftaran (Form KP-1 & Form KP-2) */}
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-[#00288e]" />
+                        <h2 className="text-sm font-bold text-slate-800">Formulir Resmi Pengajuan & Pendaftaran KP</h2>
+                    </div>
+                    <Link
+                        href="/panduan#lampiran-section"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#00288e] hover:underline"
+                    >
+                        <BookOpen className="w-3 h-3" />
+                        <span>Katalog Lengkap 21 Lampiran</span>
+                    </Link>
+                </div>
+
+                <p className="text-xs text-slate-500 leading-relaxed">
+                    Unduh formulir resmi pengganti berkas manual untuk pengajuan topik usulan judul dan surat kesediaan mitra:
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 bg-blue-50/50 border border-blue-200/80 rounded-lg flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-[#00288e] font-bold text-[10px] rounded border border-blue-200 inline-block mb-1">
+                                Form KP-1
+                            </span>
+                            <h3 className="text-xs font-bold text-slate-800 truncate">Format Usulan Judul KP</h3>
+                            <p className="text-[11px] text-slate-500">Lampiran 1 &bull; 314 KB</p>
+                        </div>
+                        <a
+                            href="/dokumen/lampiran/Lampiran_01_Format_Bidang_Minat_Usulan_Judul_Form_KP-1.pdf"
+                            download
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#00288e] hover:bg-blue-800 text-white rounded-md text-[11px] font-semibold transition shrink-0"
+                            title="Unduh Form KP-1"
+                        >
+                            <Download className="w-3 h-3" />
+                            <span>Unduh</span>
+                        </a>
+                    </div>
+
+                    <div className="p-3 bg-blue-50/50 border border-blue-200/80 rounded-lg flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 font-bold text-[10px] rounded border border-blue-200 inline-block mb-1">
+                                Form KP-2
+                            </span>
+                            <h3 className="text-xs font-bold text-slate-800 truncate">Kesediaan Menerima KP</h3>
+                            <p className="text-[11px] text-slate-500">Lampiran 2 &bull; 247 KB</p>
+                        </div>
+                        <a
+                            href="/dokumen/lampiran/Lampiran_02_Kesediaan_Menerima_KP_Form_KP-2.pdf"
+                            download
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#00288e] hover:bg-blue-800 text-white rounded-md text-[11px] font-semibold transition shrink-0"
+                            title="Unduh Form KP-2"
+                        >
+                            <Download className="w-3 h-3" />
+                            <span>Unduh</span>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             {/* Flash Feedback */}

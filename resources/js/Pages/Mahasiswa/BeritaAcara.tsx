@@ -1,7 +1,7 @@
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import React, { useRef } from 'react';
-import { Info, Download, UploadCloud, CheckCircle2, Trash2, FileText, CheckCircle, Clock } from 'lucide-react';
-import { useForm, usePage } from '@inertiajs/react';
+import { Info, Download, UploadCloud, CheckCircle2, Trash2, FileText, CheckCircle, Clock, BookOpen, Layers } from 'lucide-react';
+import { useForm, usePage, Link } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import { PageProps } from '@/types';
 
@@ -124,16 +124,53 @@ export default function BeritaAcara({ pendaftaran, beritaAcara, status }: Berita
                     </div>
 
                     {/* Download Card */}
-                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col items-center text-center">
-                        <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center mb-3">
+                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col items-center text-center space-y-3">
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
                             <Download className="w-5 h-5" />
                         </div>
-                        <h3 className="text-sm font-bold text-slate-800 mb-1">Template Berita Acara</h3>
-                        <p className="text-xs text-slate-500 mb-4">Gunakan format resmi program studi (v.2024.1)</p>
-                        <a href="/dokumen/template_berita_acara.docx" download className="w-full inline-flex items-center justify-center gap-2 bg-[#00288e] hover:bg-blue-800 text-white py-2.5 px-4 rounded-lg font-semibold text-xs transition-colors shadow-sm">
-                            <Download className="w-4 h-4" />
-                            Unduh Template (DOCX)
+                        <div>
+                            <h3 className="text-sm font-bold text-slate-800">Template & Formulir Resmi</h3>
+                            <p className="text-xs text-slate-500 mt-0.5">Formulir baku Berita Acara Ujian (Form KP-5 / Lampiran 10)</p>
+                        </div>
+
+                        <a 
+                            href="/dokumen/template_berita_acara.pdf" 
+                            download 
+                            className="w-full inline-flex items-center justify-center gap-2 bg-[#00288e] hover:bg-blue-800 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-colors shadow-xs"
+                            title="Unduh Berita Acara Ujian Resmi (Form KP-5)"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Unduh Berita Acara (PDF)</span>
                         </a>
+
+                        <div className="w-full pt-2 border-t border-slate-200/80 space-y-1.5 text-left">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Formulir Terkait Seminar:
+                            </span>
+                            <a
+                                href="/dokumen/lampiran/Lampiran_06_Lembar_Persetujuan_Seminar_KP_Form_KP-8.pdf"
+                                download
+                                className="flex items-center justify-between text-[11px] font-medium text-slate-700 hover:text-blue-700 p-1.5 rounded-md hover:bg-white border border-transparent hover:border-slate-200 transition"
+                            >
+                                <span className="truncate">Form KP-8: Persetujuan Seminar</span>
+                                <Download className="w-3 h-3 text-slate-400 shrink-0" />
+                            </a>
+                            <a
+                                href="/dokumen/lampiran/Lampiran_07_Penilaian_Pembimbing_Lapangan_Form_KP-6a.pdf"
+                                download
+                                className="flex items-center justify-between text-[11px] font-medium text-slate-700 hover:text-blue-700 p-1.5 rounded-md hover:bg-white border border-transparent hover:border-slate-200 transition"
+                            >
+                                <span className="truncate">Form KP-6a: Nilai Pembimbing Lapangan</span>
+                                <Download className="w-3 h-3 text-slate-400 shrink-0" />
+                            </a>
+                            <Link
+                                href="/panduan#lampiran-section"
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#00288e] hover:underline pt-1"
+                            >
+                                <BookOpen className="w-3 h-3" />
+                                <span>Lihat Semua 21 Lampiran</span>
+                            </Link>
+                        </div>
                     </div>
                 </div>
 

@@ -13,7 +13,10 @@ import {
   Building2, 
   GraduationCap, 
   FileText, 
-  HelpCircle
+  HelpCircle,
+  Download,
+  BookOpen,
+  Layers
 } from 'lucide-react';
 import PageHeader from '@/Components/PageHeader';
 
@@ -358,6 +361,106 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
           )}
         </div>
       )}
+
+      {/* Berkas & Formulir Resmi Persyaratan Sidang / Seminar KP */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-[#00288e] border border-blue-200 uppercase tracking-wider mb-1">
+              <Layers className="w-3.5 h-3.5" />
+              Lampiran Resmi Seminar KP
+            </div>
+            <h3 className="text-base font-bold text-slate-800">
+              Formulir Prasyarat & Berita Acara Ujian Seminar
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Gunakan formulir resmi berikut untuk melengkapi persyaratan ujian, penilaian lapangan, dan berita acara:
+            </p>
+          </div>
+
+          <Link
+            href="/panduan#lampiran-section"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition shrink-0"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+            <span>Katalog 21 Lampiran Lengkap</span>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Form KP-8 */}
+          <div className="p-3.5 bg-slate-50/60 border border-slate-200 rounded-xl flex flex-col justify-between space-y-3 hover:border-blue-300 transition">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  Form KP-8
+                </span>
+                <span className="text-[10px] text-slate-400">228 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Persetujuan Seminar (ACC)</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Lembar persetujuan maju ujian seminar bertandatangan Dosen Pembimbing KP.
+              </p>
+            </div>
+            <a
+              href="/dokumen/lampiran/Lampiran_06_Lembar_Persetujuan_Seminar_KP_Form_KP-8.pdf"
+              download
+              className="inline-flex items-center justify-center gap-1 py-1.5 px-3 bg-[#00288e] hover:bg-blue-800 text-white rounded-lg text-[11px] font-semibold transition"
+            >
+              <Download className="w-3 h-3" />
+              <span>Unduh Form KP-8</span>
+            </a>
+          </div>
+
+          {/* Form KP-6a */}
+          <div className="p-3.5 bg-slate-50/60 border border-slate-200 rounded-xl flex flex-col justify-between space-y-3 hover:border-blue-300 transition">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200">
+                  Form KP-6a
+                </span>
+                <span className="text-[10px] text-slate-400">303 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Penilaian Pembimbing Lapangan</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Formulir evaluasi nilai kinerja industri mahasiswa bertandatangan pembimbing mitra.
+              </p>
+            </div>
+            <a
+              href="/dokumen/lampiran/Lampiran_07_Penilaian_Pembimbing_Lapangan_Form_KP-6a.pdf"
+              download
+              className="inline-flex items-center justify-center gap-1 py-1.5 px-3 bg-[#00288e] hover:bg-blue-800 text-white rounded-lg text-[11px] font-semibold transition"
+            >
+              <Download className="w-3 h-3" />
+              <span>Unduh Form KP-6a</span>
+            </a>
+          </div>
+
+          {/* Form KP-5 */}
+          <div className="p-3.5 bg-slate-50/60 border border-slate-200 rounded-xl flex flex-col justify-between space-y-3 hover:border-blue-300 transition">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  Form KP-5
+                </span>
+                <span className="text-[10px] text-slate-400">268 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Berita Acara Ujian KP</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Format berita acara resmi pelaksanaan ujian seminar bertandatangan dewan penguji.
+              </p>
+            </div>
+            <a
+              href="/dokumen/lampiran/Lampiran_10_Berita_Acara_Ujian_KP_Form_KP-5.pdf"
+              download
+              className="inline-flex items-center justify-center gap-1 py-1.5 px-3 bg-[#00288e] hover:bg-blue-800 text-white rounded-lg text-[11px] font-semibold transition"
+            >
+              <Download className="w-3 h-3" />
+              <span>Unduh Form KP-5</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

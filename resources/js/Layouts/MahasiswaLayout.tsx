@@ -25,7 +25,7 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
 
     const navItems = [
         { href: '/mahasiswa/dashboard', label: t('nav.dashboard', undefined, 'Dashboard'), icon: LayoutDashboard, step: null },
-        { href: '/panduan', label: t('nav.panduan', undefined, 'Buku Panduan'), icon: BookOpen, step: null },
+        { href: '/panduan', label: t('nav.panduan', undefined, 'Panduan & Formulir Resmi'), icon: BookOpen, step: null },
         { href: '/mahasiswa/pendaftaran', label: t('nav.pendaftaran', undefined, 'Pendaftaran'), icon: ClipboardEdit, step: 1 },
         { href: '/mahasiswa/status-pengajuan', label: t('nav.status_pengajuan', undefined, 'Status Pengajuan'), icon: ClipboardCheck, step: 1 },
         { href: '/mahasiswa/surat-pengantar', label: t('nav.surat_pengantar', undefined, 'Surat Pengantar'), icon: FileText, step: 2 },

@@ -1,6 +1,6 @@
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
-import { Head, useForm } from '@inertiajs/react';
-import { FileText, Upload, CheckCircle2, AlertCircle, File, Download } from 'lucide-react';
+import { Head, useForm, Link } from '@inertiajs/react';
+import { FileText, Upload, CheckCircle2, AlertCircle, File, Download, ExternalLink, FileDown, BookOpen, Layers } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface DokumenAkhir {
@@ -258,6 +258,200 @@ export default function DokumenAkhirIndex({ dokumen, pendaftaran, flash }: Props
           
         </div>
       )}
+
+      {/* Format & Formulir Resmi Laporan Akhir (Replace Dokumen) */}
+      <div className="mt-8 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-[#00288e] border border-blue-200 uppercase tracking-wider mb-1">
+              <Layers className="w-3.5 h-3.5" />
+              Lampiran Resmi Laporan Akhir
+            </div>
+            <h3 className="text-base font-bold text-slate-800">
+              Format Baku & Lembar Pengesahan Laporan Akhir
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Gunakan formulir resmi ini untuk menggantikan format manual dan melengkapi komponen wajib naskah Laporan Akhir KP Anda.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/panduan#lampiran-section"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+              <span>Lihat Semua 21 Lampiran</span>
+            </Link>
+            <a
+              href="/dokumen/lampiran_lengkap_buku_panduan_kp.pdf"
+              download
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00288e] hover:bg-blue-800 text-white rounded-lg text-xs font-semibold shadow-xs transition"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              <span>Bundel 21 Lampiran (2.5MB)</span>
+            </a>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Lampiran 16: Sampul Laporan Akhir */}
+          <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-xs bg-slate-50/50 flex flex-col justify-between transition-all">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-50 text-purple-700 border border-purple-200">
+                  Lampiran 16
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">60 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Format Sampul Laporan Akhir KP</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Format baku cover luar (judul, logo UTM, NIM, prodi, dan tahun akademik) warna biru resmi.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex justify-end">
+              <a
+                href="/dokumen/lampiran/Lampiran_16_Sampul_Laporan_Akhir_KP.pdf"
+                download
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#00288e] hover:bg-blue-800 rounded-md transition"
+              >
+                <Download className="w-3 h-3" />
+                <span>Unduh PDF</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Lampiran 17: Pengesahan Laporan Akhir */}
+          <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-xs bg-slate-50/50 flex flex-col justify-between transition-all">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-50 text-purple-700 border border-purple-200">
+                  Lampiran 17
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">63 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Lembar Pengesahan Prodi</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Halaman pengesahan utama bertandatangan Dosen Pembimbing dan disetujui Koordinator Program Studi.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex justify-end">
+              <a
+                href="/dokumen/lampiran/Lampiran_17_Pengesahan_Laporan_Akhir_KP.pdf"
+                download
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#00288e] hover:bg-blue-800 rounded-md transition"
+              >
+                <Download className="w-3 h-3" />
+                <span>Unduh PDF</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Lampiran 18: Pengesahan Seminar */}
+          <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-xs bg-slate-50/50 flex flex-col justify-between transition-all">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-50 text-purple-700 border border-purple-200">
+                  Lampiran 18
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">65 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Lembar Pengesahan Seminar KP</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Bukti sah kelulusan seminar dan penyelesaian revisi bertandatangan Dosen Penguji 1 & 2.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex justify-end">
+              <a
+                href="/dokumen/lampiran/Lampiran_18_Pengesahan_Seminar_KP.pdf"
+                download
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#00288e] hover:bg-blue-800 rounded-md transition"
+              >
+                <Download className="w-3 h-3" />
+                <span>Unduh PDF</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Lampiran 19: Pengesahan Instansi / Mitra */}
+          <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-xs bg-slate-50/50 flex flex-col justify-between transition-all">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-50 text-purple-700 border border-purple-200">
+                  Lampiran 19
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">61 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Lembar Pengesahan Instansi Mitra</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Halaman pengesahan dari tempat magang bertandatangan Pembimbing Lapangan dan cap instansi.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex justify-end">
+              <a
+                href="/dokumen/lampiran/Lampiran_19_Pengesahan_Instansi_Perusahaan_KP.pdf"
+                download
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#00288e] hover:bg-blue-800 rounded-md transition"
+              >
+                <Download className="w-3 h-3" />
+                <span>Unduh PDF</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Lampiran 12: Form KP-7 Tanda Terima Laporan */}
+          <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-xs bg-slate-50/50 flex flex-col justify-between transition-all">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  Form KP-7
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">235 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Tanda Terima Laporan KP (Form KP-7)</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Bukti tanda terima penyerahan laporan yang telah dijilid ke Koordinator KP dan Perpustakaan.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex justify-end">
+              <a
+                href="/dokumen/lampiran/Lampiran_12_Tanda_Terima_Laporan_KP_Form_KP-7.pdf"
+                download
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#00288e] hover:bg-blue-800 rounded-md transition"
+              >
+                <Download className="w-3 h-3" />
+                <span>Unduh PDF</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Lampiran 20: Format Lembar Daftar Relasi */}
+          <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-xs bg-slate-50/50 flex flex-col justify-between transition-all">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-50 text-purple-700 border border-purple-200">
+                  Lampiran 20
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">64 KB</span>
+              </div>
+              <h4 className="text-xs font-bold text-slate-800">Daftar Relasi Kerja Praktik</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Tabel dokumentasi kontak industri dan profil pembimbing lapangan untuk jejaring universitas.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex justify-end">
+              <a
+                href="/dokumen/lampiran/Lampiran_20_Daftar_Relasi_Kerja_Praktik.pdf"
+                download
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#00288e] hover:bg-blue-800 rounded-md transition"
+              >
+                <Download className="w-3 h-3" />
+                <span>Unduh PDF</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

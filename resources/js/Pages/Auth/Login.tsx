@@ -299,10 +299,10 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
                                 id="tour-panduan"
                                 href="/panduan" 
                                 className="inline-flex items-center justify-center gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer shadow-xs"
-                                title="Halaman Panduan"
+                                title="Halaman Panduan & Formulir Resmi"
                             >
                                 <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0" />
-                                <span className="hidden sm:inline">Panduan</span>
+                                <span className="hidden sm:inline">Panduan & Formulir</span>
                             </Link>
 
                             <button
@@ -659,6 +659,32 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
                             </div>
                         </div>
                     )}
+
+                    {/* Quick Access Berkas & Lampiran Resmi */}
+                    <div className="max-w-4xl mx-auto w-full px-4 mb-8">
+                        <div className="bg-white border border-slate-200/80 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#00288e] flex items-center justify-center shrink-0">
+                                    <BookOpen className="w-5 h-5" />
+                                </div>
+                                <div className="text-left">
+                                    <h4 className="text-xs sm:text-sm font-bold text-slate-800">
+                                        Perlu Formulir & Buku Panduan KP?
+                                    </h4>
+                                    <p className="text-[11px] sm:text-xs text-slate-500">
+                                        Unduh Buku Panduan resmi dan 21 berkas lampiran (Form KP-1 s.d. KP-8) tanpa perlu login.
+                                    </p>
+                                </div>
+                            </div>
+                            <Link
+                                href="/panduan"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#00288e] hover:bg-[#001f70] text-white rounded-lg text-xs font-semibold shadow-xs transition shrink-0"
+                            >
+                                <span>Buka Halaman Panduan & Formulir</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                            </Link>
+                        </div>
+                    </div>
                 </main>
 
                 {/* 4. FOOTER INSTITUSI */}
