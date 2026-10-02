@@ -195,8 +195,7 @@ export default function LecturerIndex({ lecturers = [] }: Props) {
                   </span>
                 </ModernTableTd>
                 <ModernTableTd className="px-6 py-4">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-800 font-semibold text-xs">
-                    <span className={`w-2.5 h-2.5 rounded-full ${lecturer.indicatorColor || 'bg-green-500'}`} />
+                  <span className="inline-flex items-center px-3 py-1 rounded-md bg-slate-100 text-slate-800 font-semibold text-xs border border-slate-200">
                     {lecturer.quota}
                   </span>
                 </ModernTableTd>

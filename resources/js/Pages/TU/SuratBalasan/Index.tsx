@@ -61,7 +61,6 @@ export default function Index({ pendaftarans }: Props) {
                 </div>
 
                 <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-secondary-container text-on-secondary-container">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>
                     {pendaftarans.length} Pendaftaran
                 </span>
             </div>
@@ -130,9 +129,8 @@ export default function Index({ pendaftarans }: Props) {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span
-                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${badge.className}`}
+                                                className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${badge.className}`}
                                             >
-                                                <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                                                 {badge.text}
                                             </span>
                                         </td>

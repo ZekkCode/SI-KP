@@ -171,7 +171,6 @@ export default function Students({ initialStudents = [] }: Props) {
                             ? 'bg-blue-100 text-blue-800'
                             : 'bg-surface-variant text-on-surface-variant'
                       }`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                         {student.status}
                       </span>
                     </ModernTableTd>

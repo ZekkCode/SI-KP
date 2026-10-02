@@ -1,6 +1,6 @@
 import DosenLayout from '@/Layouts/DosenLayout';
 import { Link } from '@inertiajs/react';
-import { Users, Clock, TrendingUp, Building2, FileText, CheckCircle2, UserPlus, Sparkles, ArrowRight } from 'lucide-react';
+import { Users, Clock, TrendingUp, Building2, FileText, CheckCircle2, UserPlus, ArrowRight } from 'lucide-react';
 
 interface Mahasiswa {
   id: number;
@@ -153,13 +153,13 @@ export default function DashboardScreen({ kuota, stats, mahasiswaBaru = [], bimb
 
       {/* Alert Section: Mahasiswa Baru Terdaftar */}
       {mahasiswaBaru.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/50 to-white rounded-xl border border-blue-200/80 p-5 shadow-xs space-y-3">
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-indigo-900 font-bold text-sm">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+              <UserPlus className="w-4 h-4 text-[#00288e]" />
               <span>Mahasiswa Bimbingan Baru Terdaftar ({mahasiswaBaru.length})</span>
             </div>
-            <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
               Otomatis Terhubung
             </span>
           </div>

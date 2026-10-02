@@ -48,67 +48,53 @@ export default function Edit({
 
             <div className="py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-                    {/* Hero Profile Header */}
-                    <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary-container to-tertiary-container shadow-sm">
-                        {/* Abstract decorative pattern */}
-                        <div className="absolute inset-0 opacity-10">
-                            <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/20" />
-                            <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/15" />
-                            <div className="absolute top-10 left-1/2 h-32 w-32 rounded-full bg-white/10" />
+                    {/* Profile Header (Clean authentic academic style) */}
+                    <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 shadow-xs mb-6 flex flex-col sm:flex-row items-center gap-6">
+                        {/* Avatar */}
+                        <div className="group relative shrink-0">
+                            <div className="h-24 w-24 overflow-hidden rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center justify-center">
+                                {avatarUrl ? (
+                                    <img
+                                        src={avatarUrl}
+                                        alt="Avatar"
+                                        className="h-full w-full object-cover"
+                                        referrerPolicy="no-referrer"
+                                    />
+                                ) : (
+                                    <User className="h-10 w-10 text-slate-400" />
+                                )}
+                            </div>
                         </div>
 
-                        <div className="relative flex flex-col items-center gap-5 px-6 py-10 sm:flex-row sm:items-end sm:px-10 sm:py-12">
-                            {/* Avatar */}
-                            <div className="group relative">
-                                <div className="h-28 w-28 overflow-hidden rounded-xl border-4 border-white/30 bg-white/20 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-105 sm:h-32 sm:w-32">
-                                    {avatarUrl ? (
-                                        <img
-                                            src={avatarUrl}
-                                            alt="Avatar"
-                                            className="h-full w-full object-cover"
-                                            referrerPolicy="no-referrer"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full w-full items-center justify-center">
-                                            <User className="h-14 w-14 text-white/70" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="absolute -bottom-1 -right-1 rounded-lg bg-white p-1.5 shadow-md">
-                                    <Camera className="h-4 w-4 text-primary" />
-                                </div>
-                            </div>
-
-                            {/* User Info */}
-                            <div className="flex-1 text-center sm:text-left pb-1">
-                                <h1 className="text-2xl font-bold text-white sm:text-3xl drop-shadow-sm">
-                                    {user.name}
-                                </h1>
-                                <p className="mt-1 text-sm text-white/80">{user.email}</p>
-                                <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                                    <span className="inline-flex items-center gap-1.5 rounded-md bg-white/20 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                                        <Shield className="h-3.5 w-3.5" />
-                                        {roleLabel}
+                        {/* User Info */}
+                        <div className="flex-1 text-center sm:text-left">
+                            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                                {user.name}
+                            </h1>
+                            <p className="mt-0.5 text-sm text-slate-600">{user.email}</p>
+                            <div className="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-semibold text-[#00288e]">
+                                    <Shield className="h-3.5 w-3.5" />
+                                    {roleLabel}
+                                </span>
+                                {(user.role === 'dosen' || user.role === 'prodi' || user.role === 'tu') && user.nip && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                        <IdCard className="h-3.5 w-3.5 text-slate-500" />
+                                        NIP: {user.nip}
                                     </span>
-                                    {(user.role === 'dosen' || user.role === 'prodi' || user.role === 'tu') && user.nip && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-md bg-white/20 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                                            <IdCard className="h-3.5 w-3.5" />
-                                            NIP: {user.nip}
-                                        </span>
-                                    )}
-                                    {user.role === 'mahasiswa' && user.nim && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-md bg-white/20 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                                            <IdCard className="h-3.5 w-3.5" />
-                                            NIM: {user.nim}
-                                        </span>
-                                    )}
-                                    {user.role === 'instansi' && (user as any).pembimbing_lapangan?.instansi?.nama && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-md bg-white/20 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                                            <Building2 className="h-3.5 w-3.5" />
-                                            {(user as any).pembimbing_lapangan.instansi.nama}
-                                        </span>
-                                    )}
-                                </div>
+                                )}
+                                {user.role === 'mahasiswa' && user.nim && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                        <IdCard className="h-3.5 w-3.5 text-slate-500" />
+                                        NIM: {user.nim}
+                                    </span>
+                                )}
+                                {user.role === 'instansi' && (user as any).pembimbing_lapangan?.instansi?.nama && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                        <Building2 className="h-3.5 w-3.5 text-slate-500" />
+                                        {(user as any).pembimbing_lapangan.instansi.nama}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>

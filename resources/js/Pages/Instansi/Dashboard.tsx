@@ -1,5 +1,5 @@
 import InstansiLayout from '@/Layouts/InstansiLayout';
-import { Users, FileText, Building2, CheckCircle2, ChevronRight, BookOpen, Star, UserPlus, Clock, ArrowRight, Sparkles } from 'lucide-react';
+import { Users, FileText, Building2, CheckCircle2, ChevronRight, BookOpen, Star, UserPlus, Clock, ArrowRight } from 'lucide-react';
 import { usePage, Link } from '@inertiajs/react';
 
 interface Mahasiswa {
@@ -130,15 +130,15 @@ export default function DashboardScreen({ stats, mahasiswaBaru = [], mahasiswaBi
 
       {/* Alert Banner: Mahasiswa Baru Mendaftar */}
       {mahasiswaBaru.length > 0 && (
-        <div className="bg-gradient-to-r from-teal-50 via-emerald-50/50 to-white rounded-2xl border border-teal-200 p-5 shadow-xs space-y-3">
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-teal-900 font-bold text-sm">
-              <Sparkles className="w-4 h-4 text-teal-600" />
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+              <UserPlus className="w-4 h-4 text-[#00288e]" />
               <span>Mahasiswa Baru Mendaftar di Instansi Anda ({mahasiswaBaru.length})</span>
             </div>
             <Link
               href="/instansi/pendaftaran"
-              className="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 hover:underline"
+              className="text-xs font-bold text-[#00288e] hover:underline flex items-center gap-1"
             >
               <span>Kelola di Pendaftaran</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -147,7 +147,7 @@ export default function DashboardScreen({ stats, mahasiswaBaru = [], mahasiswaBi
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {mahasiswaBaru.slice(0, 3).map((p) => (
-              <div key={p.id} className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs space-y-2 shadow-2xs">
+              <div key={p.id} className="bg-slate-50/60 p-3.5 rounded-lg border border-slate-200 text-xs space-y-2 shadow-2xs">
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="font-bold text-slate-900 text-sm block">{p.mahasiswa?.name}</span>
@@ -160,10 +160,10 @@ export default function DashboardScreen({ stats, mahasiswaBaru = [], mahasiswaBi
                 {p.mahasiswa?.program_studi && (
                   <p className="text-slate-500 text-[11px]">{p.mahasiswa.program_studi.nama}</p>
                 )}
-                <div className="pt-2 border-t border-slate-100 flex justify-end">
+                <div className="pt-2 border-t border-slate-200/80 flex justify-end">
                   <Link
                     href="/instansi/pendaftaran"
-                    className="text-teal-700 hover:text-teal-900 font-bold text-xs inline-flex items-center gap-1"
+                    className="text-[#00288e] hover:underline font-bold text-xs inline-flex items-center gap-1"
                   >
                     <span>Lihat Berkas</span>
                     <ArrowRight className="w-3 h-3" />
@@ -182,8 +182,7 @@ export default function DashboardScreen({ stats, mahasiswaBaru = [], mahasiswaBi
             <Users size={20} className="text-primary" />
             Daftar Seluruh Mahasiswa Terhubung
           </h2>
-          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary py-1 px-2.5 rounded-md text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+          <span className="inline-flex items-center gap-1.5 bg-blue-50 text-[#00288e] border border-blue-200 py-1 px-2.5 rounded-md text-xs font-semibold">
             Total: {mahasiswaBimbingan?.length || 0} Mahasiswa
           </span>
         </div>

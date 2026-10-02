@@ -72,12 +72,11 @@ export default function StudentVerification() {
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border whitespace-nowrap
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border whitespace-nowrap
                       ${student.status === 'Menunggu' ? 'bg-secondary-container text-on-secondary-container border-secondary-container' : 
                         student.status === 'Disetujui' ? 'bg-[#e6f4ea] text-[#137333] border-[#ceead6]' : 
                         'bg-error-container/50 text-error border-error-container'}`}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                       {student.status}
                     </span>
                   </td>

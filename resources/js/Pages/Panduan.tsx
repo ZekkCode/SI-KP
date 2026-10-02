@@ -406,7 +406,7 @@ export default function Panduan() {
                     </section>
 
                     {/* SECTION 4: CALL TO ACTION LOGIN PORTAL */}
-                    <section className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+                    <section className="bg-[#00288e] text-white rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
                         <div className="space-y-1 text-center sm:text-left">
                             <h3 className="text-xl font-bold">
                                 Siap Memulai Kerja Praktik?
