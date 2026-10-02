@@ -5,7 +5,6 @@ import {
     ChevronRight, 
     ChevronLeft, 
     Check, 
-    Sparkles, 
     Users, 
     BookOpen, 
     Globe, 
@@ -40,7 +39,7 @@ const DEFAULT_STEPS: TourStep[] = [
         titleFallback: 'Masuk Cepat via Akun Kampus',
         descKey: 'tour.step_google_desc',
         descFallback: 'Gunakan akun Google resmi (@student.trunojoyo.ac.id atau @trunojoyo.ac.id) untuk masuk langsung dengan aman tanpa perlu mengetik kata sandi.',
-        icon: Sparkles,
+        icon: Compass,
         accentColor: 'text-amber-600 bg-amber-50 border-amber-200',
     },
     {

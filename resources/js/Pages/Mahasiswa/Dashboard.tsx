@@ -3,8 +3,8 @@ import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import { Link, usePage } from '@inertiajs/react';
 import {
     School, ArrowRight, Mail, Megaphone, AlertCircle, Download, BookOpen,
-    FileText, Edit3, Briefcase, Verified, CheckCircle2, Calendar, Clock,
-    Lock, Check, ChevronRight, Building2, Award, FileCheck, ClipboardEdit, CalendarDays
+    FileText, Edit3, Briefcase, Verified, Calendar, Clock,
+    Lock, Check, ChevronRight, Building2, Award, FileCheck, ClipboardEdit, CalendarDays, CheckCircle2
 } from 'lucide-react';
 
 interface Notification {
@@ -120,17 +120,32 @@ export default function Dashboard({
 
     return (
         <div className="p-6 max-w-[1280px] mx-auto w-full flex-1 space-y-6">
-            {/* Page Header (Unboxed, direct on canvas, professional academic tone) */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Page Header (Unboxed, direct on canvas, clean academic interface) */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                        {t('dashboard.welcome', { name: userName }, `Selamat Datang, ${userName}`)}
-                    </h1>
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                            {t('dashboard.welcome', { name: userName }, `Selamat Datang, ${userName}`)}
+                        </h1>
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-[#00288e] border border-blue-200">
+                            {statusInfo.label}
+                        </span>
+                    </div>
                     <p className="text-sm text-slate-600 mt-1">
                         <span className="font-semibold text-[#00288e]">{userProdi}</span> • {t('dashboard.class_year', undefined, 'Angkatan')} {userAngkatan}
+                        {statusInfo.description && (
+                            <span className="text-slate-500"> — {statusInfo.description}</span>
+                        )}
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                        href="/mahasiswa/status-pengajuan"
+                        className="border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                    >
+                        <span>{t('dashboard.status_detail', undefined, 'Detail Status')}</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                    </Link>
                     <Link 
                         href="/panduan" 
                         className="bg-[#00288e] hover:bg-[#001f70] text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
@@ -148,38 +163,11 @@ export default function Dashboard({
                     </a>
                     <a 
                         href={`mailto:${campusEmail}`} 
-                        className="border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-xs"
+                        className="border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-xs"
                     >
-                        {t('dashboard.coordinator_help', undefined, 'Bantuan Koordinator')}
+                        {t('dashboard.coordinator_help', undefined, 'Bantuan')}
                     </a>
                 </div>
-            </div>
-
-            {/* Status Info Strip */}
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#00288e] flex items-center justify-center font-bold text-sm border border-blue-200 shrink-0">
-                        <CheckCircle2 className="w-5 h-5 text-[#00288e]" />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                {t('dashboard.current_status', undefined, 'Status Pengajuan')}
-                            </span>
-                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-[#00288e] border border-blue-200">
-                                {statusInfo.label}
-                            </span>
-                        </div>
-                        <p className="text-xs text-slate-600 mt-0.5">{statusInfo.description}</p>
-                    </div>
-                </div>
-                <Link
-                    href="/mahasiswa/status-pengajuan"
-                    className="inline-flex items-center gap-1.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-lg font-semibold text-xs transition-colors shrink-0 shadow-2xs"
-                >
-                    <span>{t('dashboard.status_detail', undefined, 'Detail Status')}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
             </div>
 
             {/* Gerbang Progres Kerja Praktik (9-Step Enforcement Stepper) */}

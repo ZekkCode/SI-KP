@@ -179,8 +179,7 @@ export default function PendaftaranScreen({ pendaftarans, error }: Props) {
                         )}
                       </td>
                       <td className="py-4 px-5 align-top">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border ${statusUi.color}`}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border ${statusUi.color}`}>
                           {statusUi.label}
                         </span>
                       </td>

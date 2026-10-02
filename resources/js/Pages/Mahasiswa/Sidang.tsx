@@ -13,8 +13,7 @@ import {
   Building2, 
   GraduationCap, 
   FileText, 
-  HelpCircle,
-  Sparkles
+  HelpCircle
 } from 'lucide-react';
 import PageHeader from '@/Components/PageHeader';
 
@@ -82,7 +81,7 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
       case 'dijadwalkan':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-            <span className="w-2 h-2 rounded-full bg-blue-600" />
+            <Calendar className="w-3.5 h-3.5" />
             Sidang Dijadwalkan
           </span>
         );
@@ -297,7 +296,7 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
       {(!sidang || sidang.status === 'dibatalkan') && (
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center gap-2 text-slate-900 border-b border-slate-100 pb-3">
-            <Sparkles className="w-5 h-5 text-blue-700" />
+            <Calendar className="w-5 h-5 text-[#00288e]" />
             <h3 className="font-bold text-base">Formulir Pengajuan Jadwal Sidang</h3>
           </div>
 

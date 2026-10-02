@@ -141,7 +141,6 @@ export default function EvaluationScreen({ pendaftarans, error }: Props) {
                       </ModernTableTd>
                       <ModernTableTd>
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-high text-on-surface rounded-md text-xs font-semibold border border-outline-variant">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {p.status_kp?.replace('_', ' ') || 'AKTIF'}
                         </span>
                       </ModernTableTd>

@@ -3,7 +3,7 @@ import React from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { 
     UploadCloud, CheckCircle2, FileText, Info, AlertCircle, 
-    GraduationCap, Send, FileCheck2, FileUp, Sparkles, Phone, Mail, Award, BookOpen
+    GraduationCap, Send, FileCheck2, FileUp, Phone, Mail, Award, BookOpen
 } from 'lucide-react';
 
 interface PendaftaranData {

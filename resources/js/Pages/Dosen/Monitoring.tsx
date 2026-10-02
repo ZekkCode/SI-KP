@@ -344,7 +344,6 @@ export default function MonitoringScreen({ mahasiswas, stats, filters }: Props) 
                           </div>
                           {item.logbook.pending_dosen > 0 ? (
                             <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                               {item.logbook.pending_dosen} menunggu Anda
                             </span>
                           ) : (

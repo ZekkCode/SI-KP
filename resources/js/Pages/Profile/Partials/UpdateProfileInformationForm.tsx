@@ -46,7 +46,7 @@ export default function UpdateProfileInformation({
                     className="group relative cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                 >
-                    <div className="h-24 w-24 overflow-hidden rounded-2xl bg-gradient-to-br from-surface-container to-surface-container-high ring-2 ring-outline-variant/30 transition-all duration-300 group-hover:ring-primary/50 group-hover:shadow-lg">
+                    <div className="h-24 w-24 overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-md">
                         {preview ? (
                             <img src={preview} alt="Preview" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                         ) : (

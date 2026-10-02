@@ -56,7 +56,7 @@ export default function ReviewApplication() {
           <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div className="flex flex-col md:flex-row gap-6 items-start">
               {/* Initials Avatar */}
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-3xl shadow-sm shrink-0">
+              <div className="w-24 h-24 rounded-2xl bg-[#00288e] flex items-center justify-center text-white font-extrabold text-3xl shadow-sm shrink-0">
                 BS
               </div>
               <div className="flex-grow w-full">
