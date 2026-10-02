@@ -33,24 +33,26 @@ class KpProgressService
         // Step 1: Pendaftaran (status >= diajukan)
         $step1Done = $pendaftaran && !in_array($pendaftaran->status, ['draft']);
 
-        // Step 2: Surat Pengantar (surat_pengantars ada record dan minimal terverifikasi / tanggal_terbit ada)
+        // Step 2: Surat Pengantar (surat_pengantars ada record dan minimal terverifikasi / tanggal_terbit ada atau status pendaftaran telah lanjut)
         $surat = $pendaftaran?->suratPengantar;
-        $step2Done = $surat && (
+        $step2Done = ($surat && (
             in_array($surat->status, ['terverifikasi']) ||
             !empty($surat->nomor_surat) ||
-            !empty($surat->tanggal_terbit) ||
-            in_array($pendaftaran->status, ['surat_terbit', 'konfirmasi_instansi', 'diterima_instansi', 'aktif', 'seminar', 'selesai'])
-        );
+            !empty($surat->tanggal_terbit)
+        )) || ($pendaftaran && in_array($pendaftaran->status, [
+            'surat_terbit', 'konfirmasi_instansi', 'diterima_instansi', 'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
+        ]));
 
         // Step 3: Konfirmasi Instansi (confirmation_status = 'accepted' atau status pendaftaran diterima/aktif)
-        $step3Done = $surat && (
-            $surat->confirmation_status === 'accepted' ||
-            in_array($pendaftaran->status, ['diterima_instansi', 'aktif', 'seminar', 'selesai'])
-        );
+        $step3Done = ($surat && $surat->confirmation_status === 'accepted') || ($pendaftaran && in_array($pendaftaran->status, [
+            'diterima_instansi', 'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
+        ]));
 
-        // Step 4: Proposal (proposals ada record dengan status disetujui)
+        // Step 4: Proposal (proposals ada record dengan status disetujui atau pendaftaran sudah aktif)
         $approvedProposal = $pendaftaran?->proposals->where('status', 'disetujui')->first();
-        $step4Done = (bool) $approvedProposal;
+        $step4Done = (bool) $approvedProposal || ($pendaftaran && in_array($pendaftaran->status, [
+            'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
+        ]));
 
         // Step 5: Pelaksanaan KP (Status = aktif atau lebih lanjut)
         $step5Done = $pendaftaran && in_array($pendaftaran->status, [

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\DokumenAkhir;
+use App\Models\DokumenPendaftaran;
 use App\Models\Instansi;
 use App\Models\Logbook;
 use App\Models\MasterMahasiswa;
@@ -9,6 +11,8 @@ use App\Models\PembimbingLapangan;
 use App\Models\Pendaftaran;
 use App\Models\PeriodeKp;
 use App\Models\ProgramStudi;
+use App\Models\Proposal;
+use App\Models\SuratPengantar;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -334,12 +338,73 @@ class DatabaseSeeder extends Seeder
                     'catatan_instansi' => 'Progres pengkodean backend berjalan sesuai target sprint mingguan.',
                 ]
             );
+            // Dokumen Pendaftaran (KRS & Transkrip)
+            DokumenPendaftaran::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranAktif->id, 'jenis' => 'krs'],
+                [
+                    'nama_file' => 'KRS_Semester_6_Muhammad_Devano.pdf',
+                    'path' => 'dokumen/template_proposal.pdf',
+                    'ukuran' => 704174,
+                    'uploaded_at' => now()->subDays(35),
+                ]
+            );
+            DokumenPendaftaran::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranAktif->id, 'jenis' => 'transkrip'],
+                [
+                    'nama_file' => 'Transkrip_Akademik_Muhammad_Devano.pdf',
+                    'path' => 'dokumen/template_berita_acara.pdf',
+                    'ukuran' => 581335,
+                    'uploaded_at' => now()->subDays(35),
+                ]
+            );
+
+            // Surat Pengantar Resmi
+            SuratPengantar::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranAktif->id],
+                [
+                    'nomor_surat' => '0142/UN46.3.4/AK.KP/2026',
+                    'tanggal_terbit' => '2026-07-28',
+                    'tanggal_berlaku' => '2026-11-30',
+                    'path_file' => 'dokumen/buku_panduan_kp.pdf',
+                    'ditandatangani_oleh' => 'Dr. Budi Santoso, M.Kom.',
+                    'nip_penandatangan' => '19800101 200501 1 001',
+                    'verification_id' => 'UTM-KP-2026-0092',
+                    'confirmation_status' => 'accepted',
+                    'generated_by' => $tuUser->id,
+                    'status' => 'terverifikasi',
+                ]
+            );
+
+            // Proposal KP
+            Proposal::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranAktif->id],
+                [
+                    'judul' => 'Rancang Bangun Sistem Informasi Logistik dan Monitoring Distribusi Pupuk Berbasis Web',
+                    'abstrak' => 'Kerja praktik ini berfokus pada implementasi arsitektur RESTful API dan dashboard pelaporan distribusi logistik di PT Petrokimia Gresik untuk meningkatkan efisiensi pemantauan pengiriman antar gudang.',
+                    'path_file' => 'dokumen/template_proposal.pdf',
+                    'versi' => 1,
+                    'status' => 'disetujui',
+                    'submitted_at' => now()->subDays(25),
+                    'reviewed_by' => $dosenRika->id,
+                    'reviewed_at' => now()->subDays(20),
+                ]
+            );
+
+            // Dokumen Akhir (Laporan Akhir)
+            DokumenAkhir::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranAktif->id, 'jenis' => 'laporan_akhir'],
+                [
+                    'nama_file' => 'Laporan_Akhir_KP_Devano.pdf',
+                    'path' => 'dokumen/buku_panduan_kp.pdf',
+                    'uploaded_at' => now()->subDays(5),
+                ]
+            );
         }
 
         // 9. Demo Pendaftaran untuk Verifikasi TU
         $mhsFirly = User::where('nim', '230411100080')->first();
         if ($mhsFirly) {
-            Pendaftaran::updateOrCreate(
+            $pendaftaranFirly = Pendaftaran::updateOrCreate(
                 ['mahasiswa_id' => $mhsFirly->id],
                 [
                     'instansi_id' => $instansi->id,
@@ -347,6 +412,25 @@ class DatabaseSeeder extends Seeder
                     'tanggal_mulai' => '2026-09-01',
                     'tanggal_selesai' => '2026-11-30',
                     'status' => 'verifikasi_tu',
+                ]
+            );
+
+            DokumenPendaftaran::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranFirly->id, 'jenis' => 'krs'],
+                [
+                    'nama_file' => 'KRS_Semester_6_Firly.pdf',
+                    'path' => 'dokumen/template_proposal.pdf',
+                    'ukuran' => 704174,
+                    'uploaded_at' => now()->subDays(3),
+                ]
+            );
+            DokumenPendaftaran::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranFirly->id, 'jenis' => 'transkrip'],
+                [
+                    'nama_file' => 'Transkrip_Nilai_Firly.pdf',
+                    'path' => 'dokumen/template_berita_acara.pdf',
+                    'ukuran' => 581335,
+                    'uploaded_at' => now()->subDays(3),
                 ]
             );
         }
