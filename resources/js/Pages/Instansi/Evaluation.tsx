@@ -1,7 +1,7 @@
 import InstansiLayout from '@/Layouts/InstansiLayout';
 import { useState } from 'react';
-import { useForm } from '@inertiajs/react';
-import { BarChart2, CheckCircle2, FileSignature, Upload, X, ScanLine, Building2 } from 'lucide-react';
+import { useForm, Link } from '@inertiajs/react';
+import { BarChart2, CheckCircle2, FileSignature, Upload, X, ScanLine, Building2, Download, FileText, Info, ExternalLink } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import PageHeader from '@/Components/PageHeader';
 import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
@@ -112,6 +112,71 @@ export default function EvaluationScreen({ pendaftarans, error }: Props) {
     <div className="flex flex-col gap-6 max-w-6xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
       <PageHeader title="Penilaian Industri" description="Evaluasi performa dan kedisiplinan mahasiswa selama melaksanakan kerja praktik/magang." />
 
+      {/* Kartu Berkas Resmi & Panduan Penilaian Lapangan */}
+      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 text-[#00288e] flex items-center justify-center shrink-0">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">Format Resmi Penilaian Pembimbing Lapangan (Form KP-6a)</h3>
+              <p className="text-xs text-slate-500">
+                Gunakan instrumen penilaian resmi UTM berikut jika instansi/perusahaan memerlukan blanko fisik bertanda tangan dan berstempel resmi.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/panduan"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#00288e] hover:underline self-start sm:self-center shrink-0"
+          >
+            <span>Katalog 21 Lampiran</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3">
+          <a
+            href="/dokumen/lampiran/Lampiran_07_Penilaian_Pembimbing_Lapangan_Form_KP-6a.pdf"
+            download
+            className="flex items-start gap-2.5 p-3 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 transition group cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-[#00288e] shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">Form KP-6a</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Penilaian Pembimbing Lapangan</p>
+              <p className="text-[11px] text-slate-500">Bobot: Disiplin 30%, Kerjasama 30%, Kinerja 40%</p>
+            </div>
+          </a>
+
+          <a
+            href="/dokumen/lampiran/Lampiran_12_Tanda_Terima_Laporan_KP_Form_KP-7.pdf"
+            download
+            className="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100/80 transition group cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-slate-600 shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">Form KP-7</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Tanda Terima Laporan KP</p>
+              <p className="text-[11px] text-slate-500">Bukti penyerahan laporan ke pihak mitra</p>
+            </div>
+          </a>
+
+          <a
+            href="/dokumen/lampiran/Lampiran_19_Pengesahan_Instansi_Perusahaan_KP.pdf"
+            download
+            className="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100/80 transition group cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-slate-600 shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">Lampiran 19</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Pengesahan Instansi / Mitra</p>
+              <p className="text-[11px] text-slate-500">Lembar tanda tangan & stempel pimpinan</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
       <div className="bg-surface-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col mt-2">
         <div className="overflow-x-auto">
           {pendaftarans.length === 0 ? (
@@ -202,6 +267,18 @@ export default function EvaluationScreen({ pendaftarans, error }: Props) {
           </div>
 
           <form onSubmit={submitGrading} className="p-6">
+            <div className="flex items-center justify-between bg-blue-50/70 border border-blue-200 px-3.5 py-2.5 rounded-xl text-xs mb-5">
+              <span className="text-slate-600 font-medium">Memerlukan blanko fisik Form KP-6a untuk dicetak & dicap?</span>
+              <a
+                href="/dokumen/lampiran/Lampiran_07_Penilaian_Pembimbing_Lapangan_Form_KP-6a.pdf"
+                download
+                className="inline-flex items-center gap-1 font-bold text-[#00288e] hover:underline shrink-0"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Unduh Blanko Form KP-6a (PDF)</span>
+              </a>
+            </div>
+
             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 mb-6">
               <h3 className="text-sm font-display font-semibold text-on-surface mb-4 flex items-center gap-2">
                 <BarChart2 className="w-4 h-4 text-primary" />

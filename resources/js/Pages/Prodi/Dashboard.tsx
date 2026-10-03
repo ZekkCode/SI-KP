@@ -12,7 +12,9 @@ import {
   Award, 
   CheckCircle2, 
   MapPin,
-  ChevronRight
+  ChevronRight,
+  BookOpen,
+  Download,
 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 
@@ -103,6 +105,13 @@ export default function ProdiDashboard({ stats, sidang_mendatang = [], error }: 
       link: route().has('prodi.dosen.index') ? route('prodi.dosen.index') : '/prodi/dosen',
       color: "bg-white hover:bg-slate-50 text-slate-900 border-slate-200 hover:border-slate-300"
     },
+    {
+      title: "Panduan & Formulir Resmi",
+      description: "Akses 21 format lampiran resmi, SOP Kerja Praktik, dan template laporan",
+      icon: <BookOpen size={20} />,
+      link: '/panduan',
+      color: "bg-white hover:bg-slate-50 text-slate-900 border-indigo-200 hover:border-indigo-400"
+    },
   ];
 
   return (
@@ -111,6 +120,23 @@ export default function ProdiDashboard({ stats, sidang_mendatang = [], error }: 
         <div>
           <h1 className="text-3xl font-display font-bold text-on-surface">Dashboard Koordinator Prodi</h1>
           <p className="text-secondary text-sm mt-1">Pusat kendali dan ringkasan pelaksanaan Kerja Praktik mahasiswa.</p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/panduan"
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:border-blue-400 text-slate-700 hover:text-[#00288e] rounded-xl text-xs font-semibold transition shadow-xs cursor-pointer"
+          >
+            <BookOpen className="w-4 h-4 text-[#00288e]" />
+            <span>Panduan & 21 Lampiran</span>
+          </Link>
+          <a
+            href="/dokumen/lampiran/Lampiran_21_SOP_Standar_Operasional_Prosedur_KP.pdf"
+            download
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-[#00288e] rounded-xl text-xs font-semibold transition shadow-xs cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>SOP KP (PDF)</span>
+          </a>
         </div>
       </div>
 

@@ -45,6 +45,31 @@ export default function SuratBalasan({ pendaftaran }: Props) {
                 </p>
             </div>
 
+            {/* Kartu Bantuan Format Form KP-2 */}
+            <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-blue-100 text-[#00288e] flex items-center justify-center shrink-0 mt-0.5">
+                        <FileText className="w-4 h-4" />
+                    </div>
+                    <div>
+                        <h3 className="text-xs font-bold text-slate-900">Perlu Format Surat Kesediaan Menerima KP (Form KP-2)?</h3>
+                        <p className="text-[11px] text-slate-600 mt-0.5">
+                            Jika instansi/perusahaan meminta format baku surat penerimaan magang dari program studi, silakan unduh Form KP-2 berikut.
+                        </p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                    <a
+                        href="/dokumen/lampiran/Lampiran_02_Kesediaan_Menerima_KP_Form_KP-2.pdf"
+                        download
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#00288e] hover:bg-[#001f70] text-white rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs"
+                    >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Unduh Form KP-2</span>
+                    </a>
+                </div>
+            </div>
+
             {pendaftaran?.surat_balasan ? (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-6 shadow-sm">
                     <div className="flex items-start gap-3">

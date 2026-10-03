@@ -1,7 +1,7 @@
 import InstansiLayout from '@/Layouts/InstansiLayout';
 import { useState } from 'react';
-import { router, useForm } from '@inertiajs/react';
-import { CheckCircle2, XCircle, FileText, Download, Building2, X } from 'lucide-react';
+import { router, useForm, Link } from '@inertiajs/react';
+import { CheckCircle2, XCircle, FileText, Download, Building2, X, ExternalLink } from 'lucide-react';
 import Modal from '@/Components/Modal';
 
 interface Mahasiswa {
@@ -101,6 +101,45 @@ export default function PendaftaranScreen({ pendaftarans, error }: Props) {
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-semibold text-on-surface">Pendaftaran Mahasiswa</h1>
         <p className="text-sm text-on-surface-variant mt-1">Kelola persetujuan mahasiswa yang melamar magang/kerja praktik di instansi Anda.</p>
+      </div>
+
+      {/* Kartu Blanko Resmi Surat Kesediaan Menerima KP (Form KP-2) */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#00288e] flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900">Format Resmi Surat Kesediaan Menerima KP (Form KP-2)</h3>
+              <p className="text-[11px] text-slate-500">
+                Gunakan format baku resmi UTM ini untuk menerbitkan surat balasan/penerimaan magang resmi kepada mahasiswa dan program studi.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/panduan"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#00288e] hover:underline shrink-0"
+          >
+            <span>Semua Dokumen</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="pt-3">
+          <a
+            href="/dokumen/lampiran/Lampiran_02_Kesediaan_Menerima_KP_Form_KP-2.pdf"
+            download
+            className="flex items-center justify-between p-3 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 transition group cursor-pointer max-w-xl"
+          >
+            <div className="min-w-0 pr-2">
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">Form KP-2 (Lampiran 02)</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Format Kesediaan Menerima KP</p>
+              <p className="text-[11px] text-slate-500 truncate">Surat balasan resmi penerimaan magang lengkap dengan nama pembimbing lapangan</p>
+            </div>
+            <Download className="w-4 h-4 text-[#00288e] shrink-0 group-hover:translate-y-0.5 transition-transform" />
+          </a>
+        </div>
       </div>
 
       <div className="bg-surface-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col mt-2">

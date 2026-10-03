@@ -5,7 +5,7 @@ import React, { useState, useRef } from 'react';
 import { useForm, usePage, router } from '@inertiajs/react';
 import {
     BookOpen, Plus, Pencil, Trash2, CheckCircle2, Clock, AlertCircle,
-    Calendar, ImageIcon, X, MessageSquare, Upload, Search,
+    Calendar, ImageIcon, X, MessageSquare, Upload, Search, Download, ExternalLink, FileText,
 } from 'lucide-react';
 import { PageProps } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -183,6 +183,71 @@ export default function Logbook({
                         <span>Tambah Kegiatan</span>
                     </Link>
                 )}
+            </div>
+
+            {/* ── Berkas Resmi Absensi & Bimbingan ── */}
+            <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#00288e] flex items-center justify-center shrink-0">
+                            <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <h3 className="text-xs sm:text-sm font-bold text-slate-900">Format Resmi Absensi & Lembar Konsultasi Bimbingan</h3>
+                            <p className="text-[11px] text-slate-500">
+                                Unduh format lampiran resmi untuk dicetak dan dimintakan tanda tangan/paraf saat pelaksanaan Kerja Praktik.
+                            </p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/panduan"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#00288e] hover:underline shrink-0"
+                    >
+                        <span>Katalog Panduan & Formulir</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3">
+                    <a
+                        href="/dokumen/lampiran/Lampiran_03_Format_Absensi_Harian_Logbook.pdf"
+                        download
+                        className="flex items-start gap-2.5 p-3 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 transition group cursor-pointer"
+                    >
+                        <Download className="w-4 h-4 text-[#00288e] shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+                        <div className="min-w-0">
+                            <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">Lampiran 03</span>
+                            <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Format Absensi Harian / Logbook</p>
+                            <p className="text-[11px] text-slate-500">Presensi kehadiran jam datang, pulang & paraf</p>
+                        </div>
+                    </a>
+
+                    <a
+                        href="/dokumen/lampiran/Lampiran_04_Lembar_Konsultasi_Dosen_Pembimbing_Form_KP-3a.pdf"
+                        download
+                        className="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100/80 transition group cursor-pointer"
+                    >
+                        <Download className="w-4 h-4 text-slate-600 shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+                        <div className="min-w-0">
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Form KP-3a</span>
+                            <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Konsultasi Dosen Pembimbing</p>
+                            <p className="text-[11px] text-slate-500">Catatan arahan & tanda tangan dosen pembimbing</p>
+                        </div>
+                    </a>
+
+                    <a
+                        href="/dokumen/lampiran/Lampiran_05_Lembar_Konsultasi_Pembimbing_Lapangan_Form_KP-3b.pdf"
+                        download
+                        className="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100/80 transition group cursor-pointer"
+                    >
+                        <Download className="w-4 h-4 text-slate-600 shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+                        <div className="min-w-0">
+                            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">Form KP-3b</span>
+                            <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Konsultasi Pembimbing Lapangan</p>
+                            <p className="text-[11px] text-slate-500">Catatan tugas & tanda tangan pembimbing industri</p>
+                        </div>
+                    </a>
+                </div>
             </div>
 
             {/* ── No Pendaftaran guard ── */}

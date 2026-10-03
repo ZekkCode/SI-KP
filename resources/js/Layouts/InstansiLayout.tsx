@@ -10,7 +10,7 @@ export default function InstansiLayout({ children }: PropsWithChildren) {
 
     const navItems = [
         { href: '/instansi/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/panduan', label: 'Buku Panduan KP', icon: BookOpen },
+        { href: '/panduan', label: 'Panduan & Formulir Resmi', icon: BookOpen },
         { href: '/instansi/pendaftaran', label: 'Pendaftaran Mahasiswa', icon: ClipboardCheck },
         { href: '/instansi/monitoring', label: 'Monitoring Mahasiswa', icon: BarChart2 },
         { href: '/instansi/logbook', label: 'Logbook Mahasiswa', icon: CheckSquare },

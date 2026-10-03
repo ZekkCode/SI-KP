@@ -2,7 +2,7 @@ import React from 'react';
 import DosenLayout from '@/Layouts/DosenLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { ChevronLeft, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Save, AlertCircle, CheckCircle2, FileText, Download } from 'lucide-react';
 
 interface Mahasiswa {
     id: number;
@@ -55,6 +55,23 @@ export default function Create({ pendaftaran, nilai_sebelumnya, flash }: CreateP
                 <p className="text-body-md text-secondary">
                     Masukkan komponen nilai Kerja Praktik untuk mahasiswa bimbingan Anda.
                 </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-blue-50/70 border border-blue-200 px-4 py-3 rounded-xl text-xs mb-6 shadow-xs">
+                <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#00288e] shrink-0" />
+                    <span className="text-slate-700 font-medium">
+                        Komponen nilai ini mengacu pada instrumen resmi <strong>Form KP-6b</strong> (Penilaian Penguji & Pembimbing).
+                    </span>
+                </div>
+                <a
+                    href="/dokumen/lampiran/Lampiran_11_Penilaian_Penguji_dan_Pembimbing_Form_KP-6b.pdf"
+                    download
+                    className="inline-flex items-center gap-1 font-bold text-[#00288e] hover:underline shrink-0"
+                >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Unduh Blanko Form KP-6b (PDF)</span>
+                </a>
             </div>
 
             {flash?.success && (

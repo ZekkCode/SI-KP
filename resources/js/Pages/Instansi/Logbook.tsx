@@ -1,6 +1,6 @@
 import InstansiLayout from '@/Layouts/InstansiLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Search, FileText, CheckCircle2, XCircle, AlertCircle, Clock, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { Search, FileText, CheckCircle2, XCircle, AlertCircle, Clock, Image as ImageIcon, ExternalLink, Download } from 'lucide-react';
 import { useState } from 'react';
 import PageHeader from '@/Components/PageHeader';
 import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
@@ -93,6 +93,58 @@ export default function LogbookIndex({ logbooks, error }: Props) {
         title="Logbook Kegiatan Mahasiswa"
         description="Review dan validasi catatan aktivitas harian mahasiswa magang di instansi / perusahaan Anda."
       />
+
+      {/* Kartu Format Resmi Absensi & Konsultasi Lapangan */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#00288e] flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900">Format Resmi Absensi & Lembar Konsultasi Magang</h3>
+              <p className="text-[11px] text-slate-500">
+                Format fisik buku panduan KP jika perusahaan memerlukan lembar presensi dan bimbingan bertanda tangan langsung.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/panduan"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#00288e] hover:underline shrink-0"
+          >
+            <span>Semua Panduan</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+          <a
+            href="/dokumen/lampiran/Lampiran_03_Format_Absensi_Harian_Logbook.pdf"
+            download
+            className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition group cursor-pointer"
+          >
+            <div className="min-w-0 pr-2">
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">Lampiran 03</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Format Absensi Harian / Logbook Fisik</p>
+              <p className="text-[11px] text-slate-500 truncate">Tabel presensi jam datang, pulang & paraf</p>
+            </div>
+            <Download className="w-4 h-4 text-slate-500 group-hover:text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
+          </a>
+
+          <a
+            href="/dokumen/lampiran/Lampiran_05_Lembar_Konsultasi_Pembimbing_Lapangan_Form_KP-3b.pdf"
+            download
+            className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition group cursor-pointer"
+          >
+            <div className="min-w-0 pr-2">
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Form KP-3b</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Lembar Konsultasi Pembimbing Lapangan</p>
+              <p className="text-[11px] text-slate-500 truncate">Rekap catatan arahan & paraf pembimbing mitra</p>
+            </div>
+            <Download className="w-4 h-4 text-slate-500 group-hover:text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
+          </a>
+        </div>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

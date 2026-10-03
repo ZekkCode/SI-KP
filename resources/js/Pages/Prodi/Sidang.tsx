@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProdiLayout from '@/Layouts/ProdiLayout';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, useForm, router, Link } from '@inertiajs/react';
 import { 
   Calendar, 
   Clock, 
@@ -14,7 +14,10 @@ import {
   Edit3, 
   X,
   Send,
-  Users
+  Users,
+  FileText,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 import PageHeader from '@/Components/PageHeader';
 import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
@@ -166,6 +169,71 @@ export default function SidangScreen({ sidangs, stats, filters }: Props) {
         title="Penjadwalan Sidang Kerja Praktik"
         description="Kelola pengajuan sidang mahasiswa, tetapkan jadwal dan ruangan, serta tugaskan Dosen Pembimbing sebagai Penguji."
       />
+
+      {/* Kartu Berkas Resmi Sidang & Ujian KP */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#00288e] flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900">Format Resmi Berita Acara & Instrumen Ujian Sidang KP</h3>
+              <p className="text-[11px] text-slate-500">
+                Formulir resmi dewan penguji dan koordinator untuk pelaksanaan seminar hasil dan verifikasi kelulusan.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/panduan"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#00288e] hover:underline shrink-0"
+          >
+            <span>Katalog 21 Lampiran</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
+          <a
+            href="/dokumen/lampiran/Lampiran_10_Berita_Acara_Ujian_KP_Form_KP-5.pdf"
+            download
+            className="flex items-center justify-between p-3 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 transition group cursor-pointer"
+          >
+            <div className="min-w-0 pr-2">
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">Form KP-5</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Berita Acara Ujian KP</p>
+              <p className="text-[10px] text-slate-500 truncate">Dokumen berita acara dan penetapan nilai ujian</p>
+            </div>
+            <Download className="w-4 h-4 text-[#00288e] shrink-0 group-hover:translate-y-0.5 transition-transform" />
+          </a>
+
+          <a
+            href="/dokumen/lampiran/Lampiran_06_Lembar_Persetujuan_Seminar_KP_Form_KP-8.pdf"
+            download
+            className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition group cursor-pointer"
+          >
+            <div className="min-w-0 pr-2">
+              <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">Form KP-8</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Persetujuan Seminar KP</p>
+              <p className="text-[10px] text-slate-500 truncate">Syarat kelayakan maju ujian dari pembimbing</p>
+            </div>
+            <Download className="w-4 h-4 text-slate-500 group-hover:text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
+          </a>
+
+          <a
+            href="/dokumen/lampiran/Lampiran_21_SOP_Standar_Operasional_Prosedur_KP.pdf"
+            download
+            className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition group cursor-pointer"
+          >
+            <div className="min-w-0 pr-2">
+              <span className="text-[10px] font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">Lampiran 21</span>
+              <p className="text-xs font-semibold text-slate-900 mt-1 truncate">SOP Kerja Praktik UTM</p>
+              <p className="text-[10px] text-slate-500 truncate">Standar operasional prosedur alur seminar</p>
+            </div>
+            <Download className="w-4 h-4 text-slate-500 group-hover:text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
+          </a>
+        </div>
+      </div>
 
       {/* Stats Bento Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
