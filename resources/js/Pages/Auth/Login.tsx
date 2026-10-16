@@ -123,13 +123,21 @@ const ROLES: RoleConfig[] = [
     },
 ];
 
+interface DemoCred {
+    identifier: string;
+    email: string;
+    name: string;
+    password: string;
+}
+
 interface LoginProps {
     status?: string;
     canResetPassword?: boolean;
     initialRole?: RoleId;
+    demoCredentials?: Record<RoleId, DemoCred>;
 }
 
-export default function Login({ status, canResetPassword = true, initialRole }: LoginProps) {
+export default function Login({ status, canResetPassword = true, initialRole, demoCredentials }: LoginProps) {
     const { props } = usePage();
     const { t } = useTranslation();
     const [isTourOpen, setIsTourOpen] = useState(false);
@@ -487,6 +495,38 @@ export default function Login({ status, canResetPassword = true, initialRole }: 
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Demo Credentials Helper */}
+                                {demoCredentials && selectedRole && demoCredentials[selectedRole] && (
+                                    <div className="mb-4 p-3 bg-slate-50 border border-slate-200/90 rounded-lg text-xs">
+                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                            <span className="font-bold text-slate-700 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                Akun Demo {activeRole.title}:
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const demo = demoCredentials[selectedRole];
+                                                    if (demo) {
+                                                        setData((prev) => ({
+                                                            ...prev,
+                                                            email: demo.identifier || demo.email,
+                                                            password: demo.password,
+                                                        }));
+                                                    }
+                                                }}
+                                                className="text-[11px] font-bold text-[#00288e] hover:text-[#001f70] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded shadow-2xs hover:bg-blue-100 transition cursor-pointer"
+                                            >
+                                                Isi Otomatis
+                                            </button>
+                                        </div>
+                                        <div className="text-[11px] text-slate-600 font-mono bg-white p-2 rounded border border-slate-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                            <span><strong>User:</strong> {demoCredentials[selectedRole].identifier}</span>
+                                            <span><strong>Sandi:</strong> {demoCredentials[selectedRole].password}</span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Form Kredensial */}
                                 <form className="space-y-4" onSubmit={submit}>

@@ -18,10 +18,46 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request): Response
     {
+        $demoPassword = env('INITIAL_DEMO_PASSWORD', 'password');
+
+        $demoCredentials = [
+            'mahasiswa' => [
+                'identifier' => (string) env('DEMO_MHS_NIM', '230411100092'),
+                'email' => '230411100092@student.trunojoyo.ac.id',
+                'name' => env('DEMO_MHS_NAMA', 'Nabiilah Rizqi Amalia'),
+                'password' => $demoPassword,
+            ],
+            'dosen' => [
+                'identifier' => (string) env('DEMO_DOSEN_NIP', '198002022001'),
+                'email' => env('DEMO_DOSEN_EMAIL', 'rika@dosen.com'),
+                'name' => env('DEMO_DOSEN_NAME', 'Rika Yunitarini, S.T., M.T.'),
+                'password' => $demoPassword,
+            ],
+            'tu' => [
+                'identifier' => env('ADMIN_TU_EMAIL', 'tu@admin.com'),
+                'email' => env('ADMIN_TU_EMAIL', 'tu@admin.com'),
+                'name' => env('ADMIN_TU_NAME', 'Admin TU'),
+                'password' => $demoPassword,
+            ],
+            'prodi' => [
+                'identifier' => env('KOORDINATOR_PRODI_EMAIL', 'prodi@admin.com'),
+                'email' => env('KOORDINATOR_PRODI_EMAIL', 'prodi@admin.com'),
+                'name' => env('KOORDINATOR_PRODI_NAME', 'Koordinator Prodi'),
+                'password' => $demoPassword,
+            ],
+            'instansi' => [
+                'identifier' => env('DEMO_MITRA_EMAIL', 'mitra@demo.com'),
+                'email' => env('DEMO_MITRA_EMAIL', 'mitra@demo.com'),
+                'name' => env('DEMO_MITRA_NAME', 'Bambang Sudarmono, S.T.'),
+                'password' => $demoPassword,
+            ],
+        ];
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
             'initialRole' => $request->query('role'),
+            'demoCredentials' => $demoCredentials,
         ]);
     }
 
@@ -39,12 +75,18 @@ class AuthenticatedSessionController extends Controller
         if ($user && $user->must_change_password) {
             return redirect()->route('password.force_change');
         }
-        
-        if (strtolower($user->role) === 'prodi') {
-            return redirect()->intended('/prodi/dashboard');
-        }
 
         $dashboardRoute = $user->dashboardRoute();
+
+        // Clear stale intended URL if it does not belong to the user's role prefix
+        $intended = session()->get('url.intended');
+        if ($intended) {
+            $path = parse_url($intended, PHP_URL_PATH) ?? '';
+            $rolePrefix = '/' . strtolower($user->role);
+            if (!str_starts_with($path, $rolePrefix)) {
+                session()->forget('url.intended');
+            }
+        }
 
         return redirect()->intended($dashboardRoute);
     }

@@ -89,6 +89,27 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if ($user && $this->filled('role')) {
+            $expectedRole = strtolower($this->input('role'));
+            $actualRole = strtolower($user->role);
+            if ($actualRole !== $expectedRole) {
+                Auth::logout();
+                $roleNames = [
+                    'mahasiswa' => 'Mahasiswa',
+                    'dosen' => 'Dosen Pembimbing',
+                    'tu' => 'Tata Usaha (TU)',
+                    'instansi' => 'Pembimbing Lapangan (Instansi)',
+                    'prodi' => 'Koordinator KP',
+                ];
+                $actualName = $roleNames[$actualRole] ?? $actualRole;
+                $expectedName = $roleNames[$expectedRole] ?? $expectedRole;
+
+                throw ValidationException::withMessages([
+                    'email' => "Akun ini terdaftar sebagai peran {$actualName}, bukan {$expectedName}. Silakan pilih portal {$actualName} untuk masuk.",
+                ]);
+            }
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
