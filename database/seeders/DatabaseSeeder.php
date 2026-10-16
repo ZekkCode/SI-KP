@@ -272,8 +272,34 @@ class DatabaseSeeder extends Seeder
 
         // 8. Demo Pendaftaran KP Aktif & Logbook Realistis untuk Mahasiswa Demo
         $demoMhsNim = (string) env('DEMO_MHS_NIM', '230411100092');
-        $mhsDemo = User::where('nim', $demoMhsNim)->first()
-            ?? User::where('role', 'mahasiswa')->whereNotNull('nim')->first();
+        $demoMhsNama = env('DEMO_MHS_NAMA', 'Nabiilah Rizqi Amalia');
+        $demoMhsEmail = "{$demoMhsNim}@student.trunojoyo.ac.id";
+
+        $mhsDemo = User::updateOrCreate(
+            ['nim' => $demoMhsNim],
+            [
+                'name' => $demoMhsNama,
+                'email' => $demoMhsEmail,
+                'password' => $password,
+                'role' => 'mahasiswa',
+                'status_akun' => 'aktif',
+                'program_studi_id' => $prodiId,
+                'angkatan' => 2023,
+                'dosen_wali_id' => $dosenRika->id,
+            ]
+        );
+
+        MasterMahasiswa::updateOrCreate(
+            ['nim' => $demoMhsNim],
+            [
+                'nama' => $demoMhsNama,
+                'email' => $demoMhsEmail,
+                'program_studi' => 'Teknik Informatika',
+                'angkatan' => '2023',
+                'nip_dosen_wali' => $dosenRika->nip,
+                'sumber_data' => 'system_seed',
+            ]
+        );
 
         if ($mhsDemo) {
             $pendaftaranAktif = Pendaftaran::updateOrCreate(
