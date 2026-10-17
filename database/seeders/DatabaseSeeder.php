@@ -428,7 +428,36 @@ class DatabaseSeeder extends Seeder
         }
 
         // 9. Demo Pendaftaran untuk Verifikasi TU
-        $mhsFirly = User::where('nim', '230411100080')->first();
+        $firlyNim = '230411100080';
+        $firlyNama = 'Firly Ramadhani';
+        $firlyEmail = "{$firlyNim}@student.trunojoyo.ac.id";
+
+        $mhsFirly = User::updateOrCreate(
+            ['nim' => $firlyNim],
+            [
+                'name' => $firlyNama,
+                'email' => $firlyEmail,
+                'password' => $password,
+                'role' => 'mahasiswa',
+                'status_akun' => 'aktif',
+                'program_studi_id' => $prodiId,
+                'angkatan' => 2023,
+                'dosen_wali_id' => $dosenRika->id,
+            ]
+        );
+
+        MasterMahasiswa::updateOrCreate(
+            ['nim' => $firlyNim],
+            [
+                'nama' => $firlyNama,
+                'email' => $firlyEmail,
+                'program_studi' => 'Teknik Informatika',
+                'angkatan' => '2023',
+                'nip_dosen_wali' => $dosenRika->nip,
+                'sumber_data' => 'system_seed',
+            ]
+        );
+
         if ($mhsFirly) {
             $pendaftaranFirly = Pendaftaran::updateOrCreate(
                 ['mahasiswa_id' => $mhsFirly->id],
