@@ -49,31 +49,34 @@ class DatabaseSeeder extends Seeder
         // 3. Setup Core System Users dari Environment (.env)
         $initialPassword = env('INITIAL_DEMO_PASSWORD', 'password');
         $password = Hash::make($initialPassword);
+        $getPassword = fn(string $envKey) => Hash::make(env($envKey, $initialPassword));
 
-        // Admin TU
+        // 1. Tata Usaha (TU)
         $tuEmail = env('ADMIN_TU_EMAIL', 'tu@admin.com');
         $tuNip = (string) env('ADMIN_TU_NIP', '198501012010');
         $tuName = env('ADMIN_TU_NAME', 'Admin TU');
+        $tuPassword = $getPassword('ADMIN_TU_PASSWORD');
         $tuUser = User::updateOrCreate(
             ['email' => $tuEmail],
             [
                 'name' => $tuName,
-                'password' => $password,
+                'password' => $tuPassword,
                 'role' => 'tu',
                 'status_akun' => 'aktif',
                 'nip' => $tuNip,
             ]
         );
 
-        // Koordinator Prodi
+        // 2. Koordinator Program Studi (Prodi)
         $prodiEmail = env('KOORDINATOR_PRODI_EMAIL', 'prodi@admin.com');
         $prodiNip = (string) env('KOORDINATOR_PRODI_NIP', '197001012000');
         $prodiName = env('KOORDINATOR_PRODI_NAME', 'Koordinator Prodi');
+        $prodiPassword = $getPassword('KOORDINATOR_PRODI_PASSWORD');
         $prodiUser = User::updateOrCreate(
             ['email' => $prodiEmail],
             [
                 'name' => $prodiName,
-                'password' => $password,
+                'password' => $prodiPassword,
                 'role' => 'prodi',
                 'status_akun' => 'aktif',
                 'nip' => $prodiNip,
@@ -81,15 +84,16 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Dosen Pembimbing Bawaan / Demo
+        // 3. Dosen Pembimbing Bawaan / Demo 1
         $dosenRikaEmail = env('DEMO_DOSEN_EMAIL', 'rika@dosen.com');
         $dosenRikaNip = (string) env('DEMO_DOSEN_NIP', '198002022001');
         $dosenRikaName = env('DEMO_DOSEN_NAME', 'Rika Yunitarini, S.T., M.T.');
+        $dosenRikaPassword = $getPassword('DEMO_DOSEN_PASSWORD');
         $dosenRika = User::updateOrCreate(
             ['email' => $dosenRikaEmail],
             [
                 'name' => $dosenRikaName,
-                'password' => $password,
+                'password' => $dosenRikaPassword,
                 'role' => 'dosen',
                 'status_akun' => 'aktif',
                 'nip' => $dosenRikaNip,
@@ -97,22 +101,28 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // 4. Dosen Pembimbing 2 (Alternatif)
+        $dosenFifinEmail = env('DEMO_DOSEN_2_EMAIL', 'fifin@dosen.com');
+        $dosenFifinNip = (string) env('DEMO_DOSEN_2_NIP', '198203032002');
+        $dosenFifinName = env('DEMO_DOSEN_2_NAME', 'Fifin, S.Kom., M.Cs.');
+        $dosenFifinPassword = $getPassword('DEMO_DOSEN_2_PASSWORD');
         $dosenFifin = User::updateOrCreate(
-            ['email' => 'fifin@dosen.com'],
+            ['email' => $dosenFifinEmail],
             [
-                'name' => 'Fifin, S.Kom., M.Cs.',
-                'password' => $password,
+                'name' => $dosenFifinName,
+                'password' => $dosenFifinPassword,
                 'role' => 'dosen',
                 'status_akun' => 'aktif',
-                'nip' => '198203032002',
+                'nip' => $dosenFifinNip,
                 'program_studi_id' => $prodiId,
             ]
         );
 
-        // 4. Mitra / Pembimbing Lapangan (Instansi)
+        // 5. Mitra / Pembimbing Lapangan (Instansi)
         $mitraEmail = env('DEMO_MITRA_EMAIL', 'mitra@demo.com');
         $mitraName = env('DEMO_MITRA_NAME', 'Bambang Sudarmono, S.T.');
         $mitraCompany = env('DEMO_MITRA_COMPANY', 'PT Petrokimia Gresik');
+        $mitraPassword = $getPassword('DEMO_MITRA_PASSWORD');
 
         $instansi = Instansi::firstOrCreate(
             ['nama' => $mitraCompany],
@@ -131,7 +141,7 @@ class DatabaseSeeder extends Seeder
             ['email' => $mitraEmail],
             [
                 'name' => $mitraName,
-                'password' => $password,
+                'password' => $mitraPassword,
                 'role' => 'instansi',
                 'status_akun' => 'aktif',
             ]
@@ -241,6 +251,7 @@ class DatabaseSeeder extends Seeder
         $googleUserEmail = env('GOOGLE_TEST_USER_EMAIL');
         $googleUserName = env('GOOGLE_TEST_USER_NAME', 'Mahasiswa Google Demo');
         $googleUserNim = (string) env('GOOGLE_TEST_USER_NIM', '');
+        $googleUserPassword = $getPassword('GOOGLE_TEST_USER_PASSWORD');
 
         if ($googleUserEmail) {
             User::updateOrCreate(
@@ -248,7 +259,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'name' => $googleUserName,
                     'nim' => $googleUserNim ?: null,
-                    'password' => $password,
+                    'password' => $googleUserPassword,
                     'role' => 'mahasiswa',
                     'status_akun' => 'aktif',
                     'program_studi_id' => $prodiId,
@@ -272,15 +283,16 @@ class DatabaseSeeder extends Seeder
 
         // 8. Demo Pendaftaran KP Aktif & Logbook Realistis untuk Mahasiswa Demo
         $demoMhsNim = (string) env('DEMO_MHS_NIM', '230411100092');
-        $demoMhsNama = env('DEMO_MHS_NAMA', 'Nabiilah Rizqi Amalia');
-        $demoMhsEmail = "{$demoMhsNim}@student.trunojoyo.ac.id";
+        $demoMhsNama = env('DEMO_MHS_NAMA', env('DEMO_MHS_NAME', 'Nabiilah Rizqi Amalia'));
+        $demoMhsEmail = env('DEMO_MHS_EMAIL', "{$demoMhsNim}@student.trunojoyo.ac.id");
+        $demoMhsPassword = $getPassword('DEMO_MHS_PASSWORD');
 
         $mhsDemo = User::updateOrCreate(
             ['nim' => $demoMhsNim],
             [
                 'name' => $demoMhsNama,
                 'email' => $demoMhsEmail,
-                'password' => $password,
+                'password' => $demoMhsPassword,
                 'role' => 'mahasiswa',
                 'status_akun' => 'aktif',
                 'program_studi_id' => $prodiId,
@@ -428,16 +440,17 @@ class DatabaseSeeder extends Seeder
         }
 
         // 9. Demo Pendaftaran untuk Verifikasi TU
-        $firlyNim = '230411100080';
-        $firlyNama = 'Firly Ramadhani';
-        $firlyEmail = "{$firlyNim}@student.trunojoyo.ac.id";
+        $firlyNim = (string) env('DEMO_MHS_2_NIM', '230411100080');
+        $firlyNama = env('DEMO_MHS_2_NAMA', env('DEMO_MHS_2_NAME', 'Firly Ramadhani'));
+        $firlyEmail = env('DEMO_MHS_2_EMAIL', "{$firlyNim}@student.trunojoyo.ac.id");
+        $firlyPassword = $getPassword('DEMO_MHS_2_PASSWORD');
 
         $mhsFirly = User::updateOrCreate(
             ['nim' => $firlyNim],
             [
                 'name' => $firlyNama,
                 'email' => $firlyEmail,
-                'password' => $password,
+                'password' => $firlyPassword,
                 'role' => 'mahasiswa',
                 'status_akun' => 'aktif',
                 'program_studi_id' => $prodiId,
@@ -499,46 +512,54 @@ class DatabaseSeeder extends Seeder
             $tableRows[] = [
                 'Mahasiswa (Aktif KP)',
                 "{$mhsDemo->nim} ({$mhsDemo->email})",
-                $initialPassword,
+                env('DEMO_MHS_PASSWORD', $initialPassword),
                 "{$mhsDemo->name} (KP Aktif + Logbook)",
+            ];
+        }
+        if ($mhsFirly) {
+            $tableRows[] = [
+                'Mahasiswa (Verifikasi TU)',
+                "{$mhsFirly->nim} ({$mhsFirly->email})",
+                env('DEMO_MHS_2_PASSWORD', $initialPassword),
+                "{$mhsFirly->name} (Antrean Verifikasi Berkas TU)",
             ];
         }
         if ($googleUserEmail) {
             $tableRows[] = [
                 'Mahasiswa (SSO Google)',
                 $googleUserEmail,
-                $initialPassword,
+                env('GOOGLE_TEST_USER_PASSWORD', $initialPassword),
                 $googleUserName,
             ];
         }
         $tableRows[] = [
-            'Dosen Pembimbing',
+            'Dosen Pembimbing 1',
             "{$dosenRikaEmail} / {$dosenRikaNip}",
-            $initialPassword,
+            env('DEMO_DOSEN_PASSWORD', $initialPassword),
             $dosenRikaName,
         ];
         $tableRows[] = [
-            'Dosen Pembimbing',
-            'fifin@dosen.com / 198203032002',
-            $initialPassword,
-            'Fifin, S.Kom., M.Cs.',
+            'Dosen Pembimbing 2',
+            "{$dosenFifinEmail} / {$dosenFifinNip}",
+            env('DEMO_DOSEN_2_PASSWORD', $initialPassword),
+            $dosenFifinName,
         ];
         $tableRows[] = [
             'Tata Usaha (TU)',
             "{$tuEmail} / {$tuNip}",
-            $initialPassword,
+            env('ADMIN_TU_PASSWORD', $initialPassword),
             $tuName,
         ];
         $tableRows[] = [
             'Koordinator KP (Prodi)',
             "{$prodiEmail} / {$prodiNip}",
-            $initialPassword,
+            env('KOORDINATOR_PRODI_PASSWORD', $initialPassword),
             $prodiName,
         ];
         $tableRows[] = [
             'Mitra (Instansi)',
             $mitraEmail,
-            $initialPassword,
+            env('DEMO_MITRA_PASSWORD', $initialPassword),
             "{$mitraCompany} ({$mitraName})",
         ];
 
