@@ -86,18 +86,20 @@ Buka `http://localhost:8000`.
 
 ## Akun Demo
 
-Password demo: `password`
+Password demo bawaan: `password` (dapat diubah via `.env`)
 
-| Peran | Akun (NIM / NIP / Email) | Keterangan |
-|---|---|---|
-| **Mahasiswa** | `230411100092` | KP aktif di PT Petrokimia Gresik, logbook terisi |
-| **Mahasiswa** | `230411100080` | Menunggu verifikasi berkas TU |
-| **Dosen Pembimbing** | `198002022001` / `rika@dosen.com` | Review proposal, logbook, dan penilaian |
-| **Tata Usaha (TU)** | `198501012010` / `tu@admin.com` | Verifikasi berkas dan surat pengantar |
-| **Koordinator Prodi** | `197001012000` / `prodi@admin.com` | Plotting pembimbing dan kuota |
-| **Pembimbing Lapangan** | `mitra@demo.com` | Pembimbing industri (PT Petrokimia Gresik) |
+| Peran | Akun Login (NIM / NIP / Email) | Password | Keterangan & Skenario Uji |
+|---|---|---|---|
+| **Mahasiswa (KP Aktif)** | `230411100092`<br>`230411100092@student.trunojoyo.ac.id` | `password` | Status KP aktif di PT Petrokimia Gresik, logbook terisi |
+| **Mahasiswa (Verifikasi TU)** | `230411100080`<br>`230411100080@student.trunojoyo.ac.id` | `password` | Masuk ke antrean verifikasi pendaftaran berkas TU |
+| **Mahasiswa (Google SSO)** | `240411100144`<br>`240411100144@student.trunojoyo.ac.id` | `password` | Akun mahasiswa pengujian OAuth Google Workspace UTM |
+| **Dosen Pembimbing 1** | `198002022001`<br>`rika@dosen.com` | `password` | Dosen pembimbing utama (Review proposal, logbook, & nilai) |
+| **Dosen Pembimbing 2** | `198203032002`<br>`fifin@dosen.com` | `password` | Dosen pembimbing alternatif |
+| **Tata Usaha (TU)** | `198501012010`<br>`tu@admin.com` | `password` | Verifikasi berkas, penerbitan surat pengantar & balasan |
+| **Koordinator Prodi** | `197001012000`<br>`prodi@admin.com` | `password` | Plotting pembimbing/PL, kuota, sidang, dan berita acara |
+| **Pembimbing Lapangan** | `mitra@demo.com` | `password` | Pembimbing industri mitra (PT Petrokimia Gresik) |
 
-Form login menerima NIM, NIP, atau email.
+Form login menerima **Email**, **NIM**, maupun **NIP**, dan sudah dilengkapi tombol **"Isi Otomatis"** untuk setiap peran.
 
 ---
 

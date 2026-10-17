@@ -25,6 +25,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 0. Pastikan direktori storage public dokumen ada dan terisi file template
+        $storageDokumen = storage_path('app/public/dokumen');
+        if (!file_exists($storageDokumen)) {
+            mkdir($storageDokumen, 0755, true);
+        }
+        $publicDokumen = public_path('dokumen');
+        if (file_exists($publicDokumen)) {
+            foreach (glob($publicDokumen . '/*.pdf') as $pdfFile) {
+                $dest = $storageDokumen . '/' . basename($pdfFile);
+                if (!file_exists($dest)) {
+                    copy($pdfFile, $dest);
+                }
+            }
+        }
+
         // 1. Setup Program Studi (Khusus Teknik Informatika)
         $prodi = ProgramStudi::firstOrCreate(
             ['nama' => 'Teknik Informatika'],
