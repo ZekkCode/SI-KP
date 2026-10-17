@@ -133,14 +133,19 @@ class DosenPenilaianController extends Controller
             $nilaiAkhir = NilaiAkhir::firstOrNew(['pendaftaran_id' => $pendaftaran->id]);
             $nilaiAkhir->nilai_pembimbing = $totalNilaiPembimbing;
             
-            // Kalkulasi nilai_total jika nilai komponen lain sudah ada (opsional, disesuaikan)
-            $total = 0;
-            $status = 'proses';
-            
-            if ($nilaiAkhir->nilai_ujian !== null && $nilaiAkhir->nilai_instansi !== null) {
-                $total = ($nilaiAkhir->nilai_ujian * 0.4) + ($nilaiAkhir->nilai_pembimbing * 0.3) + ($nilaiAkhir->nilai_instansi * 0.3);
-                $nilaiAkhir->nilai_total = $total;
-                
+            // Kalkulasi nilai_total jika komponen nilai sudah lengkap
+            $np = $nilaiAkhir->nilai_pembimbing;
+            $ni = $nilaiAkhir->nilai_instansi;
+            $nu = $nilaiAkhir->nilai_ujian;
+
+            if ($np !== null && $ni !== null) {
+                if ($nu !== null) {
+                    $total = ($nu * 0.4) + ($np * 0.3) + ($ni * 0.3);
+                } else {
+                    $total = ($np * 0.6) + ($ni * 0.4);
+                }
+                $nilaiAkhir->nilai_total = round($total, 2);
+
                 // Konversi Huruf
                 if ($total >= 85) $nilaiAkhir->nilai_huruf = 'A';
                 else if ($total >= 70) $nilaiAkhir->nilai_huruf = 'B';

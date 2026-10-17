@@ -11,12 +11,10 @@ class ProdiMahasiswaController extends Controller
     public function index()
     {
         $students = User::where('role', 'mahasiswa')
-            ->with(['pendaftaransMahasiswa' => function ($q) {
-                $q->latest()->limit(1);
-            }])
+            ->with('latestPendaftaranMahasiswa')
             ->get()
             ->map(function ($mahasiswa) {
-                $latestPendaftaran = $mahasiswa->pendaftaransMahasiswa->first();
+                $latestPendaftaran = $mahasiswa->latestPendaftaranMahasiswa;
                 $statusTampil = 'Tidak KP / Belum KP';
                 $statusAsli = 'belum_kp';
                 

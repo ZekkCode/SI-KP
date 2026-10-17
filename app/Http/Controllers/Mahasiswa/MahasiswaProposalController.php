@@ -28,7 +28,7 @@ class MahasiswaProposalController extends Controller
         // Get latest pendaftaran with dosen pembimbing
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
             ->with('dosenPembimbing')
-            ->latest()
+            ->latest('id')
             ->first();
 
         // Get latest proposal for this pendaftaran
@@ -95,7 +95,7 @@ class MahasiswaProposalController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        $pendaftaran = \App\Models\Pendaftaran::where('mahasiswa_id', \Illuminate\Support\Facades\Auth::id())->firstOrFail();
+        $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)->latest('id')->firstOrFail();
 
         DB::transaction(function () use ($pendaftaran, $validated, $user) {
             // Get existing proposal or create new
@@ -194,14 +194,11 @@ class MahasiswaProposalController extends Controller
 
         // Get the latest proposal for this user
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
-            ->latest()
+            ->latest('id')
             ->first();
 
         if (!$pendaftaran) {
-            $pendaftaran = Pendaftaran::create([
-                'mahasiswa_id' => $user->id,
-                'status' => 'draft',
-            ]);
+            return back()->with('error', 'Pendaftaran KP tidak ditemukan.');
         }
 
         $proposal = Proposal::where('pendaftaran_id', $pendaftaran->id)

@@ -20,7 +20,7 @@ class MahasiswaSuratPengantarController extends Controller
         
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
             ->with(['instansi', 'dosenPembimbing', 'suratPengantar'])
-            ->latest()
+            ->latest('id')
             ->first();
 
         $pendaftaranData = null;
@@ -64,7 +64,7 @@ class MahasiswaSuratPengantarController extends Controller
                 'instansi',
                 'suratPengantar'
             ])
-            ->latest()
+            ->latest('id')
             ->first();
 
         if (!$pendaftaran) {
@@ -126,7 +126,7 @@ class MahasiswaSuratPengantarController extends Controller
             'file_scan' => ['required', 'file', 'mimes:pdf', 'max:5120']
         ]);
         
-        $pendaftaran = Pendaftaran::where('mahasiswa_id', $request->user()->id)->latest()->firstOrFail();
+        $pendaftaran = Pendaftaran::where('mahasiswa_id', $request->user()->id)->latest('id')->firstOrFail();
         $surat = $pendaftaran->suratPengantar;
         
         if (!$surat || !in_array($surat->status, ['draft', 'revisi'])) {

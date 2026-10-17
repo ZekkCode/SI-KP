@@ -27,10 +27,10 @@ class MahasiswaSuratBalasanController extends Controller
                 'id' => $pendaftaran->id,
                 'status' => $pendaftaran->status,
                 'catatan_tu' => $pendaftaran->catatan_tu,
-                'instansi' => $pendaftaran->instansi ? [
-                    'nama' => $pendaftaran->instansi->nama,
-                    'alamat' => $pendaftaran->instansi->alamat ?? null,
-                ] : null,
+                'instansi' => [
+                    'nama' => $pendaftaran->instansi?->nama ?? $pendaftaran->tempat_kp ?? 'Belum ditentukan',
+                    'alamat' => $pendaftaran->instansi?->alamat ?? $pendaftaran->alamat_kantor ?? null,
+                ],
                 'surat_balasan' => $pendaftaran->suratBalasan ? [
                     'nomor_surat' => $pendaftaran->suratBalasan->nomor_surat,
                     'tanggal_surat' => $pendaftaran->suratBalasan->tanggal_surat?->format('Y-m-d'),
@@ -56,10 +56,10 @@ class MahasiswaSuratBalasanController extends Controller
                 'status' => $pendaftaran->status,
                 'tanggal_mulai' => $pendaftaran->tanggal_mulai?->format('Y-m-d'),
                 'tanggal_selesai' => $pendaftaran->tanggal_selesai?->format('Y-m-d'),
-                'instansi' => $pendaftaran->instansi ? [
-                    'nama' => $pendaftaran->instansi->nama,
-                    'alamat' => $pendaftaran->instansi->alamat ?? null,
-                ] : null,
+                'instansi' => [
+                    'nama' => $pendaftaran->instansi?->nama ?? $pendaftaran->tempat_kp ?? 'Belum ditentukan',
+                    'alamat' => $pendaftaran->instansi?->alamat ?? $pendaftaran->alamat_kantor ?? null,
+                ],
             ] : null,
         ]);
     }

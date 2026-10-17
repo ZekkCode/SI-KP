@@ -57,10 +57,10 @@ class MahasiswaSidangController extends Controller
             'pendaftaran' => [
                 'id' => $pendaftaran->id,
                 'status' => $pendaftaran->status,
-                'instansi' => $pendaftaran->instansi ? [
-                    'nama' => $pendaftaran->instansi->nama,
-                    'kota' => $pendaftaran->instansi->kota,
-                ] : null,
+                'instansi' => [
+                    'nama' => $pendaftaran->instansi?->nama ?? $pendaftaran->tempat_kp ?? 'Belum ditentukan',
+                    'kota' => $pendaftaran->instansi?->kota ?? '-',
+                ],
                 'dosen_pembimbing' => $pendaftaran->dosenPembimbing ? [
                     'name' => $pendaftaran->dosenPembimbing->name,
                     'nip' => $pendaftaran->dosenPembimbing->nip,

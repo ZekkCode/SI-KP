@@ -107,18 +107,24 @@ class TUSuratPengantarController extends Controller
                 'catatan_tu' => null,
             ]);
 
-            $nomorSurat = $pendaftaran->suratPengantar->nomor_surat ?? uniqid('SP-');
-            $confirmationToken = $pendaftaran->suratPengantar->confirmation_token ?? \Illuminate\Support\Str::random(64);
-            $pendaftaran->suratPengantar()->update([
-                'status' => 'terverifikasi',
-                'nomor_surat' => $nomorSurat,
-                'tanggal_terbit' => now(),
-                'confirmation_token' => $confirmationToken,
-                'confirmation_status' => $pendaftaran->suratPengantar->confirmation_status ?: 'pending',
-                'verification_id' => $pendaftaran->suratPengantar->verification_id ?: (new \App\Services\DigitalSignatureService())->generateVerificationId('SP'),
-                'ditandatangani_oleh' => config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.'),
-                'nip_penandatangan' => config('sikp.dekan.nip', '197801202003121002'),
-            ]);
+            $surat = $pendaftaran->suratPengantar;
+            $nomorSurat = $surat?->nomor_surat ?? uniqid('SP-');
+            $confirmationToken = $surat?->confirmation_token ?? \Illuminate\Support\Str::random(64);
+            $verificationId = $surat?->verification_id ?: (new \App\Services\DigitalSignatureService())->generateVerificationId('SP');
+
+            $pendaftaran->suratPengantar()->updateOrCreate(
+                ['pendaftaran_id' => $pendaftaran->id],
+                [
+                    'status' => 'terverifikasi',
+                    'nomor_surat' => $nomorSurat,
+                    'tanggal_terbit' => now(),
+                    'confirmation_token' => $confirmationToken,
+                    'confirmation_status' => $surat?->confirmation_status ?: 'pending',
+                    'verification_id' => $verificationId,
+                    'ditandatangani_oleh' => config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.'),
+                    'nip_penandatangan' => config('sikp.dekan.nip', '197801202003121002'),
+                ]
+            );
 
             \App\Models\Notifikasi::create([
                 'user_id' => $pendaftaran->mahasiswa_id,
@@ -149,9 +155,10 @@ class TUSuratPengantarController extends Controller
             'catatan_tu' => $validated['catatan_tu'],
         ]);
         
-        $pendaftaran->suratPengantar()->update([
-            'status' => 'revisi'
-        ]);
+        $pendaftaran->suratPengantar()->updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran->id],
+            ['status' => 'revisi']
+        );
 
         \App\Models\Notifikasi::create([
             'user_id' => $pendaftaran->mahasiswa_id,

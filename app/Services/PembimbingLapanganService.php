@@ -112,14 +112,16 @@ class PembimbingLapanganService
                             $pendaftaran->tanggal_selesai->translatedFormat('d M Y');
                     }
 
+                    $namaInstansi = $surat->nama_instansi ?: ($pendaftaran->instansi?->nama ?? $pendaftaran->tempat_kp ?? 'Instansi Mitra');
+
                     try {
                         Mail::to($email)->send(new KredensialPembimbingLapangan(
                             nama: $namaPL,
                             email: $email,
                             tempPassword: $tempPassword,
-                            namaInstansi: $surat->nama_instansi,
-                            namaMahasiswa: $pendaftaran->mahasiswa->name ?? 'Mahasiswa',
-                            nimMahasiswa: $pendaftaran->mahasiswa->nim ?? '-',
+                            namaInstansi: $namaInstansi,
+                            namaMahasiswa: $pendaftaran->mahasiswa?->name ?? 'Mahasiswa',
+                            nimMahasiswa: $pendaftaran->mahasiswa?->nim ?? '-',
                             periodeKP: $periodeKP,
                             isReset: false
                         ));
@@ -132,10 +134,11 @@ class PembimbingLapanganService
                 }
 
                 // 6. Notify Mahasiswa (high priority)
+                $namaInstansiNotif = $surat->nama_instansi ?: ($pendaftaran->instansi?->nama ?? $pendaftaran->tempat_kp ?? 'Instansi Mitra');
                 Notifikasi::create([
                     'user_id' => $pendaftaran->mahasiswa_id,
                     'judul' => 'Konfirmasi Instansi: DITERIMA',
-                    'pesan' => "{$surat->nama_instansi} telah mengonfirmasi penerimaan Kerja Praktik Anda. Pembimbing Lapangan yang ditunjuk: {$namaPL}.",
+                    'pesan' => "{$namaInstansiNotif} telah mengonfirmasi penerimaan Kerja Praktik Anda. Pembimbing Lapangan yang ditunjuk: {$namaPL}.",
                     'tipe' => 'sukses',
                     'priority' => 'high',
                     'link' => '/mahasiswa/status-pengajuan',
@@ -166,10 +169,11 @@ class PembimbingLapanganService
                 ]);
 
                 // Notify Mahasiswa
+                $namaInstansiReject = $surat->nama_instansi ?: ($pendaftaran->instansi?->nama ?? $pendaftaran->tempat_kp ?? 'Instansi Mitra');
                 Notifikasi::create([
                     'user_id' => $pendaftaran->mahasiswa_id,
                     'judul' => 'Konfirmasi Instansi: DITOLAK',
-                    'pesan' => "{$surat->nama_instansi} belum dapat menerima permohonan KP Anda. Alasan: {$alasan}. Silakan konsultasikan dengan Koordinator KP / TU untuk tindak lanjut.",
+                    'pesan' => "{$namaInstansiReject} belum dapat menerima permohonan KP Anda. Alasan: {$alasan}. Silakan konsultasikan dengan Koordinator KP / TU untuk tindak lanjut.",
                     'tipe' => 'peringatan',
                     'priority' => 'high',
                     'link' => '/mahasiswa/status-pengajuan',

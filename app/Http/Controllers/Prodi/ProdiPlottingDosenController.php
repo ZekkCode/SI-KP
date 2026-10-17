@@ -23,39 +23,25 @@ class ProdiPlottingDosenController extends Controller
             ->latest()
             ->get();
 
-        // Ambil daftar dosen beserta kuota dari tabel kuota_dosens
-        // Kita juga butuh hitung berapa pendaftaran aktif yang sedang dibimbing dosen ini
-        // Kita asumsikan pendaftaran dengan status >= 'aktif' dan != 'selesai' dihitung sebagai sedang bimbingan
+        // Ambil daftar dosen beserta kuota dan jumlah bimbingan aktif secara optimal (2 queries)
         $dosenList = User::where('role', 'dosen')
-            ->leftJoin('kuota_dosens', 'users.id', '=', 'kuota_dosens.dosen_id')
-            ->select('users.id', 'users.name', 'users.nip', 'kuota_dosens.kuota_max', 'kuota_dosens.keahlian')
-            ->withCount(['dibimbing as bimbingan_aktif' => function ($query) {
-                $query->whereIn('status', ['aktif', 'diterima_instansi', 'verifikasi_surat_balasan']);
+            ->with('kuotaDosens')
+            ->withCount(['pendaftaransDosen as bimbingan_aktif' => function ($query) {
+                $query->whereIn('status', ['aktif', 'selesai', 'diterima_instansi', 'verifikasi_surat_balasan', 'plotting_dosen']);
             }])
-            ->get();
-
-        // Jika relation dibimbing belum ada di User model, kita tambahkan mapping manual saja
-        // untuk menghindari error pada withCount. Lebih aman hitung manual atau load.
-        // Mari kita buat pendekatan aman: 
-        
-        $dosenListSafe = User::where('role', 'dosen')->get()->map(function ($dosen) {
-            // Ambil kuota max jika ada (fallback 10)
-            $kuota = \App\Models\KuotaDosen::where('dosen_id', $dosen->id)->first();
-            
-            // Hitung mahasiswa aktif
-            $bimbinganAktif = Pendaftaran::where('dosen_pembimbing_id', $dosen->id)
-                ->whereIn('status', ['aktif', 'selesai', 'diterima_instansi', 'verifikasi_surat_balasan', 'plotting_dosen']) // asumsikan
-                ->count();
-                
-            return [
-                'id' => $dosen->id,
-                'name' => $dosen->name,
-                'nip' => $dosen->nip,
-                'keahlian' => $kuota ? $kuota->keahlian : 'Umum',
-                'kuota_max' => $kuota ? $kuota->kuota_max : 10,
-                'bimbingan_aktif' => $bimbinganAktif
-            ];
-        });
+            ->orderBy('name')
+            ->get()
+            ->map(function ($dosen) {
+                $kuota = $dosen->kuotaDosens->first();
+                return [
+                    'id' => $dosen->id,
+                    'name' => $dosen->name,
+                    'nip' => $dosen->nip,
+                    'keahlian' => $kuota ? $kuota->keahlian : 'Umum',
+                    'kuota_max' => $kuota ? $kuota->kuota_max : 10,
+                    'bimbingan_aktif' => (int) $dosen->bimbingan_aktif,
+                ];
+            });
 
         $plottedHistory = Pendaftaran::with(['mahasiswa.dosenWali', 'dosenPembimbing'])
             ->whereNotNull('dosen_pembimbing_id')
@@ -64,7 +50,7 @@ class ProdiPlottingDosenController extends Controller
 
         return Inertia::render('Prodi/SupervisorPlotting', [
             'mahasiswaQueue' => $mahasiswaQueue,
-            'dosenList' => $dosenListSafe,
+            'dosenList' => $dosenList,
             'plottedHistory' => $plottedHistory
         ]);
     }

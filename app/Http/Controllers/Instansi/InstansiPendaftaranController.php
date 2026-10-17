@@ -77,14 +77,14 @@ class InstansiPendaftaranController extends Controller
                 return [
                     'id' => $p->id,
                     'mahasiswa' => [
-                        'id' => $p->mahasiswa->id,
-                        'name' => $p->mahasiswa->name,
-                        'nim' => $p->mahasiswa->nim,
-                        'program_studi' => $p->mahasiswa->programStudi ? [
+                        'id' => $p->mahasiswa?->id,
+                        'name' => $p->mahasiswa?->name ?? 'Mahasiswa',
+                        'nim' => $p->mahasiswa?->nim ?? '-',
+                        'program_studi' => $p->mahasiswa?->programStudi ? [
                             'nama' => $p->mahasiswa->programStudi->nama,
                         ] : null,
-                        'no_telepon' => $p->mahasiswa->no_telepon,
-                        'email' => $p->mahasiswa->email,
+                        'no_telepon' => $p->mahasiswa?->no_telepon,
+                        'email' => $p->mahasiswa?->email,
                     ],
                     'surat_pengantar' => $p->suratPengantar ? [
                         'id' => $p->suratPengantar->id,

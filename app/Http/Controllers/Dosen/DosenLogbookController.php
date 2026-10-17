@@ -57,7 +57,7 @@ class DosenLogbookController extends Controller
             'catatan_dosen' => 'nullable|string',
         ]);
 
-        $logbook = Logbook::whereHas('pendaftaran', function ($query) {
+        $logbook = Logbook::with('pendaftaran')->whereHas('pendaftaran', function ($query) {
             $query->where('dosen_pembimbing_id', Auth::id());
         })->findOrFail($id);
 
@@ -67,6 +67,18 @@ class DosenLogbookController extends Controller
             'divalidasi_oleh' => Auth::id(),
             'divalidasi_pada' => now(),
         ]);
+
+        if ($logbook->pendaftaran?->mahasiswa_id) {
+            $isApproved = $request->status_dosen === 'disetujui';
+            \App\Models\Notifikasi::create([
+                'user_id' => $logbook->pendaftaran->mahasiswa_id,
+                'judul' => 'Logbook: ' . ($isApproved ? 'DISETUJUI DOSEN' : 'PERLU REVISI DOSEN'),
+                'pesan' => "Dosen Pembimbing telah memvalidasi kegiatan tanggal " . $logbook->tanggal->format('d/m/Y') . ($request->catatan_dosen ? ": {$request->catatan_dosen}" : "."),
+                'tipe' => $isApproved ? 'sukses' : 'peringatan',
+                'priority' => 'high',
+                'link' => '/mahasiswa/logbook',
+            ]);
+        }
 
         return back()->with('success', 'Validasi logbook berhasil disimpan.');
     }

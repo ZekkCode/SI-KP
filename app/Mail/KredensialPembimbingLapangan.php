@@ -16,12 +16,16 @@ class KredensialPembimbingLapangan extends Mailable
         public string $nama,
         public string $email,
         public string $tempPassword,
-        public string $namaInstansi,
-        public string $namaMahasiswa,
-        public string $nimMahasiswa,
+        public ?string $namaInstansi = 'Instansi Mitra',
+        public ?string $namaMahasiswa = 'Mahasiswa',
+        public ?string $nimMahasiswa = '-',
         public ?string $periodeKP = null,
         public bool $isReset = false
-    ) {}
+    ) {
+        $this->namaInstansi = $this->namaInstansi ?: 'Instansi Mitra';
+        $this->namaMahasiswa = $this->namaMahasiswa ?: 'Mahasiswa';
+        $this->nimMahasiswa = $this->nimMahasiswa ?: '-';
+    }
 
     public function envelope(): Envelope
     {

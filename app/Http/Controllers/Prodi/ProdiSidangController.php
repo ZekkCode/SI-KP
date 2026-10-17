@@ -136,10 +136,11 @@ class ProdiSidangController extends Controller
 
         // Kirim Notifikasi ke Dosen Penguji / Pembimbing
         if ($dosenPengujiId) {
+            $namaMhs = $pendaftaran->mahasiswa?->name ?? 'Mahasiswa';
             Notifikasi::create([
                 'user_id' => $dosenPengujiId,
                 'judul' => 'Jadwal Pengujian Sidang KP',
-                'pesan' => "Anda ditugaskan menguji sidang KP mahasiswa {$pendaftaran->mahasiswa->name} pada {$tanggalSidang->translatedFormat('d F Y pukul H:i')} WIB di {$request->ruangan}.",
+                'pesan' => "Anda ditugaskan menguji sidang KP mahasiswa {$namaMhs} pada {$tanggalSidang->translatedFormat('d F Y pukul H:i')} WIB di {$request->ruangan}.",
                 'tipe' => 'info',
                 'link' => '/dosen/monitoring',
             ]);

@@ -133,7 +133,8 @@ class DosenMonitoringController extends Controller
                     'id' => $latestProposal->id,
                     'judul' => $latestProposal->judul,
                     'status' => $latestProposal->status,
-                    'file_path' => $latestProposal->file_path,
+                    'file_path' => $latestProposal->path_file,
+                    'path_file' => $latestProposal->path_file,
                 ] : null,
                 'logbook' => [
                     'total' => $logbookTotal,

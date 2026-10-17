@@ -26,7 +26,7 @@ class KpProgressService
             'nilais',
         ])
         ->where('mahasiswa_id', $mahasiswaId)
-        ->latest()
+        ->latest('id')
         ->first();
 
         // Evaluasi penyelesaian tiap step

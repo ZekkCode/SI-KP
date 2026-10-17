@@ -59,11 +59,14 @@ class ProdiBeritaAcaraController extends Controller
 
         DB::beginTransaction();
         try {
-            // Update atau Create berita_acara dengan status disetujui
+            // Update atau Create berita_acara dengan status disetujui tanpa menimpa path_file asli
+            $existingBa = BeritaAcara::where('pendaftaran_id', $pendaftaran->id)->first();
+            $pathFile = $existingBa?->path_file ?: ('generated/berita_acara/ba_' . $pendaftaran->id . '.pdf');
+
             $beritaAcara = BeritaAcara::updateOrCreate(
                 ['pendaftaran_id' => $pendaftaran->id],
                 [
-                    'path_file' => 'generated/berita_acara/ba_' . $pendaftaran->id . '.pdf', // Dummy path untuk saat ini
+                    'path_file' => $pathFile,
                     'status' => 'disetujui',
                     'catatan' => $request->catatan,
                     'divalidasi_oleh' => Auth::id(),
@@ -93,9 +96,13 @@ class ProdiBeritaAcaraController extends Controller
 
         DB::beginTransaction();
         try {
+            $existingBa = BeritaAcara::where('pendaftaran_id', $pendaftaran->id)->first();
+            $pathFile = $existingBa?->path_file ?: ('generated/berita_acara/ba_' . $pendaftaran->id . '.pdf');
+
             $beritaAcara = BeritaAcara::updateOrCreate(
                 ['pendaftaran_id' => $pendaftaran->id],
                 [
+                    'path_file' => $pathFile,
                     'status' => 'disetujui',
                     'catatan' => 'Telah divalidasi dan disetujui oleh Prodi.',
                     'divalidasi_oleh' => Auth::id(),

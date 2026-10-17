@@ -24,7 +24,7 @@ class MahasiswaBeritaAcaraController extends Controller
             'instansi',
             'dosenPembimbing'
         ])
-        ->latest()
+        ->latest('id')
         ->first();
 
         return Inertia::render(
@@ -43,7 +43,7 @@ class MahasiswaBeritaAcaraController extends Controller
             'file_berita_acara' => 'required|mimes:pdf|max:5120',
         ]);
 
-        $pendaftaran = Pendaftaran::where('mahasiswa_id', $request->user()->id)->firstOrFail();
+        $pendaftaran = Pendaftaran::where('mahasiswa_id', $request->user()->id)->latest('id')->firstOrFail();
 
         $beritaAcara = BeritaAcara::firstOrNew(['pendaftaran_id' => $pendaftaran->id]);
 

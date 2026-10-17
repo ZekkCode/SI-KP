@@ -18,20 +18,13 @@ class TUDashboardController extends Controller
         // 1. Mahasiswa KP Aktif (Pendaftaran status 'aktif')
         $mahasiswaAktif = Pendaftaran::where('status', 'aktif')->count();
 
-        // 2. Antrean Surat Pengantar
-        // Bisa dihitung dari Pendaftaran yang statusnya 'diverifikasi' (siap dibuat suratnya)
-        // atau yang berstatus 'diterima_prodi' tergantung workflow. Asumsikan 'diverifikasi'.
-        $antreanSuratPengantar = Pendaftaran::where('status', 'diverifikasi')
-            ->doesntHave('suratPengantar')
-            ->count();
-            
-        // Atau jika surat pengantar sudah di-generate tapi menunggu persetujuan
-        $suratMenunggu = SuratPengantar::whereNull('path_file')->count(); // atau kondisi lainnya
+        // 2. Antrean Surat Pengantar yang menunggu verifikasi di menu Generate Surat
+        $antreanSuratPengantar = SuratPengantar::where('status', 'menunggu_verifikasi')->count();
 
         return Inertia::render('TU/Dashboard', [
             'stats' => [
                 'mahasiswa_aktif' => $mahasiswaAktif,
-                'antrean_surat' => $antreanSuratPengantar + $suratMenunggu,
+                'antrean_surat' => $antreanSuratPengantar,
             ]
         ]);
     }

@@ -116,6 +116,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Latest KP registration as mahasiswa.
+     */
+    public function latestPendaftaranMahasiswa(): HasOne
+    {
+        return $this->hasOne(Pendaftaran::class, 'mahasiswa_id')->latestOfMany('id');
+    }
+
+    /**
      * KP registrations as dosen pembimbing.
      */
     public function pendaftaransDosen(): HasMany
