@@ -132,43 +132,6 @@ class DatabaseSeeder extends Seeder
                 'program_studi_id' => $prodiId,
             ]
         );
-
-        // 5. Mitra / Pembimbing Lapangan (Instansi)
-        $mitraEmail = env('DEMO_MITRA_EMAIL', 'mitra@demo.com');
-        $mitraName = env('DEMO_MITRA_NAME', 'Bambang Sudarmono, S.T.');
-        $mitraCompany = env('DEMO_MITRA_COMPANY', 'PT Petrokimia Gresik');
-        $mitraPassword = $getPassword('DEMO_MITRA_PASSWORD');
-
-        $instansi = Instansi::firstOrCreate(
-            ['nama' => $mitraCompany],
-            [
-                'alamat' => 'Jl. Jenderal Ahmad Yani, Gresik',
-                'kota' => 'Gresik',
-                'no_telepon' => '031-3981811',
-                'email' => 'info@petrokimia-gresik.com',
-                'website' => 'https://petrokimia-gresik.com',
-                'nama_pj' => 'Ir. Hendro Prasetyo',
-                'jabatan_pj' => 'Manager IT & Digital Solution',
-            ]
-        );
-
-        $mitraUser = User::updateOrCreate(
-            ['email' => $mitraEmail],
-            [
-                'name' => $mitraName,
-                'password' => $mitraPassword,
-                'role' => 'instansi',
-                'status_akun' => 'aktif',
-            ]
-        );
-
-        $pl = PembimbingLapangan::updateOrCreate(
-            ['instansi_id' => $instansi->id, 'nama' => $mitraName],
-            ['user_id' => $mitraUser->id]
-        );
-
-        $instansi->update(['user_id' => $mitraUser->id]);
-
         // 5. Import Master Dosen dari master_dosen.xlsx
         $dosenFile = base_path('master_dosen.xlsx');
         if (file_exists($dosenFile)) {
@@ -184,6 +147,16 @@ class DatabaseSeeder extends Seeder
                     $nip = trim((string)($cells[1] ?? ''));
                     $nama = trim((string)($cells[2] ?? ''));
                     $email = strtolower(trim((string)($cells[3] ?? '')));
+
+                    $reservedMitraEmails = [
+                        'akunduabangkit2@gmail.com',
+                        'rendydevanodanendra@gmail.com',
+                        'zakariamujur6@gmail.com',
+                        'nabiilahrizqiamal@gmail.com',
+                    ];
+                    if (in_array($email, $reservedMitraEmails)) {
+                        $email = "{$nip}@trunojoyo.ac.id";
+                    }
 
                     if ($nip && $nama) {
                         User::updateOrCreate(
@@ -260,6 +233,108 @@ class DatabaseSeeder extends Seeder
                 }
             }
             $reader->close();
+        }
+
+        // 7. Mitra / Pembimbing Lapangan (4 Instansi Demo Realistis)
+        $mitrasConfig = [
+            [
+                'email' => env('DEMO_MITRA_EMAIL', 'akunduabangkit2@gmail.com'),
+                'name' => env('DEMO_MITRA_NAME', 'Ir. Bangkit Danuarta, S.T.'),
+                'company' => env('DEMO_MITRA_COMPANY', 'PT Petrokimia Gresik'),
+                'password' => $getPassword('DEMO_MITRA_PASSWORD'),
+                'alamat' => 'Jl. Jenderal Ahmad Yani, Gresik',
+                'kota' => 'Gresik',
+                'telepon' => '031-3981811',
+                'website' => 'https://petrokimia-gresik.com',
+                'nama_pj' => 'Ir. Hendro Prasetyo',
+                'jabatan_pj' => 'Manager IT & Digital Solution',
+            ],
+            [
+                'email' => env('DEMO_MITRA_2_EMAIL', 'rendydevanodanendra@gmail.com'),
+                'name' => env('DEMO_MITRA_2_NAME', 'Rendy Devano Danendra, S.Kom.'),
+                'company' => env('DEMO_MITRA_2_COMPANY', 'PT Telkom Indonesia (Witel Jatim)'),
+                'password' => $getPassword('DEMO_MITRA_2_PASSWORD'),
+                'alamat' => 'Jl. Ketintang No. 156, Surabaya',
+                'kota' => 'Surabaya',
+                'telepon' => '031-8281000',
+                'website' => 'https://telkom.co.id',
+                'nama_pj' => 'Budi Santoso, S.T.',
+                'jabatan_pj' => 'Senior Manager Enterprise Service',
+            ],
+            [
+                'email' => env('DEMO_MITRA_3_EMAIL', 'zakariamujur6@gmail.com'),
+                'name' => env('DEMO_MITRA_3_NAME', 'Zakaria Mujur Prasetyo, M.T.'),
+                'company' => env('DEMO_MITRA_3_COMPANY', 'PT Barata Indonesia'),
+                'password' => $getPassword('DEMO_MITRA_3_PASSWORD'),
+                'alamat' => 'Jl. Veteran No. 241, Gresik',
+                'kota' => 'Gresik',
+                'telepon' => '031-3981234',
+                'website' => 'https://barata.id',
+                'nama_pj' => 'Drs. Agus Hariyanto',
+                'jabatan_pj' => 'Kepala Divisi Teknologi & Enjiniring',
+            ],
+            [
+                'email' => env('DEMO_MITRA_4_EMAIL', 'nabiilahrizqiamal@gmail.com'),
+                'name' => env('DEMO_MITRA_4_NAME', 'Nabiilah Rizqi Amalia, S.T.'),
+                'company' => env('DEMO_MITRA_4_COMPANY', 'Diskominfo Provinsi Jawa Timur'),
+                'password' => $getPassword('DEMO_MITRA_4_PASSWORD'),
+                'alamat' => 'Jl. Ahmad Yani No. 242-244, Gayungan, Surabaya',
+                'kota' => 'Surabaya',
+                'telepon' => '031-8294608',
+                'website' => 'https://kominfo.jatimprov.go.id',
+                'nama_pj' => 'Dra. Hj. Wahyuni, M.Si.',
+                'jabatan_pj' => 'Kepala Bidang Aplikasi Informatika',
+            ],
+        ];
+
+        $seededPls = [];
+        $instansi = null;
+        $pl = null;
+
+        foreach ($mitrasConfig as $idx => $mCfg) {
+            $mInstansi = Instansi::firstOrCreate(
+                ['nama' => $mCfg['company']],
+                [
+                    'alamat' => $mCfg['alamat'],
+                    'kota' => $mCfg['kota'],
+                    'no_telepon' => $mCfg['telepon'],
+                    'email' => $mCfg['email'],
+                    'website' => $mCfg['website'],
+                    'nama_pj' => $mCfg['nama_pj'],
+                    'jabatan_pj' => $mCfg['jabatan_pj'],
+                ]
+            );
+
+            $mUser = User::updateOrCreate(
+                ['email' => $mCfg['email']],
+                [
+                    'name' => $mCfg['name'],
+                    'password' => $mCfg['password'],
+                    'role' => 'instansi',
+                    'status_akun' => 'aktif',
+                    'nip' => null,
+                    'nim' => null,
+                ]
+            );
+
+            $mPl = PembimbingLapangan::updateOrCreate(
+                ['instansi_id' => $mInstansi->id, 'nama' => $mCfg['name']],
+                ['user_id' => $mUser->id]
+            );
+
+            $mInstansi->update(['user_id' => $mUser->id]);
+
+            if ($idx === 0) {
+                $instansi = $mInstansi;
+                $pl = $mPl;
+            }
+
+            $seededPls[$idx] = [
+                'instansi' => $mInstansi,
+                'user' => $mUser,
+                'pl' => $mPl,
+                'config' => $mCfg,
+            ];
         }
 
         // 7. Akun Mahasiswa Khusus Google Workspace UTM (Dikonfigurasi via .env)
@@ -353,7 +428,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'jam_mulai' => '08:00:00',
                     'jam_selesai' => '16:00:00',
-                    'deskripsi' => "Orientasi lingkungan kerja praktik di {$mitraCompany} dan pengenalan arsitektur sistem IT internal.",
+                    'deskripsi' => "Orientasi lingkungan kerja praktik di PT Petrokimia Gresik dan pengenalan arsitektur sistem IT internal.",
                     'status_dosen' => 'disetujui',
                     'status_instansi' => 'disetujui',
                     'catatan_dosen' => 'Bagus, lanjutkan adaptasi dengan tim IT instansi.',
@@ -490,11 +565,15 @@ class DatabaseSeeder extends Seeder
             $pendaftaranFirly = Pendaftaran::updateOrCreate(
                 ['mahasiswa_id' => $mhsFirly->id],
                 [
-                    'instansi_id' => $instansi->id,
-                    'bidang_minat' => 'Data Analytics & Business Intelligence',
+                    'instansi_id' => $seededPls[1]['instansi']->id,
+                    'pembimbing_lapangan_id' => $seededPls[1]['pl']->id,
+                    'dosen_pembimbing_id' => $dosenFifin->id,
+                    'bidang_minat' => 'Data Analytics & Enterprise Network Infrastructure',
                     'tanggal_mulai' => '2026-09-01',
                     'tanggal_selesai' => '2026-11-30',
-                    'status' => 'verifikasi_tu',
+                    'status' => 'aktif',
+                    'diverifikasi_oleh' => $tuUser->id,
+                    'diverifikasi_pada' => now()->subDays(10),
                 ]
             );
 
@@ -518,6 +597,65 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        // 10. Demo Pendaftaran untuk Akun Mahasiswa 3 (Zakaria Mujur) -> Mitra 3 (PT Barata Indonesia)
+        $mhsZakaria = User::where('email', $googleUserEmail)->first();
+        if ($mhsZakaria) {
+            Pendaftaran::updateOrCreate(
+                ['mahasiswa_id' => $mhsZakaria->id],
+                [
+                    'instansi_id' => $seededPls[2]['instansi']->id,
+                    'pembimbing_lapangan_id' => $seededPls[2]['pl']->id,
+                    'dosen_pembimbing_id' => $dosenRika->id,
+                    'bidang_minat' => 'Industrial Internet of Things & Embedded Systems',
+                    'tanggal_mulai' => '2026-08-15',
+                    'tanggal_selesai' => '2026-11-15',
+                    'status' => 'aktif',
+                    'diverifikasi_oleh' => $tuUser->id,
+                    'diverifikasi_pada' => now()->subDays(15),
+                ]
+            );
+        }
+
+        // 11. Demo Mahasiswa 4 -> Mitra 4 (Diskominfo Provinsi Jawa Timur)
+        $mhs4 = User::updateOrCreate(
+            ['nim' => '230411100001'],
+            [
+                'name' => 'Achmad Farhan Ramadhan',
+                'email' => '230411100001@student.trunojoyo.ac.id',
+                'password' => $password,
+                'role' => 'mahasiswa',
+                'status_akun' => 'aktif',
+                'program_studi_id' => $prodiId,
+                'angkatan' => 2023,
+                'dosen_wali_id' => $dosenFifin->id,
+            ]
+        );
+        MasterMahasiswa::updateOrCreate(
+            ['nim' => '230411100001'],
+            [
+                'nama' => 'Achmad Farhan Ramadhan',
+                'email' => '230411100001@student.trunojoyo.ac.id',
+                'program_studi' => 'Teknik Informatika',
+                'angkatan' => '2023',
+                'nip_dosen_wali' => $dosenFifin->nip,
+                'sumber_data' => 'system_seed',
+            ]
+        );
+        Pendaftaran::updateOrCreate(
+            ['mahasiswa_id' => $mhs4->id],
+            [
+                'instansi_id' => $seededPls[3]['instansi']->id,
+                'pembimbing_lapangan_id' => $seededPls[3]['pl']->id,
+                'dosen_pembimbing_id' => $dosenFifin->id,
+                'bidang_minat' => 'Smart City Application & Public Service Integration',
+                'tanggal_mulai' => '2026-08-01',
+                'tanggal_selesai' => '2026-10-31',
+                'status' => 'aktif',
+                'diverifikasi_oleh' => $tuUser->id,
+                'diverifikasi_pada' => now()->subDays(20),
+            ]
+        );
+
         $this->command->info('===============================================================');
         $this->command->info('✅ DATABASE INISIALISASI SUKSES - DATA KREDENSIAL DARI ENV!');
         $this->command->info('===============================================================');
@@ -525,26 +663,26 @@ class DatabaseSeeder extends Seeder
         $tableRows = [];
         if ($mhsDemo) {
             $tableRows[] = [
-                'Mahasiswa (Aktif KP)',
+                'Mahasiswa 1 (Aktif KP)',
                 "{$mhsDemo->nim} ({$mhsDemo->email})",
                 env('DEMO_MHS_PASSWORD', $initialPassword),
-                "{$mhsDemo->name} (KP Aktif + Logbook)",
+                "{$mhsDemo->name} (PT Petrokimia Gresik)",
             ];
         }
         if ($mhsFirly) {
             $tableRows[] = [
-                'Mahasiswa (Verifikasi TU)',
+                'Mahasiswa 2 (Aktif KP)',
                 "{$mhsFirly->nim} ({$mhsFirly->email})",
                 env('DEMO_MHS_2_PASSWORD', $initialPassword),
-                "{$mhsFirly->name} (Antrean Verifikasi Berkas TU)",
+                "{$mhsFirly->name} (PT Telkom Indonesia)",
             ];
         }
         if ($googleUserEmail) {
             $tableRows[] = [
-                'Mahasiswa (SSO Google)',
+                'Mahasiswa 3 (SSO Google)',
                 $googleUserEmail,
                 env('GOOGLE_TEST_USER_PASSWORD', $initialPassword),
-                $googleUserName,
+                "{$googleUserName} (PT Barata Indonesia)",
             ];
         }
         $tableRows[] = [
@@ -571,12 +709,16 @@ class DatabaseSeeder extends Seeder
             env('KOORDINATOR_PRODI_PASSWORD', $initialPassword),
             $prodiName,
         ];
-        $tableRows[] = [
-            'Mitra (Instansi)',
-            $mitraEmail,
-            env('DEMO_MITRA_PASSWORD', $initialPassword),
-            "{$mitraCompany} ({$mitraName})",
-        ];
+
+        // 4 Real Mitra
+        foreach ($seededPls as $spl) {
+            $tableRows[] = [
+                'Mitra (Pembimbing Lapangan)',
+                $spl['config']['email'],
+                $spl['config']['plain_password'] ?? env('INITIAL_DEMO_PASSWORD', 'password'),
+                "{$spl['config']['company']} - {$spl['config']['name']}",
+            ];
+        }
 
         $this->command->table(
             ['Peran', 'Email / NIM / NIP', 'Password', 'Keterangan'],
