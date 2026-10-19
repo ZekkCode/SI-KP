@@ -124,4 +124,38 @@ class TUPembimbingLapanganController extends Controller
     {
         return $this->resetPassword($user, $service);
     }
+
+    /**
+     * Preview credentials email HTML for Pembimbing Lapangan.
+     */
+    public function previewEmail(User $user)
+    {
+        if ($user->role !== 'instansi') {
+            abort(404, 'User bukan pembimbing lapangan mitra.');
+        }
+
+        $pl = $user->pembimbingLapangan()->with('instansi')->first();
+        $pendaftaran = \App\Models\Pendaftaran::where('pembimbing_lapangan_id', $pl?->id)
+            ->with(['mahasiswa'])
+            ->latest()
+            ->first();
+
+        $namaInstansi = $pl?->instansi?->nama ?? 'Instansi Mitra';
+        $namaMahasiswa = $pendaftaran?->mahasiswa?->name ?? 'Mahasiswa Kerja Praktik';
+        $nimMahasiswa = $pendaftaran?->mahasiswa?->nim ?? '-';
+        $periodeKP = ($pendaftaran && $pendaftaran->tanggal_mulai && $pendaftaran->tanggal_selesai)
+            ? $pendaftaran->tanggal_mulai->translatedFormat('d M Y') . ' s.d ' . $pendaftaran->tanggal_selesai->translatedFormat('d M Y')
+            : null;
+
+        return (new \App\Mail\KredensialPembimbingLapangan(
+            nama: $user->name,
+            email: $user->email,
+            tempPassword: 'PasswordAcak123!',
+            namaInstansi: $namaInstansi,
+            namaMahasiswa: $namaMahasiswa,
+            nimMahasiswa: $nimMahasiswa,
+            periodeKP: $periodeKP,
+            isReset: false
+        ))->render();
+    }
 }

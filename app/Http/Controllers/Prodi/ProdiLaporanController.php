@@ -29,12 +29,13 @@ class ProdiLaporanController extends Controller
         // Jika 'semua', tidak ada filter where.
 
         $laporan = $query->get()->map(function ($p) {
+            $dosbing = $p->dosenPembimbing ?: $p->ensureDosenPembimbing();
             return [
                 'id' => $p->id,
                 'nama_mahasiswa' => $p->mahasiswa ? $p->mahasiswa->name : '-',
                 'nim_mahasiswa' => $p->mahasiswa ? $p->mahasiswa->nim : '-',
                 'nama_instansi' => $p->instansi ? $p->instansi->nama : 'Belum Ada',
-                'nama_dosen' => $p->dosenPembimbing ? $p->dosenPembimbing->name : 'Belum Plotting',
+                'nama_dosen' => $dosbing ? $dosbing->name : 'Belum Plotting',
                 'status' => $p->status,
                 'tanggal_mulai' => $p->tanggal_mulai ? $p->tanggal_mulai->format('Y-m-d') : null,
                 'tanggal_selesai' => $p->tanggal_selesai ? $p->tanggal_selesai->format('Y-m-d') : null,

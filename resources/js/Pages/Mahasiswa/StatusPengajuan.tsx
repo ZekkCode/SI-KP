@@ -64,14 +64,14 @@ export default function StatusPengajuan() {
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Status Pengajuan KP</h1>
           <p className="text-sm text-slate-500 mt-1">Pantau proses verifikasi dokumen pendaftaran Kerja Praktik Anda.</p>
         </div>
-        <div className="text-right hidden sm:block bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 sm:text-right">
           <p className="text-xs text-slate-600">
             <span className="font-semibold text-slate-400 uppercase text-[10px] block">Instansi Tujuan:</span>
             <strong className="text-slate-900">{pendaftaran.instansi?.nama ?? pendaftaran.nama_instansi ?? "Belum Ditentukan"}</strong>
           </p>
           <p className="text-xs text-slate-600 mt-1">
             <span className="font-semibold text-slate-400 uppercase text-[10px] block">Dosen Pembimbing:</span>
-            <strong className="text-slate-900">{pendaftaran.dosenPembimbing?.name ?? "Belum Diplot"}</strong>
+            <strong className="text-slate-900">{pendaftaran.dosenPembimbing?.name ?? pendaftaran.dosen_pembimbing?.name ?? "Belum Diplot"}</strong>
           </p>
         </div>
       </div>
@@ -101,10 +101,39 @@ export default function StatusPengajuan() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2.5">
-                {pendaftaran.status === "perlu_perbaikan" && (
-                  <a href="/mahasiswa/pendaftaran" className="inline-flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition cursor-pointer">
-                    <UploadCloud className="w-4 h-4"/>
-                    <span>Perbaiki Berkas Pendaftaran</span>
+                {['disetujui_tu', 'surat_terbit'].includes(pendaftaran.status) && (
+                  <a href="/mahasiswa/surat-pengantar" className="inline-flex items-center gap-1.5 bg-[#00288e] hover:bg-[#002070] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-xs transition cursor-pointer">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Lanjut ke Pengajuan Surat Pengantar &rarr;</span>
+                  </a>
+                )}
+                {['konfirmasi_instansi', 'diterima_instansi'].includes(pendaftaran.status) && (
+                  <a href="/mahasiswa/proposal" className="inline-flex items-center gap-1.5 bg-[#00288e] hover:bg-[#002070] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-xs transition cursor-pointer">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Lanjut ke Unggah Proposal &rarr;</span>
+                  </a>
+                )}
+                {pendaftaran.status === 'verifikasi_surat_balasan' && (
+                  <a href="/mahasiswa/surat-balasan" className="inline-flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-xs transition cursor-pointer">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Lihat Surat Balasan &rarr;</span>
+                  </a>
+                )}
+                {['aktif', 'seminar'].includes(pendaftaran.status) && (
+                  <a href="/mahasiswa/logbook" className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-xs transition cursor-pointer">
+                    <span>Isi Logbook Kegiatan KP &rarr;</span>
+                  </a>
+                )}
+                {['seminar', 'sidang_requested', 'sidang_dijadwalkan'].includes(pendaftaran.status) && (
+                  <a href="/mahasiswa/sidang" className="inline-flex items-center gap-1.5 bg-[#00288e] hover:bg-[#002070] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-xs transition cursor-pointer">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Jadwal & Pengajuan Sidang &rarr;</span>
+                  </a>
+                )}
+                {pendaftaran.status === 'selesai' && (
+                  <a href="/mahasiswa/penilaian" className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-xs transition cursor-pointer">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Lihat Nilai & Kelulusan Akhir &rarr;</span>
                   </a>
                 )}
                 <a href="/panduan" className="inline-flex items-center gap-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition cursor-pointer">

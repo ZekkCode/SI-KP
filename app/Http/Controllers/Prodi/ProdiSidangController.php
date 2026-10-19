@@ -46,6 +46,10 @@ class ProdiSidangController extends Controller
 
         $sidangs = $query->latest()->get()->map(function ($s) {
             $p = $s->pendaftaran;
+            if ($p && !$p->dosen_pembimbing_id) {
+                $p->ensureDosenPembimbing();
+                $p->load('dosenPembimbing');
+            }
             return [
                 'id' => $s->id,
                 'status' => $s->status,
@@ -113,7 +117,8 @@ class ProdiSidangController extends Controller
         $tanggalSidang = Carbon::parse($request->tanggal . ' ' . $request->jam);
 
         // Dosen Penguji = Dosen Pembimbing (sesuai ketentuan user)
-        $dosenPengujiId = $pendaftaran->dosen_pembimbing_id;
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        $dosenPengujiId = $dosbing?->id ?? $pendaftaran->dosen_pembimbing_id;
 
         $sidang->update([
             'tanggal_sidang' => $tanggalSidang,
@@ -154,8 +159,33 @@ class ProdiSidangController extends Controller
      */
     public function selesai($id): RedirectResponse
     {
-        $sidang = Sidang::with('pendaftaran')->findOrFail($id);
+        $sidang = Sidang::with(['pendaftaran.mahasiswa', 'pendaftaran.dosenPembimbing'])->findOrFail($id);
         $sidang->update(['status' => 'selesai']);
+
+        $pendaftaran = $sidang->pendaftaran;
+        if ($pendaftaran?->mahasiswa_id) {
+            Notifikasi::create([
+                'user_id' => $pendaftaran->mahasiswa_id,
+                'judul' => 'Sidang KP Selesai Dilaksanakan',
+                'pesan' => 'Pelaksanaan sidang Kerja Praktik Anda telah selesai. Silakan pantau penginputan nilai akhir dan penerbitan Berita Acara.',
+                'tipe' => 'sukses',
+                'priority' => 'high',
+                'link' => '/mahasiswa/penilaian',
+            ]);
+        }
+
+        $dosbing = $pendaftaran?->ensureDosenPembimbing();
+        if ($dosbing) {
+            $mhsNama = $pendaftaran->mahasiswa?->name ?? 'Mahasiswa';
+            Notifikasi::create([
+                'user_id' => $dosbing->id,
+                'judul' => 'Sidang Mahasiswa Selesai - Masukkan Nilai',
+                'pesan' => "Sidang KP mahasiswa {$mhsNama} telah selesai. Silakan masukkan nilai evaluasi pembimbing.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/dosen/penilaian',
+            ]);
+        }
 
         return back()->with('success', 'Status sidang berhasil diperbarui menjadi Selesai.');
     }

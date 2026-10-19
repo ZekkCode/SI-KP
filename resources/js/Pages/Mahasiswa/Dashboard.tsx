@@ -465,7 +465,13 @@ export default function Dashboard({
                                 </button>
                             </div>
                         </div>
-                        <button className="text-primary text-label-md hover:underline">{t('dashboard.view_all', undefined, 'Lihat Semua')}</button>
+                        <button
+                            type="button"
+                            onClick={() => setNotifFilter('all')}
+                            className="text-primary text-label-md hover:underline cursor-pointer"
+                        >
+                            {t('dashboard.view_all', undefined, 'Lihat Semua')}
+                        </button>
                     </div>
                     <div className="divide-y divide-outline-variant">
                         {displayedNotifications.length > 0 ? (

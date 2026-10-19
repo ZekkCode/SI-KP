@@ -35,6 +35,8 @@ class MahasiswaPenilaianController extends Controller
             ]);
         }
 
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+
         $nilaiAkhir = $pendaftaran->nilaiAkhir;
         $nilais = $pendaftaran->nilais;
 
@@ -57,7 +59,7 @@ class MahasiswaPenilaianController extends Controller
 
         $dataRapor = [
             'status_kp' => $pendaftaran->status,
-            'dosen_pembimbing' => $pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->name : '-',
+            'dosen_pembimbing' => $dosbing?->name ?? ($pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->name : '-'),
             'instansi' => $pendaftaran->instansi ? $pendaftaran->instansi->nama : '-',
             
             // Rekap Agregat
@@ -104,6 +106,8 @@ class MahasiswaPenilaianController extends Controller
             return abort(404, 'Data tidak ditemukan.');
         }
 
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+
         $nilaiAkhir = $pendaftaran->nilaiAkhir;
         $nilais = $pendaftaran->nilais;
 
@@ -126,7 +130,7 @@ class MahasiswaPenilaianController extends Controller
         $rapor = [
             'mahasiswa' => $pendaftaran->mahasiswa,
             'status_kp' => $pendaftaran->status,
-            'dosen_pembimbing' => $pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->name : '-',
+            'dosen_pembimbing' => $dosbing?->name ?? ($pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->name : '-'),
             'instansi' => $pendaftaran->instansi ? $pendaftaran->instansi->nama : '-',
             'agregat_dosen' => $nilaiAkhir ? $nilaiAkhir->nilai_pembimbing : null,
             'agregat_instansi' => $nilaiAkhir ? $nilaiAkhir->nilai_instansi : null,

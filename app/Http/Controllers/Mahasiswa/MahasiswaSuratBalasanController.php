@@ -99,6 +99,27 @@ class MahasiswaSuratBalasanController extends Controller
             'status' => 'verifikasi_surat_balasan'
         ]);
 
+        \App\Models\Notifikasi::create([
+            'user_id' => $request->user()->id,
+            'judul' => 'Surat Balasan Berhasil Diunggah',
+            'pesan' => 'Surat balasan instansi berhasil diunggah dan sedang menunggu verifikasi Tata Usaha.',
+            'tipe' => 'sukses',
+            'priority' => 'normal',
+            'link' => '/mahasiswa/status-pengajuan',
+        ]);
+
+        $tuUsers = \App\Models\User::where('role', 'tu')->get();
+        foreach ($tuUsers as $tu) {
+            \App\Models\Notifikasi::create([
+                'user_id' => $tu->id,
+                'judul' => 'Verifikasi Surat Balasan Mahasiswa',
+                'pesan' => "Mahasiswa {$request->user()->name} ({$request->user()->nim}) telah mengunggah surat balasan instansi untuk diverifikasi.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/tu/surat-balasan',
+            ]);
+        }
+
         return back()->with(
             'success',
             'Surat balasan berhasil diupload.'

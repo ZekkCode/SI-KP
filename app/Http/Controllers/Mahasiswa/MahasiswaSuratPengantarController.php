@@ -44,11 +44,17 @@ class MahasiswaSuratPengantarController extends Controller
             ];
         }
 
+        $dosenPembimbing = null;
+        if ($pendaftaran) {
+            $dosbing = $pendaftaran->ensureDosenPembimbing();
+            $dosenPembimbing = $dosbing?->name;
+        }
+
         return Inertia::render('Mahasiswa/SuratPengantar', [
             'nim' => $user->nim ?? '-',
             'name' => $user->name,
             'jurusan' => $user->programStudi?->nama ?? '-',
-            'dosenPembimbing' => $pendaftaran?->dosenPembimbing?->name ?? null,
+            'dosenPembimbing' => $dosenPembimbing,
             'pendaftaran' => $pendaftaranData,
             'hasSurat' => $pendaftaran?->suratPengantar != null,
             'statusKP' => $pendaftaran?->status,
@@ -139,6 +145,18 @@ class MahasiswaSuratPengantarController extends Controller
             'file_scan' => $path,
             'status' => 'menunggu_verifikasi'
         ]);
+
+        $tuUsers = \App\Models\User::where('role', 'tu')->get();
+        foreach ($tuUsers as $tu) {
+            \App\Models\Notifikasi::create([
+                'user_id' => $tu->id,
+                'judul' => 'Pengajuan Surat Pengantar Baru',
+                'pesan' => "Mahasiswa {$request->user()->name} ({$request->user()->nim}) telah mengunggah berkas scan untuk penerbitan surat pengantar resmi.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/tu/generate?id=' . $pendaftaran->id,
+            ]);
+        }
 
         return back()->with('success', 'File scan berhasil diunggah dan sedang diverifikasi TU.');
     }

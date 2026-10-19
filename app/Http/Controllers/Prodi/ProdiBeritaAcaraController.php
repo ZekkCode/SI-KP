@@ -79,6 +79,27 @@ class ProdiBeritaAcaraController extends Controller
                 'status' => 'selesai'
             ]);
 
+            \App\Models\Notifikasi::create([
+                'user_id' => $pendaftaran->mahasiswa_id,
+                'judul' => 'Berita Acara Disetujui Prodi',
+                'pesan' => 'Berita Acara Kerja Praktik Anda telah divalidasi dan disetujui oleh Program Studi. Seluruh alur KP Anda telah selesai.',
+                'tipe' => 'sukses',
+                'priority' => 'high',
+                'link' => '/mahasiswa/berita-acara',
+            ]);
+
+            $dosbing = $pendaftaran->ensureDosenPembimbing();
+            if ($dosbing) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $dosbing->id,
+                    'judul' => 'Berita Acara Mahasiswa Bimbingan Disetujui',
+                    'pesan' => "Berita Acara untuk mahasiswa bimbingan {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}) telah disetujui Prodi.",
+                    'tipe' => 'sukses',
+                    'priority' => 'normal',
+                    'link' => '/dosen/monitoring',
+                ]);
+            }
+
             DB::commit();
             return back()->with('success', 'Berita Acara berhasil diterbitkan dan status pendaftaran menjadi selesai.');
         } catch (\Exception $e) {
@@ -113,6 +134,27 @@ class ProdiBeritaAcaraController extends Controller
             $pendaftaran->update([
                 'status' => 'selesai'
             ]);
+
+            \App\Models\Notifikasi::create([
+                'user_id' => $pendaftaran->mahasiswa_id,
+                'judul' => 'Berita Acara Disetujui Prodi',
+                'pesan' => 'Berita Acara Kerja Praktik Anda telah divalidasi dan disetujui oleh Program Studi. Seluruh alur KP Anda telah selesai.',
+                'tipe' => 'sukses',
+                'priority' => 'high',
+                'link' => '/mahasiswa/berita-acara',
+            ]);
+
+            $dosbing = $pendaftaran->ensureDosenPembimbing();
+            if ($dosbing) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $dosbing->id,
+                    'judul' => 'Berita Acara Mahasiswa Bimbingan Disetujui',
+                    'pesan' => "Berita Acara untuk mahasiswa bimbingan {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}) telah disetujui Prodi.",
+                    'tipe' => 'sukses',
+                    'priority' => 'normal',
+                    'link' => '/dosen/monitoring',
+                ]);
+            }
 
             DB::commit();
             return redirect()->back()->with('success', 'Berita Acara berhasil divalidasi dan disetujui.');

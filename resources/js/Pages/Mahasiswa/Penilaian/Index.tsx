@@ -54,7 +54,7 @@ export default function Index({ hasData, message, rapor }: PenilaianProps) {
         <div className="flex-1 p-6 max-w-[1200px] mx-auto w-full space-y-6">
             <Head title="Hasil Penilaian Kerja Praktik" />
             
-            <PageHeader title="Hasil Penilaian" description="Rincian hasil evaluasi nilai Kerja Praktik dari Dosen dan Instansi.">
+            <PageHeader title="Tahap 9: Penilaian & Kelulusan Akhir" description="Rincian hasil evaluasi nilai Kerja Praktik dari Dosen dan Instansi.">
                 <div className="bg-blue-50 p-3 rounded-xl text-blue-700">
                     <Award className="w-7 h-7" />
                 </div>

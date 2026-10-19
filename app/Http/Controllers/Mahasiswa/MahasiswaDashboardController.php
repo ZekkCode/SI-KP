@@ -33,6 +33,10 @@ class MahasiswaDashboardController extends Controller
             ->latest()
             ->first();
 
+        if ($pendaftaran && empty($pendaftaran->dosen_pembimbing_id)) {
+            $pendaftaran->ensureDosenPembimbing();
+        }
+
         // Determine current step for stepper (0-5)
         $currentStep = $this->determineStep($pendaftaran);
 

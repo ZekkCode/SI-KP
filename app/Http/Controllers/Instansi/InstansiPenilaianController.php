@@ -28,11 +28,20 @@ class InstansiPenilaianController extends Controller
             ])->with('error', 'Profil instansi atau pembimbing lapangan belum diatur.');
         }
 
-        // Ambil pendaftaran yang ada di instansi ini (semua status aktif, bimbingan, atau selesai)
+        $pl = $user->pembimbingLapangan;
+
+        // Ambil pendaftaran yang ada di instansi ini atau bimbingan PL ini (semua status aktif, bimbingan, atau selesai)
         $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($user) {
                 $query->where('penilai_id', $user->id)->where('tipe', 'instansi');
             }])
-            ->where('instansi_id', $instansi->id)
+            ->where(function ($q) use ($instansi, $pl) {
+                if ($instansi) {
+                    $q->where('instansi_id', $instansi->id);
+                }
+                if ($pl) {
+                    $q->orWhere('pembimbing_lapangan_id', $pl->id);
+                }
+            })
             ->whereNotIn('status', ['draft', 'ditolak', 'ditolak_instansi']) 
             ->latest()
             ->get()
@@ -67,12 +76,20 @@ class InstansiPenilaianController extends Controller
 
         $user = Auth::user();
         $instansi = $user->instansi ?? $user->pembimbingLapangan?->instansi;
+        $pl = $user->pembimbingLapangan;
 
-        if (!$instansi) {
+        if (!$instansi && !$pl) {
             return back()->with('error', 'Profil instansi atau pembimbing lapangan belum diatur.');
         }
 
-        $pendaftaran = Pendaftaran::where('instansi_id', $instansi->id)->findOrFail($id);
+        $pendaftaran = Pendaftaran::where(function ($q) use ($instansi, $pl) {
+            if ($instansi) {
+                $q->where('instansi_id', $instansi->id);
+            }
+            if ($pl) {
+                $q->orWhere('pembimbing_lapangan_id', $pl->id);
+            }
+        })->findOrFail($id);
         $penilaiId = $user->id;
 
         DB::beginTransaction();
@@ -146,8 +163,21 @@ class InstansiPenilaianController extends Controller
                 'judul' => 'Nilai Instansi Telah Diberikan',
                 'pesan' => 'Pembimbing Lapangan / Instansi ' . ($instansi->nama ?? '') . ' telah memberikan nilai evaluasi magang Anda (Nilai: ' . round($totalNilaiInstansi, 1) . ').',
                 'tipe' => 'info',
-                'link' => '/mahasiswa/dashboard',
+                'priority' => 'high',
+                'link' => '/mahasiswa/penilaian',
             ]);
+
+            $dosbing = $pendaftaran->ensureDosenPembimbing();
+            if ($dosbing) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $dosbing->id,
+                    'judul' => 'Nilai Mitra Instansi Telah Masuk',
+                    'pesan' => "Mitra Instansi telah memberikan nilai evaluasi untuk mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}).",
+                    'tipe' => 'info',
+                    'priority' => 'high',
+                    'link' => '/dosen/penilaian',
+                ]);
+            }
 
             DB::commit();
             return back()->with('success', 'Nilai berhasil disimpan.');

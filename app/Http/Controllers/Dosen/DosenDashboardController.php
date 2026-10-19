@@ -39,6 +39,12 @@ class DosenDashboardController extends Controller
             ->latest()
             ->get();
 
+        foreach ($bimbinganList as $p) {
+            if (!$p->dosen_pembimbing_id) {
+                $p->ensureDosenPembimbing();
+            }
+        }
+
         // 3. Identifikasi mahasiswa baru (status awal atau pendaftaran 14 hari terakhir)
         $statusBaru = ['diajukan', 'verifikasi_tu', 'perlu_perbaikan', 'disetujui_tu', 'surat_terbit', 'diterima_instansi'];
         $mahasiswaBaru = $bimbinganList->filter(function ($p) use ($statusBaru) {

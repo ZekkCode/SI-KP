@@ -1,6 +1,6 @@
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import { FileText, Upload, CheckCircle2, AlertCircle, File, Download, ExternalLink, FileDown, BookOpen, Layers } from 'lucide-react';
+import { FileText, Upload, CheckCircle2, AlertCircle, File, Download, ExternalLink, FileDown, BookOpen, Layers, FileCheck } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface DokumenAkhir {
@@ -94,6 +94,10 @@ export default function DokumenAkhirIndex({ dokumen, pendaftaran, flash }: Props
 
       {/* Header */}
       <div className="mb-6">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
+          <FileCheck className="w-3.5 h-3.5" />
+          Tahap 7: Laporan Akhir KP
+        </span>
         <h1 className="text-2xl font-bold text-slate-800 mb-1">
           Laporan Akhir Kerja Praktik
         </h1>

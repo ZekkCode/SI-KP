@@ -14,11 +14,12 @@ class TUVerifikasiPendaftaranController extends Controller
     public function index(): Response
     {
         $pendaftarans = Pendaftaran::with([
-            'mahasiswa',
+            'mahasiswa.programStudi',
+            'mahasiswa.dosenWali',
+            'dosenPembimbing',
             'instansi',
             'dokumenPendaftarans',
         ])
-        // ->whereIn('status', ['diajukan', 'menunggu_verifikasi', 'pending'])
         ->where('status', '!=', 'draft') // Menangkap semua status kecuali draft
         ->latest()
         ->get();
@@ -33,22 +34,8 @@ class TUVerifikasiPendaftaranController extends Controller
         DB::beginTransaction();
         try {
             $mahasiswa = $pendaftaran->mahasiswa;
-            $dosenWaliId = $mahasiswa?->dosen_wali_id;
-
-            // Jika dosen_wali_id belum terhubung pada akun user, cari dari data master mahasiswa
-            if (! $dosenWaliId && $mahasiswa?->nim) {
-                $nipWali = \App\Models\MasterMahasiswa::where('nim', $mahasiswa->nim)->value('nip_dosen_wali');
-                if ($nipWali) {
-                    $dosen = \App\Models\User::where('nip', $nipWali)->where('role', 'dosen')->first();
-                    if ($dosen) {
-                        $mahasiswa->update(['dosen_wali_id' => $dosen->id]);
-                        $dosenWaliId = $dosen->id;
-                    }
-                }
-            }
-
-            // Dosen pembimbing otomatis ditetapkan dari Dosen Wali tanpa perlu plotting manual
-            $dosenPembimbingId = $pendaftaran->dosen_pembimbing_id ?: $dosenWaliId;
+            $dosbing = $pendaftaran->ensureDosenPembimbing();
+            $dosenPembimbingId = $dosbing?->id;
 
             // Jika ada dosen pembimbing (dari dosen wali), langsung ke 'disetujui_tu', fallback 'plotting_dosen' jika belum ada
             $status = $dosenPembimbingId ? 'disetujui_tu' : 'plotting_dosen';
@@ -62,8 +49,7 @@ class TUVerifikasiPendaftaranController extends Controller
 
             // Kirim notifikasi prioritas tinggi kepada mahasiswa
             if ($mahasiswa) {
-                $pendaftaran->load('dosenPembimbing');
-                $dosenName = $pendaftaran->dosenPembimbing?->name ?? 'Dosen Wali';
+                $dosenName = $dosbing?->name ?? 'Dosen Pembimbing';
                 \App\Models\Notifikasi::create([
                     'user_id' => $mahasiswa->id,
                     'judul' => 'Pendaftaran KP Disetujui',
@@ -73,6 +59,18 @@ class TUVerifikasiPendaftaranController extends Controller
                     'tipe' => 'sukses',
                     'priority' => 'high',
                     'link' => '/mahasiswa/status-pengajuan',
+                ]);
+            }
+
+            // Kirim notifikasi ke dosen pembimbing
+            if ($dosbing) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $dosbing->id,
+                    'judul' => 'Mahasiswa Bimbingan Baru Disetujui',
+                    'pesan' => "Mahasiswa {$mahasiswa?->name} ({$mahasiswa?->nim}) telah disetujui TU dan Anda ditetapkan sebagai Dosen Pembimbing KP.",
+                    'tipe' => 'info',
+                    'priority' => 'high',
+                    'link' => '/dosen/dashboard',
                 ]);
             }
             
@@ -121,6 +119,73 @@ class TUVerifikasiPendaftaranController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal memproses penolakan: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, Pendaftaran $pendaftaran)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|in:diajukan,disetujui_tu,perlu_perbaikan,ditolak',
+            'catatan_tu' => 'nullable|string|max:1000',
+            'total_sks' => 'nullable|numeric|min:0|max:200',
+            'ipk' => 'nullable|numeric|between:0.00,4.00',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $mahasiswa = $pendaftaran->mahasiswa;
+            if ($mahasiswa) {
+                $userUpdates = [];
+                if (isset($validated['total_sks'])) {
+                    $userUpdates['total_sks'] = (int) $validated['total_sks'];
+                }
+                if (isset($validated['ipk'])) {
+                    $userUpdates['ipk'] = $validated['ipk'];
+                }
+                if (!empty($userUpdates)) {
+                    $mahasiswa->update($userUpdates);
+                }
+            }
+
+            $pendaftaranUpdates = [
+                'status' => $validated['status'],
+                'catatan_tu' => $validated['catatan_tu'] ?? null,
+            ];
+
+            if ($validated['status'] === 'disetujui_tu') {
+                $pendaftaranUpdates['diverifikasi_oleh'] = auth()->id();
+                $pendaftaranUpdates['diverifikasi_pada'] = now();
+
+                $dosbing = $pendaftaran->ensureDosenPembimbing();
+                if ($dosbing) {
+                    $pendaftaranUpdates['dosen_pembimbing_id'] = $dosbing->id;
+                }
+            }
+
+            $pendaftaran->update($pendaftaranUpdates);
+
+            if ($mahasiswa) {
+                $statusText = match ($validated['status']) {
+                    'disetujui_tu' => 'disetujui oleh Tata Usaha',
+                    'perlu_perbaikan' => 'memerlukan perbaikan berkas',
+                    'ditolak' => 'ditolak oleh Tata Usaha',
+                    default => 'telah diperbarui oleh Tata Usaha',
+                };
+                \App\Models\Notifikasi::create([
+                    'user_id' => $mahasiswa->id,
+                    'judul' => 'Pembaruan Status Pendaftaran KP',
+                    'pesan' => "Pendaftaran KP Anda {$statusText}." . (!empty($validated['catatan_tu']) ? " Catatan: {$validated['catatan_tu']}" : ''),
+                    'tipe' => $validated['status'] === 'disetujui_tu' ? 'sukses' : 'peringatan',
+                    'priority' => 'high',
+                    'link' => '/mahasiswa/status-pengajuan',
+                ]);
+            }
+
+            DB::commit();
+            return back()->with('success', 'Data pendaftaran mahasiswa berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
         }
     }
 }

@@ -115,7 +115,7 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
                 <div>
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
                         <GraduationCap className="w-3.5 h-3.5" />
-                        Tahap 2: Bimbingan Proposal
+                        Tahap 4: Proposal KP & Review
                     </span>
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Pengajuan Proposal KP</h1>
                     <p className="text-sm text-slate-500 mt-1">Unggah berkas proposal untuk ditinjau dan disetujui Dosen Pembimbing.</p>

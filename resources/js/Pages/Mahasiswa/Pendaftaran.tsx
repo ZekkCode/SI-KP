@@ -166,14 +166,31 @@ export default function Pendaftaran({ pendaftaran, flash }: PageProps<Pendaftara
                 </div>
             )}
 
-            {/* Status Locked */}
+            {/* Status Locked / Approved / In Progress */}
             {isSubmitted && (
-                <div className="bg-blue-50 border border-blue-200 text-blue-900 px-4 py-3.5 rounded-lg flex items-center gap-3">
-                    <Info className="w-5 h-5 text-blue-600 shrink-0" />
-                    <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-blue-800">Pendaftaran Terkirim</p>
-                        <p className="text-sm text-blue-700">Status saat ini: <strong className="capitalize">{pendaftaran?.status?.replace(/_/g, ' ')}</strong>. Formulir terkunci selama proses verifikasi.</p>
+                <div className="bg-blue-50 border border-blue-200 text-blue-900 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                    <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-blue-800">
+                                {pendaftaran?.status === 'disetujui_tu' ? 'Pendaftaran Telah Disetujui' : 'Pendaftaran Terkirim'}
+                            </p>
+                            <p className="text-xs text-blue-700 mt-0.5">
+                                Status saat ini: <strong className="capitalize">{pendaftaran?.status?.replace(/_/g, ' ')}</strong>.
+                                {pendaftaran?.status === 'disetujui_tu'
+                                    ? ' Berkas akademik Anda telah tervalidasi. Silakan lanjut ke permohonan surat pengantar instansi.'
+                                    : ' Berkas Anda sedang diproses oleh staf Tata Usaha.'}
+                            </p>
+                        </div>
                     </div>
+                    {['disetujui_tu', 'surat_terbit', 'konfirmasi_instansi', 'diterima_instansi'].includes(pendaftaran?.status || '') && (
+                        <Link
+                            href="/mahasiswa/surat-pengantar"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#00288e] hover:bg-[#002070] text-white text-xs font-bold shrink-0 shadow-xs transition"
+                        >
+                            <span>Lanjut ke Surat Pengantar &rarr;</span>
+                        </Link>
+                    )}
                 </div>
             )}
 

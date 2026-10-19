@@ -26,7 +26,7 @@ class DosenProposalController extends Controller
                 $query->where('dosen_pembimbing_id', $dosenId)
                     ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
             })
-            ->orderByRaw("FIELD(status, 'diajukan') DESC") // Prioritaskan yang 'diajukan' di paling atas
+            ->orderByRaw("CASE WHEN status = 'diajukan' THEN 0 ELSE 1 END ASC") // Prioritaskan yang 'diajukan' di paling atas
             ->latest()
             ->get();
 
@@ -76,6 +76,10 @@ class DosenProposalController extends Controller
             'reviewed_by' => $dosenId,
             'reviewed_at' => now(),
         ]);
+
+        if ($request->status === 'disetujui' && $proposal->pendaftaran) {
+            $proposal->pendaftaran->update(['status' => 'aktif']);
+        }
 
         // 2. Simpan catatan ke proposal_feedbacks
         ProposalFeedback::create([

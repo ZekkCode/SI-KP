@@ -153,6 +153,21 @@ class InstansiLogbookController extends Controller
             ]);
         }
 
+        // Notifikasi ke Dosen Pembimbing
+        $dosbing = $logbook->pendaftaran?->ensureDosenPembimbing();
+        if ($dosbing) {
+            $mhsNama = $logbook->pendaftaran?->mahasiswa?->name ?? 'Mahasiswa';
+            $tgl = $logbook->tanggal->format('d/m/Y');
+            Notifikasi::create([
+                'user_id' => $dosbing->id,
+                'judul' => 'Validasi Logbook oleh Mitra',
+                'pesan' => "Pembimbing Lapangan telah memvalidasi kegiatan logbook {$mhsNama} untuk tanggal {$tgl}.",
+                'tipe' => 'info',
+                'priority' => 'normal',
+                'link' => '/dosen/logbook',
+            ]);
+        }
+
         $message = $request->status_instansi === 'disetujui'
             ? 'Kegiatan harian berhasil disetujui.'
             : 'Kegiatan harian dikembalikan untuk revisi.';

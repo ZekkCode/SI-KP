@@ -247,6 +247,11 @@ class MahasiswaPendaftaranController extends Controller
         ->latest()
         ->first();
 
+        if ($pendaftaran && empty($pendaftaran->dosen_pembimbing_id)) {
+            $pendaftaran->ensureDosenPembimbing();
+            $pendaftaran->load('dosenPembimbing');
+        }
+
         return Inertia::render(
             'Mahasiswa/StatusPengajuan',
             [

@@ -26,6 +26,76 @@ class Pendaftaran extends Model
         'pembimbing_lapangan_id',
     ];
 
+    /**
+     * Memastikan pendaftaran memiliki dosen pembimbing.
+     * Jika belum diplot, otomatis sinkronisasi dari dosen wali mahasiswa atau master data dosen.
+     */
+    public function ensureDosenPembimbing(): ?User
+    {
+        if ($this->dosen_pembimbing_id) {
+            if ($this->relationLoaded('dosenPembimbing') && $this->dosenPembimbing) {
+                return $this->dosenPembimbing;
+            }
+            $dosen = User::find($this->dosen_pembimbing_id);
+            if ($dosen) {
+                $this->setRelation('dosenPembimbing', $dosen);
+                return $dosen;
+            }
+        }
+
+        $dosenId = null;
+        $mahasiswa = $this->relationLoaded('mahasiswa') ? $this->mahasiswa : User::find($this->mahasiswa_id);
+
+        if ($mahasiswa) {
+            $dosenId = $mahasiswa->dosen_wali_id;
+            if (!$dosenId && $mahasiswa->nim) {
+                $master = MasterMahasiswa::where('nim', $mahasiswa->nim)->first();
+                if ($master && $master->nip_dosen_wali) {
+                    $dosenWali = User::where('nip', $master->nip_dosen_wali)->where('role', 'dosen')->first();
+                    if ($dosenWali) {
+                        $dosenId = $dosenWali->id;
+                        $mahasiswa->update(['dosen_wali_id' => $dosenId]);
+                    }
+                }
+            }
+        }
+
+        if (!$dosenId) {
+            $defaultDosen = User::where('role', 'dosen')->where('status_akun', 'aktif')->first();
+            $dosenId = $defaultDosen?->id;
+        }
+
+        if ($dosenId) {
+            $this->dosen_pembimbing_id = $dosenId;
+            $this->saveQuietly();
+            $dosen = User::find($dosenId);
+            $this->setRelation('dosenPembimbing', $dosen);
+            return $dosen;
+        }
+
+        return null;
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Pendaftaran $pendaftaran) {
+            if (empty($pendaftaran->dosen_pembimbing_id) && !empty($pendaftaran->mahasiswa_id)) {
+                $mahasiswa = User::find($pendaftaran->mahasiswa_id);
+                if ($mahasiswa && $mahasiswa->dosen_wali_id) {
+                    $pendaftaran->dosen_pembimbing_id = $mahasiswa->dosen_wali_id;
+                } elseif ($mahasiswa && $mahasiswa->nim) {
+                    $master = MasterMahasiswa::where('nim', $mahasiswa->nim)->first();
+                    if ($master && $master->nip_dosen_wali) {
+                        $dosenWali = User::where('nip', $master->nip_dosen_wali)->where('role', 'dosen')->first();
+                        if ($dosenWali) {
+                            $pendaftaran->dosen_pembimbing_id = $dosenWali->id;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [

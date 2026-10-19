@@ -21,9 +21,10 @@ class DosenLogbookController extends Controller
         // Ambil logbook yang berelasi dengan pendaftaran di mana dosen pembimbingnya adalah dosen yang login
         $logbooks = Logbook::with(['pendaftaran.mahasiswa'])
             ->whereHas('pendaftaran', function ($query) use ($dosenId) {
-                $query->where('dosen_pembimbing_id', $dosenId);
+                $query->where('dosen_pembimbing_id', $dosenId)
+                    ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
             })
-            ->orderByRaw("FIELD(status_dosen, 'menunggu') DESC") // Prioritaskan yang 'menunggu' di atas
+            ->orderByRaw("CASE WHEN status_dosen = 'menunggu' THEN 0 ELSE 1 END ASC") // Prioritaskan yang 'menunggu' di atas
             ->orderBy('tanggal', 'desc') // Lalu urutkan berdasarkan tanggal terbaru
             ->get();
 
@@ -37,10 +38,14 @@ class DosenLogbookController extends Controller
      */
     public function review($id)
     {
+        $dosenId = Auth::id();
         $logbook = Logbook::with(['pendaftaran.mahasiswa'])
-            ->whereHas('pendaftaran', function ($query) {
-                $query->where('dosen_pembimbing_id', Auth::id());
+            ->whereHas('pendaftaran', function ($query) use ($dosenId) {
+                $query->where('dosen_pembimbing_id', $dosenId)
+                    ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
             })->findOrFail($id);
+
+        $logbook->pendaftaran?->ensureDosenPembimbing();
 
         return Inertia::render('Dosen/Logbook/Review', [
             'logbook' => $logbook
@@ -57,9 +62,13 @@ class DosenLogbookController extends Controller
             'catatan_dosen' => 'nullable|string',
         ]);
 
-        $logbook = Logbook::with('pendaftaran')->whereHas('pendaftaran', function ($query) {
-            $query->where('dosen_pembimbing_id', Auth::id());
+        $dosenId = Auth::id();
+        $logbook = Logbook::with('pendaftaran')->whereHas('pendaftaran', function ($query) use ($dosenId) {
+            $query->where('dosen_pembimbing_id', $dosenId)
+                ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
         })->findOrFail($id);
+
+        $logbook->pendaftaran?->ensureDosenPembimbing();
 
         $logbook->update([
             'status_dosen' => $request->status_dosen,

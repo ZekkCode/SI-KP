@@ -50,6 +50,11 @@ class MahasiswaSidangController extends Controller
                 ->with('error', 'Anda belum memiliki pendaftaran Kerja Praktik aktif.');
         }
 
+        if ($pendaftaran) {
+            $pendaftaran->ensureDosenPembimbing();
+            $pendaftaran->load('dosenPembimbing');
+        }
+
         // Periksa kelayakan sidang via Service
         $eligibility = $this->eligibilityService->checkEligibility($pendaftaran);
 
@@ -111,6 +116,8 @@ class MahasiswaSidangController extends Controller
             ]);
         }
 
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+
         // 3. Simpan atau perbarui pengajuan Sidang
         $sidang = Sidang::updateOrCreate(
             ['pendaftaran_id' => $pendaftaran->id],
@@ -119,7 +126,7 @@ class MahasiswaSidangController extends Controller
                 'catatan' => $request->catatan,
                 'tanggal_sidang' => null,
                 'ruangan' => null,
-                'dosen_penguji_id' => $pendaftaran->dosen_pembimbing_id, // Default dosen penguji adalah dosen pembimbing
+                'dosen_penguji_id' => $dosbing?->id ?? $pendaftaran->dosen_pembimbing_id, // Default dosen penguji adalah dosen pembimbing
             ]
         );
 
@@ -137,9 +144,9 @@ class MahasiswaSidangController extends Controller
         ]);
 
         // Ke Dosen Pembimbing
-        if ($pendaftaran->dosen_pembimbing_id) {
+        if ($dosbing) {
             Notifikasi::create([
-                'user_id' => $pendaftaran->dosen_pembimbing_id,
+                'user_id' => $dosbing->id,
                 'judul' => 'Mahasiswa Bimbingan Mengajukan Sidang',
                 'pesan' => "Mahasiswa {$pendaftaran->mahasiswa->name} ({$pendaftaran->mahasiswa->nim}) telah melengkapi syarat dan mengajukan sidang KP.",
                 'tipe' => 'info',

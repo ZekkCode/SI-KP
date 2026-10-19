@@ -39,6 +39,8 @@ interface Props {
 export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = [], plottedHistory = [] }: Props) {
   const [selections, setSelections] = useState<Record<number, number>>({});
   const [processingId, setProcessingId] = useState<number | null>(null);
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  const [editingDosenId, setEditingDosenId] = useState<number | null>(null);
 
   const handleSelectChange = (pendaftaran_id: number, dosen_id: number) => {
     setSelections(prev => ({
@@ -57,6 +59,28 @@ export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = []
       dosen_pembimbing_id
     }, {
       preserveScroll: true,
+      onFinish: () => setProcessingId(null)
+    });
+  };
+
+  const handleStartEdit = (h: Pendaftaran) => {
+    setEditingRowId(h.id);
+    setEditingDosenId(h.dosen_pembimbing_id || null);
+  };
+
+  const handleSaveEdit = (pendaftaran_id: number) => {
+    if (!editingDosenId) return;
+
+    setProcessingId(pendaftaran_id);
+    router.post(route('prodi.plotting.store'), {
+      pendaftaran_id,
+      dosen_pembimbing_id: editingDosenId
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setEditingRowId(null);
+        setEditingDosenId(null);
+      },
       onFinish: () => setProcessingId(null)
     });
   };
@@ -141,27 +165,67 @@ export default function SupervisorPlotting({ mahasiswaQueue = [], dosenList = []
           </ModernTableHeader>
           <ModernTableBody>
             {plottedHistory && plottedHistory.length > 0 ? (
-              plottedHistory.map((h, i) => (
-                <tr key={h.id} className="hover:bg-slate-50 transition-colors">
-                  <ModernTableTd>{h.mahasiswa?.nim}</ModernTableTd>
-                  <ModernTableTd>{h.mahasiswa?.name}</ModernTableTd>
-                  <ModernTableTd>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-slate-800">{h.dosen_pembimbing?.name || '-'}</span>
-                      {h.dosen_pembimbing_id && h.mahasiswa?.dosen_wali_id && h.dosen_pembimbing_id === h.mahasiswa.dosen_wali_id && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Otomatis (Dosen Wali)
-                        </span>
+              plottedHistory.map((h, i) => {
+                const isEditing = editingRowId === h.id;
+
+                return (
+                  <tr key={h.id} className="hover:bg-slate-50 transition-colors">
+                    <ModernTableTd className="font-mono text-xs">{h.mahasiswa?.nim}</ModernTableTd>
+                    <ModernTableTd className="font-semibold text-sm">{h.mahasiswa?.name}</ModernTableTd>
+                    <ModernTableTd>
+                      {isEditing ? (
+                        <select
+                          value={editingDosenId || ''}
+                          onChange={(e) => setEditingDosenId(parseInt(e.target.value))}
+                          className="w-full border border-blue-500 rounded-lg p-2 bg-white text-xs text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                        >
+                          <option value="" disabled>-- Pilih Dosen Pengganti --</option>
+                          {dosenList.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.name} ({d.bimbingan_aktif}/{d.kuota_max})
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-slate-800 text-sm">{h.dosen_pembimbing?.name || '-'}</span>
+                          {h.dosen_pembimbing_id && h.mahasiswa?.dosen_wali_id && h.dosen_pembimbing_id === h.mahasiswa.dosen_wali_id && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              Otomatis (Dosen Wali)
+                            </span>
+                          )}
+                        </div>
                       )}
-                    </div>
-                  </ModernTableTd>
-                  <ModernTableTd>
-                    <button className="text-blue-600 hover:text-blue-800 font-semibold text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-                      Edit
-                    </button>
-                  </ModernTableTd>
-                </tr>
-              ))
+                    </ModernTableTd>
+                    <ModernTableTd>
+                      {isEditing ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleSaveEdit(h.id)}
+                            disabled={processingId === h.id}
+                            className="text-white font-semibold text-xs px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                          >
+                            {processingId === h.id ? 'Menyimpan...' : 'Simpan'}
+                          </button>
+                          <button
+                            onClick={() => setEditingRowId(null)}
+                            className="text-slate-700 font-semibold text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Batal
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleStartEdit(h)}
+                          className="text-blue-600 hover:text-blue-800 font-semibold text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </ModernTableTd>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan={4} className="py-8 px-6 text-center text-gray-500 italic text-sm">

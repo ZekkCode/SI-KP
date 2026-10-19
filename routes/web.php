@@ -220,6 +220,7 @@ Route::middleware(['auth', 'role:tu'])->prefix('tu')->name('tu.')->group(functio
     Route::get('/verifikasi-pendaftaran', [\App\Http\Controllers\TU\TUVerifikasiPendaftaranController::class, 'index'])->name('verifikasi-pendaftaran');
     Route::post('/verifikasi-pendaftaran/{pendaftaran}/approve', [\App\Http\Controllers\TU\TUVerifikasiPendaftaranController::class, 'approve'])->name('verifikasi-pendaftaran.approve');
     Route::post('/verifikasi-pendaftaran/{pendaftaran}/reject', [\App\Http\Controllers\TU\TUVerifikasiPendaftaranController::class, 'reject'])->name('verifikasi-pendaftaran.reject');
+    Route::put('/verifikasi-pendaftaran/{pendaftaran}', [\App\Http\Controllers\TU\TUVerifikasiPendaftaranController::class, 'update'])->name('verifikasi-pendaftaran.update');
     Route::get('/generate-surat', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'index'])->name('generate');
     Route::post('/generate-surat/{id}/approve', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'approve'])->name('generate.approve');
     Route::post('/generate-surat/{id}/reject', [App\Http\Controllers\TU\TUSuratPengantarController::class, 'reject'])->name('generate.reject');
@@ -250,6 +251,7 @@ Route::middleware(['auth', 'role:tu'])->prefix('tu')->name('tu.')->group(functio
     Route::post('/pembimbing-lapangan/{user}/deactivate', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'deactivate'])->name('pembimbing-lapangan.deactivate');
     Route::post('/pembimbing-lapangan/{user}/reset-password', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'resetPassword'])->name('pembimbing-lapangan.reset-password');
     Route::post('/pembimbing-lapangan/{user}/resend', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'resend'])->name('pembimbing-lapangan.resend');
+    Route::get('/pembimbing-lapangan/{user}/preview-email', [\App\Http\Controllers\TU\TUPembimbingLapanganController::class, 'previewEmail'])->name('pembimbing-lapangan.preview-email');
 });
 
 // ============================================================

@@ -5,7 +5,7 @@ import React, { useState, useRef } from 'react';
 import { useForm, usePage, router } from '@inertiajs/react';
 import {
     BookOpen, Plus, Pencil, Trash2, CheckCircle2, Clock, AlertCircle,
-    Calendar, ImageIcon, X, MessageSquare, Upload, Search, Download, ExternalLink, FileText,
+    Calendar, ImageIcon, X, MessageSquare, Upload, Search, Download, ExternalLink, FileText, ArrowRight,
 } from 'lucide-react';
 import { PageProps } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -31,6 +31,11 @@ interface DosenPembimbing {
     nip: string;
 }
 
+interface Instansi {
+    nama: string;
+    alamat?: string;
+}
+
 interface PembimbingLapangan {
     nama: string;
     instansi: {
@@ -41,9 +46,11 @@ interface PembimbingLapangan {
 interface LogbookProps extends Record<string, unknown> {
     logbooks: LogbookEntry[];
     dosenPembimbing: DosenPembimbing | null;
+    instansi?: Instansi | null;
     pembimbingLapangan: PembimbingLapangan | null;
     hasPendaftaran: boolean;
     pendaftaranId: number | null;
+    pendaftaranStatus?: string;
     flash: { success?: string; error?: string };
 }
 
@@ -75,6 +82,7 @@ const statusConfig = {
 export default function Logbook({
     logbooks,
     dosenPembimbing,
+    instansi,
     pembimbingLapangan,
     hasPendaftaran,
     flash,
@@ -145,7 +153,7 @@ export default function Logbook({
                 <div className="flex-1">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
                         <BookOpen className="w-3.5 h-3.5" />
-                        Tahap 4: Logbook Harian
+                        Tahap 6: Logbook Harian
                     </span>
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Logbook Kegiatan Harian</h1>
                     <p className="text-sm text-slate-500 mt-1">
@@ -162,7 +170,7 @@ export default function Logbook({
                         <div className="flex-1">
                             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Instansi Mitra</span>
                             <span className="text-sm font-bold text-slate-900">
-                                {pembimbingLapangan?.instansi?.nama ?? 'Belum ditentukan'}
+                                {instansi?.nama ?? pembimbingLapangan?.instansi?.nama ?? 'Belum ditentukan'}
                             </span>
                         </div>
                         <div className="flex-1">
@@ -175,15 +183,52 @@ export default function Logbook({
                 </div>
 
                 {hasPendaftaran && (
-                    <Link
-                        href="/mahasiswa/logbook/create"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm transition shadow-xs cursor-pointer"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Tambah Kegiatan</span>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            href="/mahasiswa/logbook/create"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm transition shadow-xs cursor-pointer"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Tambah Kegiatan</span>
+                        </Link>
+                    </div>
                 )}
             </div>
+
+            {/* ── Status Progres & Lanjut Tahap 7 Banner ── */}
+            {logbooks.length > 0 && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                            <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-900">
+                                Logbook Kegiatan Terisi ({logbooks.length} Catatan) • Siap Lanjut ke Tahap 7
+                            </p>
+                            <p className="text-xs text-slate-600 mt-0.5">
+                                Syarat tahapan logbook harian telah terpenuhi. Anda dapat melanjutkan ke pengunggahan Berita Acara dan Laporan Akhir KP.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                        <Link
+                            href="/mahasiswa/dokumen-akhir"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition shadow-xs cursor-pointer"
+                        >
+                            <span>Unggah Laporan Akhir</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                        <Link
+                            href="/mahasiswa/berita-acara"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-emerald-300 hover:bg-emerald-50 text-emerald-800 font-semibold text-xs transition shadow-xs cursor-pointer"
+                        >
+                            <span>Berita Acara</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                    </div>
+                </div>
+            )}
 
             {/* ── Berkas Resmi Absensi & Bimbingan ── */}
             <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">

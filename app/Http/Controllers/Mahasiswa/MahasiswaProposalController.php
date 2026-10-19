@@ -37,11 +37,12 @@ class MahasiswaProposalController extends Controller
         $dosenPembimbing = null;
 
         if ($pendaftaran) {
-            $dosenPembimbing = $pendaftaran->dosenPembimbing
+            $dosbing = $pendaftaran->ensureDosenPembimbing();
+            $dosenPembimbing = $dosbing
                 ? [
-                    'name' => $pendaftaran->dosenPembimbing->name,
-                    'nip' => $pendaftaran->dosenPembimbing->nip,
-                    'initials' => $this->getInitials($pendaftaran->dosenPembimbing->name),
+                    'name' => $dosbing->name,
+                    'nip' => $dosbing->nip,
+                    'initials' => $this->getInitials($dosbing->name),
                 ]
                 : null;
 
@@ -149,9 +150,10 @@ class MahasiswaProposalController extends Controller
         ]);
 
         // Notifikasi ke Dosen Pembimbing
-        if ($pendaftaran->dosen_pembimbing_id) {
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        if ($dosbing) {
             Notifikasi::create([
-                'user_id' => $pendaftaran->dosen_pembimbing_id,
+                'user_id' => $dosbing->id,
                 'judul' => 'Proposal KP Baru Masuk',
                 'pesan' => "Mahasiswa bimbingan {$user->name} ({$user->nim}) telah mengunggah proposal Kerja Praktik untuk direview.",
                 'tipe' => 'info',
@@ -216,14 +218,32 @@ class MahasiswaProposalController extends Controller
             'status_setelah' => null, // mahasiswa replies don't change status
         ]);
 
+        // Notifikasi ke Dosen Pembimbing
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        if ($dosbing) {
+            Notifikasi::create([
+                'user_id' => $dosbing->id,
+                'judul' => 'Balasan Catatan Proposal',
+                'pesan' => "Mahasiswa bimbingan {$user->name} ({$user->nim}) mengirim catatan/tanggapan terkait proposal.",
+                'tipe' => 'info',
+                'priority' => 'normal',
+                'link' => '/dosen/review-proposal/' . $proposal->id,
+            ]);
+        }
+
         return redirect()
             ->route('mahasiswa.proposal')
             ->with('success', 'Catatan berhasil dikirim.');
     }
     public function download(Proposal $proposal): StreamedResponse
     {
+        $user = auth()->user();
         abort_unless(
-            $proposal->pendaftaran->mahasiswa_id == auth()->id(),
+            $proposal->pendaftaran?->mahasiswa_id == $user->id
+            || $user->isDosen()
+            || $user->isTu()
+            || $user->isProdi()
+            || $user->isInstansi(),
             403
         );
 
@@ -309,9 +329,10 @@ class MahasiswaProposalController extends Controller
         ]);
 
         $pendaftaran = $proposal->pendaftaran;
-        if ($pendaftaran && $pendaftaran->dosen_pembimbing_id) {
+        $dosbing = $pendaftaran?->ensureDosenPembimbing();
+        if ($dosbing) {
             Notifikasi::create([
-                'user_id' => $pendaftaran->dosen_pembimbing_id,
+                'user_id' => $dosbing->id,
                 'judul' => 'Revisi Proposal KP Dikirim',
                 'pesan' => "Mahasiswa {$request->user()->name} telah memperbarui/mengunggah revisi proposal Kerja Praktik.",
                 'tipe' => 'info',

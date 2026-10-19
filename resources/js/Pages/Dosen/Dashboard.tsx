@@ -89,7 +89,10 @@ export default function DashboardScreen({ kuota, stats, mahasiswaBaru = [], bimb
       {/* Stats Bento Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Quota Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3">
+        <Link
+          href={route('dosen.monitoring')}
+          className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3 hover:border-blue-300 hover:shadow-sm transition-all group"
+        >
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Bimbingan</span>
@@ -98,57 +101,78 @@ export default function DashboardScreen({ kuota, stats, mahasiswaBaru = [], bimb
                 <span className="text-xs text-slate-500 mb-1">/ {kuota.max} Mhs</span>
               </div>
             </div>
-            <div className="bg-blue-50 text-blue-700 p-2 rounded-lg">
+            <div className="bg-blue-50 text-blue-700 p-2 rounded-lg group-hover:bg-blue-100 transition-colors">
               <Users className="w-5 h-5" />
             </div>
           </div>
           <div className="w-full bg-slate-100 rounded-lg h-2 overflow-hidden">
             <div className={`h-full rounded-lg transition-all duration-500 ${barColor}`} style={{ width: `${percentFull}%` }}></div>
           </div>
-          <p className="text-[11px] text-slate-500">Sisa kuota: {kuota.sisa} mahasiswa.</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+            <span>Sisa kuota: {kuota.sisa} mahasiswa</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
 
         {/* Mahasiswa Baru */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3">
+        <Link
+          href={route('dosen.review')}
+          className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3 hover:border-indigo-300 hover:shadow-sm transition-all group"
+        >
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mahasiswa Baru</span>
               <span className="text-3xl font-bold text-indigo-700 mt-1">{stats.mahasiswaBaruCount ?? mahasiswaBaru.length}</span>
             </div>
-            <div className="bg-indigo-50 text-indigo-700 p-2 rounded-lg">
+            <div className="bg-indigo-50 text-indigo-700 p-2 rounded-lg group-hover:bg-indigo-100 transition-colors">
               <UserPlus className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-500 pt-2 border-t border-slate-100">Baru mendaftar / terhubung periode ini.</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+            <span>Terdaftar periode ini</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-700 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
 
         {/* Pending Review */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3">
+        <Link
+          href={route('dosen.review')}
+          className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3 hover:border-amber-300 hover:shadow-sm transition-all group"
+        >
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Review Proposal</span>
               <span className="text-3xl font-bold text-amber-700 mt-1">{stats.pendingReview}</span>
             </div>
-            <div className="bg-amber-50 text-amber-700 p-2 rounded-lg">
+            <div className="bg-amber-50 text-amber-700 p-2 rounded-lg group-hover:bg-amber-100 transition-colors">
               <Clock className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-500 pt-2 border-t border-slate-100">Proposal menunggu persetujuan Anda.</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+            <span>Perlu persetujuan Anda</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
 
         {/* Active Monitoring */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3">
+        <Link
+          href={route('dosen.logbook')}
+          className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-3 hover:border-emerald-300 hover:shadow-sm transition-all group"
+        >
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pelaksanaan KP</span>
               <span className="text-3xl font-bold text-emerald-700 mt-1">{stats.pelaksanaanKp}</span>
             </div>
-            <div className="bg-emerald-50 text-emerald-700 p-2 rounded-lg">
+            <div className="bg-emerald-50 text-emerald-700 p-2 rounded-lg group-hover:bg-emerald-100 transition-colors">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-500 pt-2 border-t border-slate-100">Mahasiswa aktif magang di mitra.</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+            <span>Mahasiswa aktif bimbingan</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
       </div>
 
       {/* Alert Section: Mahasiswa Baru Terdaftar */}
@@ -277,9 +301,12 @@ export default function DashboardScreen({ kuota, stats, mahasiswaBaru = [], bimb
                               Logbook
                             </Link>
                           ) : (
-                            <span className="text-xs text-slate-400 font-medium">
-                              Siap Bimbingan
-                            </span>
+                            <Link 
+                              href={route('dosen.monitoring')} 
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors"
+                            >
+                              Monitoring
+                            </Link>
                           )}
                         </div>
                       </td>

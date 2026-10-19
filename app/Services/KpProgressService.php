@@ -29,6 +29,11 @@ class KpProgressService
         ->latest('id')
         ->first();
 
+        // Otomatis sinkronisasi dosen pembimbing jika belum diplot
+        if ($pendaftaran && empty($pendaftaran->dosen_pembimbing_id)) {
+            $pendaftaran->ensureDosenPembimbing();
+        }
+
         // Evaluasi penyelesaian tiap step
         // Step 1: Pendaftaran (status >= diajukan)
         $step1Done = $pendaftaran && !in_array($pendaftaran->status, ['draft']);
@@ -40,12 +45,12 @@ class KpProgressService
             !empty($surat->nomor_surat) ||
             !empty($surat->tanggal_terbit)
         )) || ($pendaftaran && in_array($pendaftaran->status, [
-            'surat_terbit', 'konfirmasi_instansi', 'diterima_instansi', 'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
+            'surat_terbit', 'konfirmasi_instansi', 'diterima_instansi', 'plotting_dosen', 'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
         ]));
 
         // Step 3: Konfirmasi Instansi (confirmation_status = 'accepted' atau status pendaftaran diterima/aktif)
         $step3Done = ($surat && $surat->confirmation_status === 'accepted') || ($pendaftaran && in_array($pendaftaran->status, [
-            'diterima_instansi', 'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
+            'diterima_instansi', 'plotting_dosen', 'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
         ]));
 
         // Step 4: Proposal (proposals ada record dengan status disetujui atau pendaftaran sudah aktif)
@@ -54,20 +59,20 @@ class KpProgressService
             'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
         ]));
 
-        // Step 5: Pelaksanaan KP (Status = aktif atau lebih lanjut)
-        $step5Done = $pendaftaran && in_array($pendaftaran->status, [
+        // Step 5: Pelaksanaan KP (Status = aktif atau lebih lanjut, atau proposal telah disetujui)
+        $step5Done = ($pendaftaran && in_array($pendaftaran->status, [
             'aktif', 'seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai'
-        ]);
+        ])) || $step4Done;
 
-        // Step 6: Logbook (Minimal 5 entri logbook atau minimal 1 entri disetujui dosen)
-        $totalLogbooks = $pendaftaran?->logbooks->count() ?? 0;
-        $approvedLogbooks = $pendaftaran?->logbooks->where('status_dosen', 'disetujui')->count() ?? 0;
-        $step6Done = ($totalLogbooks >= 5) || ($approvedLogbooks >= 1 && $step5Done);
-
-        // Step 7: Laporan Akhir (dokumen_akhirs ada record atau beritaAcara ada record)
+        // Step 7 Pre-check for Step 6: Laporan Akhir (dokumen_akhirs ada record atau beritaAcara ada record)
         $hasDokumenAkhir = ($pendaftaran?->dokumenAkhirs->count() ?? 0) > 0;
         $hasBeritaAcara = (bool) $pendaftaran?->beritaAcara;
         $step7Done = $hasDokumenAkhir || $hasBeritaAcara;
+
+        // Step 6: Logbook (Minimal 1 entri logbook atau minimal 1 entri disetujui dosen, atau sudah ada dokumen akhir)
+        $totalLogbooks = $pendaftaran?->logbooks->count() ?? 0;
+        $approvedLogbooks = $pendaftaran?->logbooks->where('status_dosen', 'disetujui')->count() ?? 0;
+        $step6Done = ($totalLogbooks >= 1) || ($approvedLogbooks >= 1) || $step7Done || in_array($pendaftaran?->status, ['seminar', 'sidang_requested', 'sidang_dijadwalkan', 'selesai']);
 
         // Step 8: Sidang (sidangs ada record dengan status selesai)
         $sidang = $pendaftaran?->sidang;

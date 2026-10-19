@@ -13,6 +13,10 @@ use App\Models\PeriodeKp;
 use App\Models\ProgramStudi;
 use App\Models\Proposal;
 use App\Models\SuratPengantar;
+use App\Models\Sidang;
+use App\Models\Nilai;
+use App\Models\NilaiAkhir;
+use App\Models\BeritaAcara;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -529,7 +533,7 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 9. Demo Pendaftaran untuk Verifikasi TU
+        // 9. Demo Pendaftaran untuk Verifikasi TU (Firly Ramadhani - Antrean Menunggu Verifikasi)
         $firlyNim = (string) env('DEMO_MHS_2_NIM', '230411100080');
         $firlyNama = env('DEMO_MHS_2_NAMA', env('DEMO_MHS_2_NAME', 'Firly Ramadhani'));
         $firlyEmail = env('DEMO_MHS_2_EMAIL', "{$firlyNim}@student.trunojoyo.ac.id");
@@ -545,6 +549,10 @@ class DatabaseSeeder extends Seeder
                 'status_akun' => 'aktif',
                 'program_studi_id' => $prodiId,
                 'angkatan' => 2023,
+                'semester' => 'Semester Ganjil 2026/2027',
+                'no_telepon' => '081234567880',
+                'total_sks' => 88,
+                'ipk' => 3.25,
                 'dosen_wali_id' => $dosenRika->id,
             ]
         );
@@ -565,15 +573,12 @@ class DatabaseSeeder extends Seeder
             $pendaftaranFirly = Pendaftaran::updateOrCreate(
                 ['mahasiswa_id' => $mhsFirly->id],
                 [
-                    'instansi_id' => $seededPls[1]['instansi']->id,
-                    'pembimbing_lapangan_id' => $seededPls[1]['pl']->id,
-                    'dosen_pembimbing_id' => $dosenFifin->id,
+                    'instansi_id' => $instansi->id,
+                    'dosen_pembimbing_id' => $dosenRika->id,
                     'bidang_minat' => 'Data Analytics & Enterprise Network Infrastructure',
                     'tanggal_mulai' => '2026-09-01',
                     'tanggal_selesai' => '2026-11-30',
-                    'status' => 'aktif',
-                    'diverifikasi_oleh' => $tuUser->id,
-                    'diverifikasi_pada' => now()->subDays(10),
+                    'status' => 'diajukan',
                 ]
             );
 
@@ -593,6 +598,67 @@ class DatabaseSeeder extends Seeder
                     'path' => 'dokumen/template_berita_acara.pdf',
                     'ukuran' => 581335,
                     'uploaded_at' => now()->subDays(3),
+                ]
+            );
+        }
+
+        // 9b. Mahasiswa Bangkit Rizky Lillah (NIM 230411100085 - Status: disetujui_tu)
+        $bangkitNim = '230411100085';
+        $bangkitNama = 'BANGKIT RIZKY LILLAH';
+        $bangkitEmail = '230411100085@student.trunojoyo.ac.id';
+
+        $mhsBangkit = User::updateOrCreate(
+            ['nim' => $bangkitNim],
+            [
+                'name' => $bangkitNama,
+                'email' => $bangkitEmail,
+                'password' => $password,
+                'role' => 'mahasiswa',
+                'status_akun' => 'aktif',
+                'program_studi_id' => $prodiId,
+                'angkatan' => 2023,
+                'semester' => 'Semester Ganjil 2026/2027',
+                'total_sks' => 120,
+                'ipk' => 3.36,
+                'no_telepon' => '081234567885',
+                'dosen_wali_id' => $dosenRika->id,
+            ]
+        );
+
+        MasterMahasiswa::updateOrCreate(
+            ['nim' => $bangkitNim],
+            [
+                'nama' => $bangkitNama,
+                'email' => $bangkitEmail,
+                'program_studi' => 'Teknik Informatika',
+                'angkatan' => '2023',
+                'nip_dosen_wali' => $dosenRika->nip,
+                'sumber_data' => 'system_seed',
+            ]
+        );
+
+        if ($mhsBangkit) {
+            $pendaftaranBangkit = Pendaftaran::updateOrCreate(
+                ['mahasiswa_id' => $mhsBangkit->id],
+                [
+                    'instansi_id' => $instansi->id,
+                    'bidang_minat' => 'Rekayasa Perangkat Lunak & Sistem Terdistribusi',
+                    'tanggal_mulai' => '2026-08-01',
+                    'tanggal_selesai' => '2026-10-31',
+                    'status' => 'disetujui_tu',
+                    'dosen_pembimbing_id' => $dosenRika->id,
+                    'diverifikasi_oleh' => $tuUser->id,
+                    'diverifikasi_pada' => now()->subDays(2),
+                ]
+            );
+
+            DokumenPendaftaran::updateOrCreate(
+                ['pendaftaran_id' => $pendaftaranBangkit->id, 'jenis' => 'transkrip'],
+                [
+                    'nama_file' => 'Transkrip_Nilai_Bangkit_Rizky_Lillah.pdf',
+                    'path' => 'dokumen/template_berita_acara.pdf',
+                    'ukuran' => 581335,
+                    'uploaded_at' => now()->subDays(2),
                 ]
             );
         }
@@ -656,6 +722,202 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // 12. Demo Mahasiswa 5 (Tahap Sidang KP Dijadwalkan) -> Dinda Ayu Lestari
+        $mhs5Nim = '230411100010';
+        $mhs5 = User::updateOrCreate(
+            ['nim' => $mhs5Nim],
+            [
+                'name' => 'Dinda Ayu Lestari',
+                'email' => "{$mhs5Nim}@student.trunojoyo.ac.id",
+                'password' => $password,
+                'role' => 'mahasiswa',
+                'status_akun' => 'aktif',
+                'program_studi_id' => $prodiId,
+                'angkatan' => 2023,
+                'dosen_wali_id' => $dosenRika->id,
+            ]
+        );
+        MasterMahasiswa::updateOrCreate(
+            ['nim' => $mhs5Nim],
+            [
+                'nama' => 'Dinda Ayu Lestari',
+                'email' => "{$mhs5Nim}@student.trunojoyo.ac.id",
+                'program_studi' => 'Teknik Informatika',
+                'angkatan' => '2023',
+                'nip_dosen_wali' => $dosenRika->nip,
+                'sumber_data' => 'system_seed',
+            ]
+        );
+        $pendaftaran5 = Pendaftaran::updateOrCreate(
+            ['mahasiswa_id' => $mhs5->id],
+            [
+                'instansi_id' => $seededPls[1]['instansi']->id,
+                'pembimbing_lapangan_id' => $seededPls[1]['pl']->id,
+                'dosen_pembimbing_id' => $dosenRika->id,
+                'bidang_minat' => 'Cloud Computing & Infrastructure Engineering',
+                'tanggal_mulai' => '2026-07-01',
+                'tanggal_selesai' => '2026-09-30',
+                'status' => 'seminar',
+                'diverifikasi_oleh' => $tuUser->id,
+                'diverifikasi_pada' => now()->subDays(60),
+            ]
+        );
+        Proposal::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran5->id],
+            [
+                'judul' => 'Otomasi Monitoring Pipeline Serverless Microservices pada Cloud Platform',
+                'abstrak' => 'Implementasi sistem pemantauan otomatis berbasis cloud platform untuk meningkatkan keandalan infrastruktur serverless.',
+                'path_file' => 'dokumen/template_proposal.pdf',
+                'versi' => 1,
+                'status' => 'disetujui',
+                'submitted_at' => now()->subDays(50),
+                'reviewed_by' => $dosenRika->id,
+                'reviewed_at' => now()->subDays(45),
+            ]
+        );
+        DokumenAkhir::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran5->id, 'jenis' => 'laporan_akhir'],
+            [
+                'nama_file' => 'Laporan_Akhir_KP_Dinda_Ayu.pdf',
+                'path' => 'dokumen/buku_panduan_kp.pdf',
+                'uploaded_at' => now()->subDays(10),
+            ]
+        );
+        Sidang::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran5->id],
+            [
+                'status' => 'dijadwalkan',
+                'ruangan' => 'Lab Komputer & Rekayasa Perangkat Lunak 1',
+                'tanggal_sidang' => now()->addDays(2)->setHour(9)->setMinute(30),
+                'dosen_penguji_id' => $dosenRika->id,
+                'catatan' => 'Harap hadir 15 menit sebelum sidang dengan pakaian rapi dan membawa draf laporan.',
+            ]
+        );
+
+        // 13. Demo Mahasiswa 6 (Tahap Selesai KP & Yudisium Lulus) -> Rizky Pratama
+        $mhs6Nim = '230411100020';
+        $mhs6 = User::updateOrCreate(
+            ['nim' => $mhs6Nim],
+            [
+                'name' => 'Rizky Pratama',
+                'email' => "{$mhs6Nim}@student.trunojoyo.ac.id",
+                'password' => $password,
+                'role' => 'mahasiswa',
+                'status_akun' => 'aktif',
+                'program_studi_id' => $prodiId,
+                'angkatan' => 2023,
+                'dosen_wali_id' => $dosenFifin->id,
+            ]
+        );
+        MasterMahasiswa::updateOrCreate(
+            ['nim' => $mhs6Nim],
+            [
+                'nama' => 'Rizky Pratama',
+                'email' => "{$mhs6Nim}@student.trunojoyo.ac.id",
+                'program_studi' => 'Teknik Informatika',
+                'angkatan' => '2023',
+                'nip_dosen_wali' => $dosenFifin->nip,
+                'sumber_data' => 'system_seed',
+            ]
+        );
+        $pendaftaran6 = Pendaftaran::updateOrCreate(
+            ['mahasiswa_id' => $mhs6->id],
+            [
+                'instansi_id' => $seededPls[0]['instansi']->id,
+                'pembimbing_lapangan_id' => $seededPls[0]['pl']->id,
+                'dosen_pembimbing_id' => $dosenFifin->id,
+                'bidang_minat' => 'Cyber Security & Network Defense',
+                'tanggal_mulai' => '2026-06-01',
+                'tanggal_selesai' => '2026-08-31',
+                'status' => 'selesai',
+                'diverifikasi_oleh' => $tuUser->id,
+                'diverifikasi_pada' => now()->subDays(90),
+            ]
+        );
+        Proposal::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id],
+            [
+                'judul' => 'Audit Keamanan Sistem Jaringan dan Manajemen Hak Akses Pengguna',
+                'abstrak' => 'Penerapan framework keamanan ISO 27001 pada infrastruktur jaringan enterprise.',
+                'path_file' => 'dokumen/template_proposal.pdf',
+                'versi' => 1,
+                'status' => 'disetujui',
+                'submitted_at' => now()->subDays(80),
+                'reviewed_by' => $dosenFifin->id,
+                'reviewed_at' => now()->subDays(75),
+            ]
+        );
+        DokumenAkhir::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'jenis' => 'laporan_akhir'],
+            [
+                'nama_file' => 'Laporan_Akhir_KP_Rizky_Pratama.pdf',
+                'path' => 'dokumen/buku_panduan_kp.pdf',
+                'uploaded_at' => now()->subDays(20),
+            ]
+        );
+        Sidang::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id],
+            [
+                'status' => 'selesai',
+                'ruangan' => 'Ruang Sidang 2 Lt. 2',
+                'tanggal_sidang' => now()->subDays(15)->setHour(10)->setMinute(0),
+                'dosen_penguji_id' => $dosenFifin->id,
+                'catatan' => 'Sidang selesai dengan hasil memuaskan.',
+            ]
+        );
+        // Nilai Dosen Pembimbing
+        Nilai::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'tipe' => 'pembimbing', 'komponen' => 'sistematika'],
+            ['penilai_id' => $dosenFifin->id, 'bobot' => 20, 'nilai' => 88]
+        );
+        Nilai::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'tipe' => 'pembimbing', 'komponen' => 'kedalaman'],
+            ['penilai_id' => $dosenFifin->id, 'bobot' => 30, 'nilai' => 90]
+        );
+        Nilai::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'tipe' => 'pembimbing', 'komponen' => 'penguasaan'],
+            ['penilai_id' => $dosenFifin->id, 'bobot' => 30, 'nilai' => 86]
+        );
+        Nilai::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'tipe' => 'pembimbing', 'komponen' => 'presentasi'],
+            ['penilai_id' => $dosenFifin->id, 'bobot' => 20, 'nilai' => 92]
+        );
+        // Nilai Instansi
+        Nilai::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'tipe' => 'instansi', 'komponen' => 'kedisiplinan'],
+            ['penilai_id' => $seededPls[0]['user']->id, 'bobot' => 30, 'nilai' => 95]
+        );
+        Nilai::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'tipe' => 'instansi', 'komponen' => 'kerjasama'],
+            ['penilai_id' => $seededPls[0]['user']->id, 'bobot' => 30, 'nilai' => 90]
+        );
+        Nilai::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id, 'tipe' => 'instansi', 'komponen' => 'kinerja'],
+            ['penilai_id' => $seededPls[0]['user']->id, 'bobot' => 40, 'nilai' => 92]
+        );
+        NilaiAkhir::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id],
+            [
+                'nilai_pembimbing' => 88.8,
+                'nilai_instansi' => 92.3,
+                'nilai_ujian' => 89.0,
+                'nilai_total' => 90.1,
+                'nilai_huruf' => 'A',
+                'status' => 'lulus',
+                'catatan' => 'Lulus Kerja Praktik dengan predikat Sangat Baik (A).',
+            ]
+        );
+        BeritaAcara::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran6->id],
+            [
+                'status' => 'disetujui',
+                'path_file' => 'dokumen/template_berita_acara.pdf',
+                'catatan' => 'Telah divalidasi dan disetujui oleh Program Studi.',
+                'divalidasi_oleh' => $prodiUser->id,
+                'divalidasi_pada' => now()->subDays(10),
+            ]
+        );
+
         $this->command->info('===============================================================');
         $this->command->info('✅ DATABASE INISIALISASI SUKSES - DATA KREDENSIAL DARI ENV!');
         $this->command->info('===============================================================');
@@ -685,6 +947,18 @@ class DatabaseSeeder extends Seeder
                 "{$googleUserName} (PT Barata Indonesia)",
             ];
         }
+        $tableRows[] = [
+            'Mahasiswa 5 (Tahap Sidang)',
+            "{$mhs5->nim} ({$mhs5->email})",
+            $initialPassword,
+            "{$mhs5->name} (Sidang Dijadwalkan)",
+        ];
+        $tableRows[] = [
+            'Mahasiswa 6 (Lulus & Berita Acara)',
+            "{$mhs6->nim} ({$mhs6->email})",
+            $initialPassword,
+            "{$mhs6->name} (Lulus KP Nilai A)",
+        ];
         $tableRows[] = [
             'Dosen Pembimbing 1',
             "{$dosenRikaEmail} / {$dosenRikaNip}",

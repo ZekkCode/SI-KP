@@ -90,6 +90,10 @@ export default function BeritaAcara({ pendaftaran, beritaAcara, status }: Berita
 
             {/* Header Section */}
             <div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
+                    <FileText className="w-3.5 h-3.5" />
+                    Tahap 7: Berita Acara KP
+                </span>
                 <h1 className="text-2xl font-bold text-slate-800">Berita Acara Selesai Kerja Praktik</h1>
                 <p className="text-sm text-slate-500 mt-1">Unggah dokumen berita acara resmi yang telah ditandatangani dan dicap oleh pembimbing instansi.</p>
             </div>

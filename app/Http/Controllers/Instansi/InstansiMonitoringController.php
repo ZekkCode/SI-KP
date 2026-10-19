@@ -17,9 +17,10 @@ class InstansiMonitoringController extends Controller
     public function index(Request $request): Response
     {
         $user = Auth::user();
-        $instansi = $user->instansi ?? $user->pembimbingLapangan?->instansi;
+        $pl = $user->pembimbingLapangan;
+        $instansi = $user->instansi ?? $pl?->instansi;
 
-        if (!$instansi) {
+        if (!$instansi && !$pl) {
             return Inertia::render('Instansi/Monitoring', [
                 'mahasiswas' => [],
                 'stats' => [
@@ -37,6 +38,9 @@ class InstansiMonitoringController extends Controller
             ]);
         }
 
+        $instansiId = $instansi?->id;
+        $plId = $pl?->id;
+
         $query = Pendaftaran::with([
             'mahasiswa',
             'dosenPembimbing',
@@ -50,7 +54,14 @@ class InstansiMonitoringController extends Controller
                 $q->where('penilai_id', $user->id)->where('tipe', 'instansi');
             }
         ])
-        ->where('instansi_id', $instansi->id);
+        ->where(function ($q) use ($instansiId, $plId) {
+            if ($plId) {
+                $q->where('pembimbing_lapangan_id', $plId);
+            }
+            if ($instansiId) {
+                $q->orWhere('instansi_id', $instansiId);
+            }
+        });
 
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);

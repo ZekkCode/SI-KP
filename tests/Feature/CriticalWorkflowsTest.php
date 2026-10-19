@@ -462,4 +462,300 @@ class CriticalWorkflowsTest extends TestCase
         $responseSidang->assertRedirect(route('mahasiswa.dashboard'));
         $responseSidang->assertSessionHas('error');
     }
+
+    /**
+     * 10. Auto-plotting dan sinkronisasi Dosen Pembimbing dari Dosen Wali
+     */
+    public function test_ensure_dosen_pembimbing_auto_resolves_and_syncs_dosen(): void
+    {
+        $mhs = User::factory()->create([
+            'role' => 'mahasiswa',
+            'status_akun' => 'aktif',
+            'dosen_wali_id' => $this->dosen->id,
+        ]);
+
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $mhs->id,
+            'status' => 'draft',
+        ]);
+
+        // Model hook otomatis mengisi dosen_pembimbing_id saat create
+        $this->assertEquals($this->dosen->id, $pendaftaran->dosen_pembimbing_id);
+
+        $resolvedDosen = $pendaftaran->ensureDosenPembimbing();
+        $this->assertNotNull($resolvedDosen);
+        $this->assertEquals($this->dosen->id, $resolvedDosen->id);
+    }
+
+    /**
+     * 11. Mengisi 1 logbook langsung membuka tahap 7 (Dokumen Akhir & Berita Acara)
+     */
+    public function test_logbook_single_entry_unlocks_step_7(): void
+    {
+        $mhs = User::factory()->create([
+            'role' => 'mahasiswa',
+            'status_akun' => 'aktif',
+            'dosen_wali_id' => $this->dosen->id,
+        ]);
+
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $mhs->id,
+            'instansi_id' => $this->instansi->id,
+            'dosen_pembimbing_id' => $this->dosen->id,
+            'status' => 'aktif',
+            'tanggal_mulai' => now()->subDays(10),
+            'tanggal_selesai' => now()->addDays(20),
+        ]);
+
+        // Belum ada logbook
+        $service = app(\App\Services\KpProgressService::class);
+        $progressBefore = $service->getProgress($mhs->id);
+        $this->assertFalse($progressBefore['steps'][5]['is_completed']); // Step 6 belum completed
+
+        // Tambahkan 1 logbook
+        Logbook::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'tanggal' => now()->subDay(),
+            'jam_mulai' => '08:00',
+            'jam_selesai' => '16:00',
+            'deskripsi' => 'Kegiatan hari pertama pengujian sistem.',
+            'status_dosen' => 'menunggu',
+            'status_instansi' => 'menunggu',
+        ]);
+
+        $progressAfter = $service->getProgress($mhs->id);
+        $this->assertTrue($progressAfter['steps'][5]['is_completed']); // Step 6 langsung completed
+        $this->assertFalse($progressAfter['steps'][6]['is_locked']);   // Step 7 langsung terbuka
+    }
+
+    /**
+     * 12. Upload Dokumen Akhir mengirim notifikasi ke Mahasiswa dan Dosen Pembimbing
+     */
+    public function test_dokumen_akhir_upload_notifies_advisor_and_student(): void
+    {
+        Storage::fake('public');
+
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $this->mahasiswa->id,
+            'instansi_id' => $this->instansi->id,
+            'dosen_pembimbing_id' => $this->dosen->id,
+            'status' => 'aktif',
+            'tanggal_mulai' => now()->subDays(10),
+            'tanggal_selesai' => now()->addDays(20),
+        ]);
+
+        // Tambahkan 1 logbook agar Step 7 terbuka melalui KpStepGate
+        Logbook::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'tanggal' => now()->subDay(),
+            'jam_mulai' => '08:00',
+            'jam_selesai' => '16:00',
+            'deskripsi' => 'Pengujian sistem KP di instansi.',
+            'status_dosen' => 'disetujui',
+            'status_instansi' => 'disetujui',
+        ]);
+
+        $file = UploadedFile::fake()->create('laporan_akhir.pdf', 1024, 'application/pdf');
+
+        $response = $this->actingAs($this->mahasiswa)
+            ->post('/mahasiswa/dokumen-akhir', [
+                'file' => $file,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->mahasiswa->id,
+            'judul' => 'Laporan Akhir Berhasil Diunggah',
+        ]);
+
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->dosen->id,
+            'judul' => 'Laporan Akhir KP Diunggah',
+        ]);
+    }
+
+    /**
+     * 13. Mahasiswa kirim catatan pada thread proposal memberi notifikasi ke Dosen Pembimbing
+     */
+    public function test_proposal_note_notifies_advisor(): void
+    {
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $this->mahasiswa->id,
+            'instansi_id' => $this->instansi->id,
+            'dosen_pembimbing_id' => $this->dosen->id,
+            'status' => 'aktif',
+        ]);
+
+        $proposal = Proposal::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'judul' => 'Sistem Monitoring Logistik',
+            'abstrak' => 'Deskripsi proposal kerja praktik.',
+            'status' => 'diajukan',
+            'versi' => 1,
+        ]);
+
+        $response = $this->actingAs($this->mahasiswa)
+            ->post('/mahasiswa/proposal/note', [
+                'komentar' => 'Terima kasih atas masukannya Bapak/Ibu Dosen.',
+            ]);
+
+        $response->assertRedirect('/mahasiswa/proposal');
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->dosen->id,
+            'judul' => 'Balasan Catatan Proposal',
+        ]);
+    }
+
+    /**
+     * 14. Instansi validasi logbook memberi notifikasi ke Dosen Pembimbing
+     */
+    public function test_instansi_logbook_validation_notifies_advisor(): void
+    {
+        $pl = \App\Models\PembimbingLapangan::firstOrCreate(
+            ['user_id' => $this->instansiUser->id],
+            ['instansi_id' => $this->instansi->id, 'nama' => 'Pembimbing Lapangan Test']
+        );
+
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $this->mahasiswa->id,
+            'instansi_id' => $this->instansi->id,
+            'pembimbing_lapangan_id' => $pl->id,
+            'dosen_pembimbing_id' => $this->dosen->id,
+            'status' => 'aktif',
+        ]);
+
+        $logbook = Logbook::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'tanggal' => now(),
+            'jam_mulai' => '08:00',
+            'jam_selesai' => '16:00',
+            'deskripsi' => 'Pengujian implementasi API.',
+            'status_dosen' => 'menunggu',
+            'status_instansi' => 'menunggu',
+        ]);
+
+        $response = $this->actingAs($this->instansiUser)
+            ->put("/instansi/logbook/{$logbook->id}", [
+                'status_instansi' => 'disetujui',
+                'catatan_instansi' => 'Kerja bagus hari ini.',
+            ]);
+
+        $response->assertRedirect('/instansi/logbook');
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->dosen->id,
+            'judul' => 'Validasi Logbook oleh Mitra',
+        ]);
+    }
+
+    /**
+     * 15. Prodi penetapan Pembimbing Lapangan memberi notifikasi ke Mahasiswa, PL, dan Dosen
+     */
+    public function test_prodi_assign_pl_notifies_all_parties(): void
+    {
+        $pl = \App\Models\PembimbingLapangan::firstOrCreate(
+            ['user_id' => $this->instansiUser->id],
+            ['instansi_id' => $this->instansi->id, 'nama' => 'Pembimbing Lapangan Test']
+        );
+
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $this->mahasiswa->id,
+            'instansi_id' => $this->instansi->id,
+            'dosen_pembimbing_id' => $this->dosen->id,
+            'status' => 'aktif',
+        ]);
+
+        $response = $this->actingAs($this->prodi)
+            ->post('/prodi/plotting-pl', [
+                'pendaftaran_id' => $pendaftaran->id,
+                'pembimbing_lapangan_id' => $pl->id,
+            ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->mahasiswa->id,
+            'judul' => 'Pembimbing Lapangan Ditetapkan',
+        ]);
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->instansiUser->id,
+            'judul' => 'Penugasan Bimbingan Mahasiswa',
+        ]);
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->dosen->id,
+            'judul' => 'Pembimbing Lapangan Mahasiswa Terhubung',
+        ]);
+    }
+
+    /**
+     * 16. Prodi menandai Sidang selesai memberi notifikasi ke Mahasiswa dan Dosen
+     */
+    public function test_prodi_sidang_selesai_notifies_student_and_advisor(): void
+    {
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $this->mahasiswa->id,
+            'instansi_id' => $this->instansi->id,
+            'dosen_pembimbing_id' => $this->dosen->id,
+            'status' => 'seminar',
+        ]);
+
+        $sidang = \App\Models\Sidang::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'status' => 'dijadwalkan',
+            'ruangan' => 'Lab RPL',
+            'tanggal_sidang' => now(),
+            'dosen_penguji_id' => $this->dosen->id,
+        ]);
+
+        $response = $this->actingAs($this->prodi)
+            ->post("/prodi/sidang/{$sidang->id}/selesai");
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->mahasiswa->id,
+            'judul' => 'Sidang KP Selesai Dilaksanakan',
+        ]);
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->dosen->id,
+            'judul' => 'Sidang Mahasiswa Selesai - Masukkan Nilai',
+        ]);
+    }
+
+    /**
+     * 17. Mahasiswa upload Berita Acara memberi notifikasi ke Koordinator Prodi
+     */
+    public function test_berita_acara_upload_notifies_prodi_coordinators(): void
+    {
+        Storage::fake('public');
+
+        $pendaftaran = Pendaftaran::create([
+            'mahasiswa_id' => $this->mahasiswa->id,
+            'instansi_id' => $this->instansi->id,
+            'dosen_pembimbing_id' => $this->dosen->id,
+            'status' => 'aktif',
+        ]);
+
+        // Berikan dokumen akhir agar step 7 terbuka
+        \App\Models\DokumenAkhir::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'jenis' => 'laporan_akhir',
+            'nama_file' => 'laporan.pdf',
+            'path' => 'dokumen/laporan.pdf',
+            'uploaded_at' => now(),
+        ]);
+
+        $file = UploadedFile::fake()->create('berita_acara.pdf', 1024, 'application/pdf');
+
+        $response = $this->actingAs($this->mahasiswa)
+            ->post('/mahasiswa/berita-acara', [
+                'file_berita_acara' => $file,
+            ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('notifikasis', [
+            'user_id' => $this->prodi->id,
+            'judul' => 'Berita Acara Baru Diunggah',
+        ]);
+    }
 }
+

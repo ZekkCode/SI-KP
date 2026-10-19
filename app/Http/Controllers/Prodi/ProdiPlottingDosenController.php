@@ -62,7 +62,7 @@ class ProdiPlottingDosenController extends Controller
             'dosen_pembimbing_id' => 'required|exists:users,id',
         ]);
 
-        $pendaftaran = Pendaftaran::findOrFail($request->pendaftaran_id);
+        $pendaftaran = Pendaftaran::with('mahasiswa')->findOrFail($request->pendaftaran_id);
         $pendaftaran->dosen_pembimbing_id = $request->dosen_pembimbing_id;
         
         // Ubah status menjadi aktif jika sebelumnya masih dalam tahap plotting
@@ -71,6 +71,31 @@ class ProdiPlottingDosenController extends Controller
         }
         
         $pendaftaran->save();
+
+        $dosen = User::find($request->dosen_pembimbing_id);
+
+        if ($pendaftaran->mahasiswa) {
+            \App\Models\Notifikasi::create([
+                'user_id' => $pendaftaran->mahasiswa_id,
+                'judul' => 'Dosen Pembimbing Ditetapkan',
+                'pesan' => "Program Studi telah menetapkan {$dosen?->name} sebagai Dosen Pembimbing KP Anda.",
+                'tipe' => 'sukses',
+                'priority' => 'high',
+                'link' => '/mahasiswa/dashboard',
+            ]);
+        }
+
+        if ($dosen) {
+            \App\Models\Notifikasi::create([
+                'user_id' => $dosen->id,
+                'judul' => 'Penugasan Bimbingan KP Baru',
+                'pesan' => "Anda telah ditetapkan oleh Prodi sebagai Dosen Pembimbing KP untuk mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}).",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/dosen/dashboard',
+            ]);
+        }
+
         return back()->with('success', 'Dosen pembimbing berhasil ditetapkan dan status mahasiswa menjadi Aktif.');
     }
 }

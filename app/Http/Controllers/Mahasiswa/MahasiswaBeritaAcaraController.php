@@ -27,6 +27,11 @@ class MahasiswaBeritaAcaraController extends Controller
         ->latest('id')
         ->first();
 
+        if ($pendaftaran && empty($pendaftaran->dosen_pembimbing_id)) {
+            $pendaftaran->ensureDosenPembimbing();
+            $pendaftaran->load('dosenPembimbing');
+        }
+
         return Inertia::render(
             'Mahasiswa/BeritaAcara',
             [
@@ -56,6 +61,39 @@ class MahasiswaBeritaAcaraController extends Controller
         $beritaAcara->path_file = $path;
         $beritaAcara->status = 'menunggu'; // FIX: Sesuaikan dengan ENUM di tabel berita_acaras
         $beritaAcara->save();
+
+        \App\Models\Notifikasi::create([
+            'user_id' => $request->user()->id,
+            'judul' => 'Berita Acara Berhasil Diunggah',
+            'pesan' => 'File Berita Acara berhasil diunggah dan sedang menunggu validasi.',
+            'tipe' => 'sukses',
+            'priority' => 'normal',
+            'link' => '/mahasiswa/berita-acara',
+        ]);
+
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        if ($dosbing) {
+            \App\Models\Notifikasi::create([
+                'user_id' => $dosbing->id,
+                'judul' => 'Validasi Berita Acara KP',
+                'pesan' => "Mahasiswa bimbingan {$request->user()->name} ({$request->user()->nim}) telah mengunggah Berita Acara untuk divalidasi.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/dosen/monitoring',
+            ]);
+        }
+
+        $prodiUsers = \App\Models\User::where('role', 'prodi')->get();
+        foreach ($prodiUsers as $prodi) {
+            \App\Models\Notifikasi::create([
+                'user_id' => $prodi->id,
+                'judul' => 'Berita Acara Baru Diunggah',
+                'pesan' => "Mahasiswa {$request->user()->name} ({$request->user()->nim}) telah mengunggah Berita Acara untuk divalidasi.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/prodi/berita-acara',
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Berita Acara berhasil diunggah dan menunggu validasi.');
     }

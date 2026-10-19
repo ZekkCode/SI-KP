@@ -58,6 +58,9 @@ class DosenMonitoringController extends Controller
         }
 
         $pendaftarans = $query->latest()->get()->map(function ($p) {
+            if (!$p->dosen_pembimbing_id) {
+                $p->ensureDosenPembimbing();
+            }
             $latestProposal = $p->proposals->first();
             $logbookTotal = $p->logbooks->count();
             $logbookApprovedDosen = $p->logbooks->where('status_dosen', 'disetujui')->count();

@@ -68,7 +68,7 @@ class InstansiPendaftaranController extends Controller
                 'aktif',
                 'selesai',
             ])
-            ->orderByRaw("FIELD(status, 'surat_terbit', 'diterima_instansi') DESC")
+            ->orderByRaw("CASE WHEN status = 'surat_terbit' THEN 1 WHEN status = 'diterima_instansi' THEN 2 ELSE 3 END ASC")
             ->latest()
             ->get()
             ->map(function ($p) {
@@ -161,6 +161,18 @@ class InstansiPendaftaranController extends Controller
             'priority' => 'high',
             'link' => '/mahasiswa/status-pengajuan',
         ]);
+
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        if ($dosbing && $request->status === 'diterima_instansi') {
+            Notifikasi::create([
+                'user_id' => $dosbing->id,
+                'judul' => 'Mahasiswa Bimbingan Diterima Instansi',
+                'pesan' => "Mahasiswa bimbingan Anda {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}) telah diterima oleh {$namaInstansi}.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/dosen/dashboard',
+            ]);
+        }
 
         $message = $request->status === 'diterima_instansi'
             ? 'Pendaftaran mahasiswa berhasil diterima.'

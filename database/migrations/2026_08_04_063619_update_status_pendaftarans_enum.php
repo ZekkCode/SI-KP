@@ -10,23 +10,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("
-            ALTER TABLE pendaftarans
-            MODIFY COLUMN status ENUM(
-                'draft',
-                'diajukan',
-                'verifikasi_tu',
-                'perlu_perbaikan',
-                'disetujui_tu',
-                'surat_terbit',
-                'diterima_instansi',
-                'ditolak_instansi',
-                'verifikasi_surat_balasan',
-                'plotting_dosen',
-                'aktif',
-                'selesai'
-            ) NOT NULL DEFAULT 'draft'
-        ");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("
+                ALTER TABLE pendaftarans
+                MODIFY COLUMN status ENUM(
+                    'draft',
+                    'diajukan',
+                    'verifikasi_tu',
+                    'perlu_perbaikan',
+                    'disetujui_tu',
+                    'surat_terbit',
+                    'diterima_instansi',
+                    'ditolak_instansi',
+                    'verifikasi_surat_balasan',
+                    'plotting_dosen',
+                    'aktif',
+                    'selesai'
+                ) NOT NULL DEFAULT 'draft'
+            ");
+        }
     }
 
     /**

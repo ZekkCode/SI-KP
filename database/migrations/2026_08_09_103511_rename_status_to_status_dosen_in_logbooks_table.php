@@ -12,7 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE logbooks CHANGE status status_dosen ENUM('menunggu', 'disetujui', 'revisi') DEFAULT 'menunggu'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE logbooks CHANGE status status_dosen ENUM('menunggu', 'disetujui', 'revisi') DEFAULT 'menunggu'");
+        } else {
+            Schema::table('logbooks', function (Blueprint $table) {
+                $table->renameColumn('status', 'status_dosen');
+            });
+        }
     }
 
     /**
@@ -20,6 +26,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE logbooks CHANGE status_dosen status ENUM('menunggu', 'disetujui', 'revisi') DEFAULT 'menunggu'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE logbooks CHANGE status_dosen status ENUM('menunggu', 'disetujui', 'revisi') DEFAULT 'menunggu'");
+        } else {
+            Schema::table('logbooks', function (Blueprint $table) {
+                $table->renameColumn('status_dosen', 'status');
+            });
+        }
     }
 };

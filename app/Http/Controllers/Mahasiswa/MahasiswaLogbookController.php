@@ -21,7 +21,7 @@ class MahasiswaLogbookController extends Controller
         $user = $request->user();
 
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
-            ->with(['dosenPembimbing', 'pembimbingLapangan.instansi'])
+            ->with(['dosenPembimbing', 'pembimbingLapangan.instansi', 'instansi'])
             ->latest()
             ->first();
 
@@ -29,10 +29,11 @@ class MahasiswaLogbookController extends Controller
         $dosenPembimbing = null;
 
         if ($pendaftaran) {
-            $dosenPembimbing = $pendaftaran->dosenPembimbing
+            $dosbing = $pendaftaran->ensureDosenPembimbing();
+            $dosenPembimbing = $dosbing
                 ? [
-                    'name' => $pendaftaran->dosenPembimbing->name,
-                    'nip' => $pendaftaran->dosenPembimbing->nip,
+                    'name' => $dosbing->name,
+                    'nip' => $dosbing->nip,
                 ]
                 : null;
 
@@ -58,9 +59,11 @@ class MahasiswaLogbookController extends Controller
         return Inertia::render('Mahasiswa/Logbook', [
             'logbooks' => $logbooks,
             'dosenPembimbing' => $dosenPembimbing,
+            'instansi' => $pendaftaran?->instansi,
             'pembimbingLapangan' => $pendaftaran ? $pendaftaran->pembimbingLapangan : null,
             'hasPendaftaran' => $pendaftaran !== null,
             'pendaftaranId' => $pendaftaran?->id,
+            'pendaftaranStatus' => $pendaftaran?->status,
         ]);
     }
 

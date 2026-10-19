@@ -91,41 +91,65 @@ export default function DashboardScreen({ stats, mahasiswaBaru = [], mahasiswaBi
 
       {/* Stats Bento Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+        <Link
+          href="/instansi/pendaftaran"
+          className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:border-blue-300 hover:shadow-sm transition-all group block"
+        >
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase tracking-wider">
             <span>Total Mahasiswa</span>
-            <Users className="w-4 h-4 text-slate-400" />
+            <Users className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
           </div>
           <div className="text-3xl font-bold text-slate-900 font-display">{defaultStats.totalMahasiswa}</div>
-          <p className="text-[11px] text-slate-400">Terdaftar di instansi mitra</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+            <span>Terdaftar di mitra</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+        <Link
+          href="/instansi/pendaftaran"
+          className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:border-amber-300 hover:shadow-sm transition-all group block"
+        >
           <div className="flex items-center justify-between text-amber-700 text-xs font-semibold uppercase tracking-wider">
             <span>Pendaftar Baru</span>
-            <UserPlus className="w-4 h-4 text-amber-500" />
+            <UserPlus className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-3xl font-bold text-amber-700 font-display">{defaultStats.menungguKonfirmasi}</div>
-          <p className="text-[11px] text-slate-400">Menunggu respons instansi</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+            <span>Menunggu respons</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+        <Link
+          href="/instansi/logbook"
+          className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:border-teal-300 hover:shadow-sm transition-all group block"
+        >
           <div className="flex items-center justify-between text-teal-700 text-xs font-semibold uppercase tracking-wider">
             <span>Aktif Bimbingan</span>
-            <CheckCircle2 className="w-4 h-4 text-teal-600" />
+            <CheckCircle2 className="w-4 h-4 text-teal-600 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-3xl font-bold text-teal-700 font-display">{defaultStats.aktifKp}</div>
-          <p className="text-[11px] text-slate-400">Tahap magang & pengisian logbook</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+            <span>Magang & logbook</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-teal-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+        <Link
+          href="/instansi/evaluation"
+          className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:border-emerald-300 hover:shadow-sm transition-all group block"
+        >
           <div className="flex items-center justify-between text-emerald-700 text-xs font-semibold uppercase tracking-wider">
             <span>Selesai KP</span>
-            <Star className="w-4 h-4 text-emerald-600" />
+            <Star className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-3xl font-bold text-emerald-700 font-display">{defaultStats.selesai}</div>
-          <p className="text-[11px] text-slate-400">Telah dievaluasi & selesai</p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+            <span>Evaluasi & nilai</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
       </div>
 
       {/* Alert Banner: Mahasiswa Baru Mendaftar */}

@@ -87,6 +87,36 @@ class User extends Authenticatable
         };
     }
 
+    public function hasRole(string $role): bool
+    {
+        return strtolower($this->role ?? '') === strtolower($role);
+    }
+
+    public function isMahasiswa(): bool
+    {
+        return $this->hasRole('mahasiswa');
+    }
+
+    public function isDosen(): bool
+    {
+        return $this->hasRole('dosen');
+    }
+
+    public function isTu(): bool
+    {
+        return $this->hasRole('tu');
+    }
+
+    public function isProdi(): bool
+    {
+        return $this->hasRole('prodi');
+    }
+
+    public function isInstansi(): bool
+    {
+        return $this->hasRole('instansi');
+    }
+
     // ─── Relations ──────────────────────────────────────────────
 
     public function programStudi(): BelongsTo

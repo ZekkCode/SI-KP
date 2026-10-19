@@ -33,6 +33,9 @@ class DosenPenilaianController extends Controller
             ->latest()
             ->get()
             ->map(function ($pendaftaran) {
+                if (!$pendaftaran->dosen_pembimbing_id) {
+                    $pendaftaran->ensureDosenPembimbing();
+                }
                 $isDinilai = $pendaftaran->nilais->count() > 0;
                 return [
                     'id' => $pendaftaran->id,
@@ -96,6 +99,7 @@ class DosenPenilaianController extends Controller
             $q->where('dosen_pembimbing_id', $dosenId)
               ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
         })->findOrFail($id);
+        $pendaftaran->ensureDosenPembimbing();
         $penilaiId = $dosenId;
 
         DB::beginTransaction();
@@ -175,7 +179,7 @@ class DosenPenilaianController extends Controller
                 'judul' => 'Nilai Dosen Pembimbing Diberikan',
                 'pesan' => 'Dosen Pembimbing telah menginputkan nilai evaluasi KP Anda (Nilai: ' . round($totalNilaiPembimbing, 1) . ').',
                 'tipe' => 'info',
-                'link' => '/mahasiswa/dashboard',
+                'link' => '/mahasiswa/penilaian',
             ]);
 
             DB::commit();

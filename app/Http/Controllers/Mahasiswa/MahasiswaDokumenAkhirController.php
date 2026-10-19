@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
+use App\Models\Notifikasi;
+
 class MahasiswaDokumenAkhirController extends Controller
 {
     public function index(Request $request)
@@ -16,12 +18,13 @@ class MahasiswaDokumenAkhirController extends Controller
         $user = $request->user();
 
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
-            ->whereIn('status', ['aktif', 'selesai'])
-            ->latest()
+            ->whereNotIn('status', ['draft'])
+            ->latest('id')
             ->first();
 
         $dokumen = [];
         if ($pendaftaran) {
+            $pendaftaran->ensureDosenPembimbing();
             $dokumen = DokumenAkhir::where('pendaftaran_id', $pendaftaran->id)
                 ->where('jenis', 'laporan_akhir')
                 ->latest('uploaded_at')
@@ -39,8 +42,8 @@ class MahasiswaDokumenAkhirController extends Controller
         $user = $request->user();
 
         $pendaftaran = Pendaftaran::where('mahasiswa_id', $user->id)
-            ->whereIn('status', ['aktif', 'selesai'])
-            ->latest()
+            ->whereNotIn('status', ['draft'])
+            ->latest('id')
             ->first();
 
         if (!$pendaftaran) {
@@ -59,9 +62,6 @@ class MahasiswaDokumenAkhirController extends Controller
         $filename = 'Laporan_Akhir_' . $user->nim . '_' . time() . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('dokumen/laporan_akhir', $filename, 'public');
 
-        // Opsional: Jika ingin mereplace yang sudah ada, kita bisa menggunakan firstOrNew atau langsung insert baru
-        // Kita menggunakan create agar menyimpan history (opsional) atau update_or_create.
-        // Berdasarkan request, insert ke tabel. 
         DokumenAkhir::create([
             'pendaftaran_id' => $pendaftaran->id,
             'jenis' => 'laporan_akhir',
@@ -69,6 +69,39 @@ class MahasiswaDokumenAkhirController extends Controller
             'path' => $path,
             'uploaded_at' => now(),
         ]);
+
+        Notifikasi::create([
+            'user_id' => $user->id,
+            'judul' => 'Laporan Akhir Berhasil Diunggah',
+            'pesan' => 'Laporan akhir Kerja Praktik Anda telah berhasil diunggah.',
+            'tipe' => 'sukses',
+            'priority' => 'normal',
+            'link' => '/mahasiswa/dokumen-akhir',
+        ]);
+
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        if ($dosbing) {
+            Notifikasi::create([
+                'user_id' => $dosbing->id,
+                'judul' => 'Laporan Akhir KP Diunggah',
+                'pesan' => "Mahasiswa bimbingan {$user->name} ({$user->nim}) telah mengunggah Laporan Akhir Kerja Praktik.",
+                'tipe' => 'info',
+                'priority' => 'high',
+                'link' => '/dosen/monitoring',
+            ]);
+        }
+
+        $prodiUsers = \App\Models\User::where('role', 'prodi')->get();
+        foreach ($prodiUsers as $prodi) {
+            Notifikasi::create([
+                'user_id' => $prodi->id,
+                'judul' => 'Laporan Akhir KP Diunggah',
+                'pesan' => "Mahasiswa {$user->name} ({$user->nim}) telah mengunggah Laporan Akhir Kerja Praktik.",
+                'tipe' => 'info',
+                'priority' => 'normal',
+                'link' => '/prodi/sidang',
+            ]);
+        }
 
         return back()->with('success', 'Laporan akhir berhasil diunggah.');
     }

@@ -117,7 +117,7 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
       <Head title="Pengajuan Sidang Kerja Praktik" />
 
       <PageHeader
-        title="Sidang Kerja Praktik"
+        title="Tahap 8: Sidang Kerja Praktik"
         description="Pusat pendaftaran dan pemantauan jadwal seminar/sidang pertanggungjawaban Kerja Praktik."
       />
 
