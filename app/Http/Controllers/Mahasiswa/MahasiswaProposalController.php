@@ -58,6 +58,7 @@ class MahasiswaProposalController extends Controller
                     'status' => $proposalModel->status,
                     'versi' => $proposalModel->versi,
                     'path_file' => $proposalModel->path_file,
+                    'nama_file' => $proposalModel->nama_file ?: ($proposalModel->path_file ? basename($proposalModel->path_file) : null),
                     'submitted_at' => $proposalModel->submitted_at?->format('d M Y, H:i'),
                 ];
 
@@ -105,6 +106,7 @@ class MahasiswaProposalController extends Controller
                 ->first();
 
             $filePath = $existingProposal?->path_file;
+            $fileName = $existingProposal?->nama_file;
 
             // Upload new file if provided
             if (isset($validated['file_proposal'])) {
@@ -112,7 +114,9 @@ class MahasiswaProposalController extends Controller
                 if ($filePath) {
                     Storage::disk('public')->delete($filePath);
                 }
-                $filePath = $validated['file_proposal']->store('proposal', 'public');
+                $file = $validated['file_proposal'];
+                $fileName = $file->getClientOriginalName();
+                $filePath = $file->store('proposal', 'public');
             }
 
             if ($existingProposal) {
@@ -121,6 +125,7 @@ class MahasiswaProposalController extends Controller
                     'judul' => $validated['judul'],
                     'abstrak' => $validated['abstrak'] ?? $existingProposal->abstrak,
                     'path_file' => $filePath,
+                    'nama_file' => $fileName,
                     'versi' => $existingProposal->versi + 1,
                     'status' => 'diajukan',
                     'submitted_at' => now(),
@@ -132,6 +137,7 @@ class MahasiswaProposalController extends Controller
                     'judul' => $validated['judul'],
                     'abstrak' => $validated['abstrak'],
                     'path_file' => $filePath,
+                    'nama_file' => $fileName,
                     'versi' => 1,
                     'status' => 'diajukan',
                     'submitted_at' => now(),

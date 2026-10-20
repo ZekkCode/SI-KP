@@ -1,6 +1,6 @@
 import DosenLayout from '@/Layouts/DosenLayout';
-import { Link } from '@inertiajs/react';
-import { Clock, CheckCircle2, Image as ImageIcon } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { Clock, CheckCircle2, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import PageHeader from '@/Components/PageHeader';
 import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
 
@@ -30,6 +30,7 @@ interface Props {
 }
 
 export default function LogbookScreen({ logbooks }: Props) {
+  const { flash } = usePage().props as any;
 
   const formatStatus = (status: string) => {
     switch (status) {
@@ -49,6 +50,20 @@ export default function LogbookScreen({ logbooks }: Props) {
         title="Monitoring Kegiatan" 
         description="Daftar kegiatan harian mahasiswa bimbingan yang membutuhkan validasi."
       />
+
+      {flash?.success && (
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center gap-3 text-emerald-800 dark:text-emerald-200 shadow-xs">
+          <CheckCircle2 size={20} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div className="text-sm font-medium">{flash.success}</div>
+        </div>
+      )}
+
+      {flash?.error && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center gap-3 text-rose-800 dark:text-rose-200 shadow-xs">
+          <AlertCircle size={20} className="shrink-0 text-rose-600 dark:text-rose-400" />
+          <div className="text-sm font-medium">{flash.error}</div>
+        </div>
+      )}
 
       {/* Stats Bento */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

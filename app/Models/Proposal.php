@@ -16,6 +16,7 @@ class Proposal extends Model
         'judul',
         'abstrak',
         'path_file',
+        'nama_file',
         'versi',
         'status',
         'submitted_at',

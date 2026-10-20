@@ -61,7 +61,7 @@ class DosenProposalController extends Controller
     {
         $request->validate([
             'status' => 'required|in:disetujui,revisi',
-            'catatan' => 'required|string',
+            'catatan' => $request->status === 'disetujui' ? 'nullable|string' : 'required|string',
         ]);
 
         $dosenId = Auth::id();
@@ -69,6 +69,11 @@ class DosenProposalController extends Controller
             $query->where('dosen_pembimbing_id', $dosenId)
                 ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
         })->findOrFail($id);
+
+        $catatan = trim((string)$request->catatan);
+        if ($request->status === 'disetujui' && empty($catatan)) {
+            $catatan = 'Proposal disetujui tanpa catatan revisi.';
+        }
 
         // 1. Update status proposal
         $proposal->update([
@@ -85,7 +90,7 @@ class DosenProposalController extends Controller
         ProposalFeedback::create([
             'proposal_id' => $proposal->id,
             'user_id' => $dosenId,
-            'komentar' => $request->catatan,
+            'komentar' => $catatan,
             'status_setelah' => $request->status,
         ]);
 
@@ -94,7 +99,7 @@ class DosenProposalController extends Controller
             \App\Models\Notifikasi::create([
                 'user_id' => $proposal->pendaftaran->mahasiswa_id,
                 'judul' => 'Proposal KP: ' . ($request->status === 'disetujui' ? 'DISETUJUI' : 'PERLU REVISI'),
-                'pesan' => "Dosen Pembimbing telah mereview proposal Anda dengan catatan: {$request->catatan}",
+                'pesan' => "Dosen Pembimbing telah mereview proposal Anda: {$catatan}",
                 'tipe' => $request->status === 'disetujui' ? 'sukses' : 'peringatan',
                 'priority' => 'high',
                 'link' => '/mahasiswa/proposal',

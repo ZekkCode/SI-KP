@@ -1,6 +1,6 @@
 import DosenLayout from '@/Layouts/DosenLayout';
-import { useForm, Link } from '@inertiajs/react';
-import { CheckCircle2, Edit3, ChevronLeft, Clock, Image as ImageIcon, FileText } from 'lucide-react';
+import { useForm, Link, usePage } from '@inertiajs/react';
+import { CheckCircle2, Edit3, ChevronLeft, Clock, Image as ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { FormEvent } from 'react';
 
 interface Mahasiswa {
@@ -29,6 +29,7 @@ interface Props {
 }
 
 export default function ReviewLogbookDetail({ logbook }: Props) {
+  const { flash } = usePage().props as any;
   const { data, setData, put, processing, errors } = useForm({
     status_dosen: logbook.status_dosen === 'menunggu' ? '' : logbook.status_dosen,
     catatan_dosen: logbook.catatan_dosen || '',
@@ -55,6 +56,20 @@ export default function ReviewLogbookDetail({ logbook }: Props) {
           <p className="text-sm text-secondary mt-0.5">Tinjau aktivitas pelaksanaan KP mahasiswa bimbingan.</p>
         </div>
       </div>
+
+      {flash?.success && (
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center gap-3 text-emerald-800 dark:text-emerald-200 shadow-xs">
+          <CheckCircle2 size={20} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div className="text-sm font-medium">{flash.success}</div>
+        </div>
+      )}
+
+      {flash?.error && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center gap-3 text-rose-800 dark:text-rose-200 shadow-xs">
+          <AlertCircle size={20} className="shrink-0 text-rose-600 dark:text-rose-400" />
+          <div className="text-sm font-medium">{flash.error}</div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Informasi Logbook */}

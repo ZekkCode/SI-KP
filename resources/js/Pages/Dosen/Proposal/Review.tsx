@@ -1,6 +1,6 @@
 import DosenLayout from '@/Layouts/DosenLayout';
-import { useForm, Link } from '@inertiajs/react';
-import { Download, CheckCircle2, Edit3, ChevronLeft, FileText } from 'lucide-react';
+import { useForm, Link, usePage } from '@inertiajs/react';
+import { Download, CheckCircle2, Edit3, ChevronLeft, FileText, AlertCircle } from 'lucide-react';
 import { FormEvent } from 'react';
 
 interface Mahasiswa {
@@ -27,6 +27,7 @@ interface Props {
 }
 
 export default function ReviewProposalDetail({ proposal }: Props) {
+  const { flash } = usePage().props as any;
   const { data, setData, put, processing, errors } = useForm({
     status: '',
     catatan: '',
@@ -38,6 +39,11 @@ export default function ReviewProposalDetail({ proposal }: Props) {
 
     put(route('dosen.review.update', proposal.id));
   };
+
+  const isSubmitDisabled =
+    processing ||
+    !data.status ||
+    (data.status === 'revisi' && !data.catatan.trim());
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-6">
@@ -53,6 +59,20 @@ export default function ReviewProposalDetail({ proposal }: Props) {
           <p className="text-sm text-secondary mt-0.5">Evaluasi kelayakan dokumen proposal yang diajukan mahasiswa bimbingan.</p>
         </div>
       </div>
+
+      {flash?.success && (
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center gap-3 text-emerald-800 dark:text-emerald-200">
+          <CheckCircle2 size={20} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div className="text-sm font-medium">{flash.success}</div>
+        </div>
+      )}
+
+      {flash?.error && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center gap-3 text-rose-800 dark:text-rose-200">
+          <AlertCircle size={20} className="shrink-0 text-rose-600 dark:text-rose-400" />
+          <div className="text-sm font-medium">{flash.error}</div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6">
         {/* Informasi Proposal */}
@@ -144,14 +164,14 @@ export default function ReviewProposalDetail({ proposal }: Props) {
 
             <div>
               <label htmlFor="catatan" className="block text-sm font-medium text-on-surface mb-2">
-                Catatan & Feedback <span className="text-error">*</span>
+                Catatan & Feedback {data.status === 'revisi' ? <span className="text-error">* (Wajib diisi jika revisi)</span> : <span className="text-secondary text-xs font-normal">(Opsional jika disetujui)</span>}
               </label>
               <textarea
                 id="catatan"
                 rows={5}
                 value={data.catatan}
                 onChange={(e) => setData('catatan', e.target.value)}
-                placeholder="Tuliskan masukan, catatan revisi, atau instruksi persetujuan..."
+                placeholder={data.status === 'disetujui' ? 'Tuliskan catatan apresiasi atau arahan awal (opsional, sistem akan menyematkan catatan default persetujuan jika dikosongkan)...' : 'Tuliskan poin-poin yang perlu diperbaiki oleh mahasiswa...'}
                 className="w-full p-3.5 bg-surface border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y shadow-sm"
               ></textarea>
               {errors.catatan && <p className="text-error text-sm mt-2">{errors.catatan}</p>}
@@ -160,8 +180,8 @@ export default function ReviewProposalDetail({ proposal }: Props) {
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                disabled={processing || !data.status || !data.catatan}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary text-sm font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]"
+                disabled={isSubmitDisabled}
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary text-sm font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm active:scale-[0.98]"
               >
                 <CheckCircle2 size={16} />
                 {processing ? 'Menyimpan...' : 'Simpan Keputusan Review'}

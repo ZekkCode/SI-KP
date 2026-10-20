@@ -21,14 +21,14 @@ class InstansiPenilaianController extends Controller
     {
         $user = Auth::user();
         $instansi = $user->instansi ?? $user->pembimbingLapangan?->instansi;
-
-        if (!$instansi) {
-            return Inertia::render('Instansi/Evaluation', [
-                'pendaftarans' => []
-            ])->with('error', 'Profil instansi atau pembimbing lapangan belum diatur.');
-        }
-
         $pl = $user->pembimbingLapangan;
+
+        if (!$instansi && !$pl) {
+            return Inertia::render('Instansi/Evaluation', [
+                'pendaftarans' => [],
+                'error' => 'Profil instansi atau pembimbing lapangan belum diatur.'
+            ]);
+        }
 
         // Ambil pendaftaran yang ada di instansi ini atau bimbingan PL ini (semua status aktif, bimbingan, atau selesai)
         $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($user) {
@@ -47,6 +47,16 @@ class InstansiPenilaianController extends Controller
             ->get()
             ->map(function ($pendaftaran) {
                 $isDinilai = $pendaftaran->nilais->count() > 0;
+                
+                $catatanInstansi = null;
+                if ($pendaftaran->nilaiAkhir?->catatan) {
+                    if (preg_match('/\[Instansi\]:\s*(.+)$/m', $pendaftaran->nilaiAkhir->catatan, $matches)) {
+                        $catatanInstansi = trim($matches[1]);
+                    } else {
+                        $catatanInstansi = $pendaftaran->nilaiAkhir->catatan;
+                    }
+                }
+
                 return [
                     'id' => $pendaftaran->id,
                     'mahasiswa' => $pendaftaran->mahasiswa,
@@ -54,6 +64,7 @@ class InstansiPenilaianController extends Controller
                     'is_dinilai' => $isDinilai,
                     'nilai_instansi' => $pendaftaran->nilaiAkhir ? $pendaftaran->nilaiAkhir->nilai_instansi : null,
                     'komponen_nilai' => $isDinilai ? $pendaftaran->nilais->pluck('nilai', 'komponen') : null,
+                    'catatan' => $catatanInstansi,
                 ];
             });
 
@@ -151,8 +162,9 @@ class InstansiPenilaianController extends Controller
             }
 
             if ($request->filled('catatan')) {
-                $catatanLama = $nilaiAkhir->catatan ? $nilaiAkhir->catatan . "\n" : "";
-                $nilaiAkhir->catatan = $catatanLama . "[Instansi]: " . $request->catatan;
+                $catatanLama = $nilaiAkhir->catatan ? preg_replace('/\[Instansi\]:[^\n]+(\n)?/', '', $nilaiAkhir->catatan) : '';
+                $catatanLama = trim((string)$catatanLama);
+                $nilaiAkhir->catatan = ($catatanLama !== '' ? $catatanLama . "\n" : '') . "[Instansi]: " . trim($request->catatan);
             }
 
             $nilaiAkhir->save();

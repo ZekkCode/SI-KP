@@ -1,7 +1,7 @@
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import React, { useRef } from 'react';
 import { useForm, usePage, Link } from '@inertiajs/react';
-import { AlertCircle, UploadCloud, Send as SendIcon, CheckCircle2, Info as InfoIcon, User, GraduationCap, RefreshCw, Download, BookOpen, Layers } from 'lucide-react';
+import { AlertCircle, UploadCloud, Send as SendIcon, CheckCircle2, Info as InfoIcon, User, GraduationCap, RefreshCw, Download, BookOpen, Layers, FileCheck2, FileUp, FileText } from 'lucide-react';
 
 interface Feedback {
     id: number;
@@ -20,6 +20,7 @@ interface ProposalData {
     status: string;
     versi: number;
     path_file: string | null;
+    nama_file?: string | null;
     submitted_at: string | null;
 }
 
@@ -228,25 +229,40 @@ export default function Proposal({ proposal, dosenPembimbing, feedbacks, hasPend
                                         </button>
                                     </div>
                                 ) : proposal?.path_file ? (
-                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 bg-blue-50 text-blue-700 rounded-md flex items-center justify-center">
-                                                <CheckCircle2 className="w-5 h-5" />
+                                    <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
+                                                <FileCheck2 className="w-5 h-5" />
                                             </div>
-                                            <div>
-                                                <span className="text-sm font-semibold text-slate-900 block">Proposal Terunggah</span>
-                                                <a href={`/storage/${proposal.path_file}`} target="_blank" className="text-xs font-medium text-blue-700 hover:underline">
-                                                    Lihat Berkas Dokumen
-                                                </a>
+                                            <div className="min-w-0">
+                                                <span className="text-sm font-bold text-slate-900 block truncate max-w-sm sm:max-w-md" title={proposal.nama_file || proposal.path_file.split('/').pop() || 'Proposal_KP.pdf'}>
+                                                    {proposal.nama_file || proposal.path_file.split('/').pop() || 'Proposal_KP.pdf'}
+                                                </span>
+                                                <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-slate-500">
+                                                    <span className="font-semibold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded text-[10px]">
+                                                        Versi {proposal.versi}
+                                                    </span>
+                                                    <span>&bull;</span>
+                                                    <span>Berkas proposal tersimpan</span>
+                                                    <span>&bull;</span>
+                                                    <a 
+                                                        href={`/storage/${proposal.path_file}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="font-bold text-[#00288e] hover:text-blue-900 hover:underline inline-flex items-center gap-1"
+                                                    >
+                                                        <span>Lihat Dokumen</span>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                         {proposal?.status !== 'disetujui' && (
                                             <button 
                                                 type="button" 
                                                 onClick={() => {if (fileInputRef.current) fileInputRef.current.click()}} 
-                                                className="text-xs font-semibold text-blue-700 hover:text-blue-900 px-3 py-1.5 rounded-md border border-slate-300 hover:bg-white transition"
+                                                className="text-xs font-semibold text-[#00288e] hover:text-blue-900 px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition shrink-0 cursor-pointer shadow-2xs"
                                             >
-                                                Ganti File
+                                                Ganti File PDF
                                             </button>
                                         )}
                                         <input type="file" accept=".pdf" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
