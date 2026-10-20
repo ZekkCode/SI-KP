@@ -22,7 +22,10 @@ class MahasiswaBeritaAcaraController extends Controller
         ->with([
             'beritaAcara',
             'instansi',
-            'dosenPembimbing'
+            'dosenPembimbing',
+            'nilaiAkhir',
+            'sidang.dosenPenguji',
+            'proposals',
         ])
         ->latest('id')
         ->first();
@@ -32,12 +35,18 @@ class MahasiswaBeritaAcaraController extends Controller
             $pendaftaran->load('dosenPembimbing');
         }
 
+        $dosenSudahMenilai = $pendaftaran?->nilaiAkhir?->nilai_pembimbing !== null;
+        $isApproved = $pendaftaran?->beritaAcara && $pendaftaran->beritaAcara->status === 'disetujui';
+
         return Inertia::render(
             'Mahasiswa/BeritaAcara',
             [
                 'pendaftaran' => $pendaftaran,
                 'beritaAcara' => $pendaftaran?->beritaAcara,
                 'status' => $pendaftaran?->status,
+                'dosenSudahMenilai' => $dosenSudahMenilai,
+                'isApproved' => $isApproved,
+                'nilaiAkhir' => $pendaftaran?->nilaiAkhir,
             ]
         );
     }

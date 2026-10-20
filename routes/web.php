@@ -310,6 +310,7 @@ Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->grou
     
     // Berita Acara
     Route::get('/berita-acara', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'index'])->name('berita-acara.index');
+    Route::get('/berita-acara/{id}/preview', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'preview'])->name('berita-acara.preview');
     Route::put('/berita-acara/{id}', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'update'])->name('berita-acara.update');
     Route::post('/berita-acara/{id}/approve', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'approve'])->name('berita-acara.approve');
     

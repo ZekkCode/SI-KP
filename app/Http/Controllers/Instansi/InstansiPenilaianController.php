@@ -86,28 +86,34 @@ class InstansiPenilaianController extends Controller
         ]);
 
         $user = Auth::user();
-        $instansi = $user->instansi ?? $user->pembimbingLapangan?->instansi;
         $pl = $user->pembimbingLapangan;
+        $instansi = $user->instansi ?? $pl?->instansi;
 
-        if (!$instansi && !$pl) {
-            return back()->with('error', 'Profil instansi atau pembimbing lapangan belum diatur.');
+        // Cari pendaftaran berdasarkan relasi instansi, pembimbing lapangan, atau fallback id
+        $pendaftaran = Pendaftaran::with(['mahasiswa', 'instansi', 'dosenPembimbing'])
+            ->where(function ($q) use ($instansi, $pl, $user) {
+                if ($instansi) {
+                    $q->where('instansi_id', $instansi->id);
+                }
+                if ($pl) {
+                    $q->orWhere('pembimbing_lapangan_id', $pl->id);
+                }
+                $q->orWhereHas('pembimbingLapangan', function($sub) use ($user) {
+                    $sub->where('user_id', $user->id);
+                });
+            })
+            ->findOrFail($id);
+
+        if (!$instansi && $pendaftaran->instansi) {
+            $instansi = $pendaftaran->instansi;
         }
 
-        $pendaftaran = Pendaftaran::where(function ($q) use ($instansi, $pl) {
-            if ($instansi) {
-                $q->where('instansi_id', $instansi->id);
-            }
-            if ($pl) {
-                $q->orWhere('pembimbing_lapangan_id', $pl->id);
-            }
-        })->findOrFail($id);
         $penilaiId = $user->id;
 
         DB::beginTransaction();
         try {
             // Hapus nilai lama tipe instansi jika ada
             Nilai::where('pendaftaran_id', $pendaftaran->id)
-                ->where('penilai_id', $penilaiId)
                 ->where('tipe', 'instansi')
                 ->delete();
 
@@ -169,11 +175,13 @@ class InstansiPenilaianController extends Controller
 
             $nilaiAkhir->save();
 
+            $namaInstansi = $instansi?->nama ?? $pendaftaran->instansi?->nama ?? $pl?->nama ?? 'Mitra Instansi';
+
             // Notifikasi ke mahasiswa
             \App\Models\Notifikasi::create([
                 'user_id' => $pendaftaran->mahasiswa_id,
                 'judul' => 'Nilai Instansi Telah Diberikan',
-                'pesan' => 'Pembimbing Lapangan / Instansi ' . ($instansi->nama ?? '') . ' telah memberikan nilai evaluasi magang Anda (Nilai: ' . round($totalNilaiInstansi, 1) . ').',
+                'pesan' => 'Pembimbing Lapangan / ' . $namaInstansi . ' telah memberikan nilai evaluasi magang Anda (Nilai: ' . round($totalNilaiInstansi, 1) . ').',
                 'tipe' => 'info',
                 'priority' => 'high',
                 'link' => '/mahasiswa/penilaian',
@@ -184,7 +192,7 @@ class InstansiPenilaianController extends Controller
                 \App\Models\Notifikasi::create([
                     'user_id' => $dosbing->id,
                     'judul' => 'Nilai Mitra Instansi Telah Masuk',
-                    'pesan' => "Mitra Instansi telah memberikan nilai evaluasi untuk mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}).",
+                    'pesan' => "Mitra Instansi ({$namaInstansi}) telah memberikan nilai evaluasi untuk mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}).",
                     'tipe' => 'info',
                     'priority' => 'high',
                     'link' => '/dosen/penilaian',
@@ -192,10 +200,11 @@ class InstansiPenilaianController extends Controller
             }
 
             DB::commit();
-            return back()->with('success', 'Nilai berhasil disimpan.');
-        } catch (\Exception $e) {
+            return redirect()->route('instansi.evaluation')->with('success', "Nilai evaluasi mahasiswa {$pendaftaran->mahasiswa?->name} berhasil disimpan.");
+        } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Gagal menyimpan nilai: ' . $e->getMessage()]);
+            return back()->with('error', 'Gagal menyimpan nilai: ' . $e->getMessage())
+                         ->withErrors(['error' => 'Gagal menyimpan nilai: ' . $e->getMessage()]);
         }
     }
 }

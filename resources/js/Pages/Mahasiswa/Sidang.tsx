@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MahasiswaLayout from '@/Layouts/MahasiswaLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { 
@@ -16,9 +16,12 @@ import {
   HelpCircle,
   Download,
   BookOpen,
-  Layers
+  Layers,
+  X,
+  ArrowRight
 } from 'lucide-react';
 import PageHeader from '@/Components/PageHeader';
+import Modal from '@/Components/Modal';
 
 interface Requirement {
   key: string;
@@ -70,13 +73,20 @@ interface Props {
 }
 
 export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }: Props) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { data, setData, post, processing, errors } = useForm({
     catatan: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post(route('mahasiswa.sidang.store'));
+    post(route('mahasiswa.sidang.store'), {
+      preserveScroll: true,
+      onSuccess: () => {
+        setIsModalOpen(false);
+      }
+    });
   };
 
   const getStatusBadge = (status: string) => {
@@ -112,6 +122,8 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
     }
   };
 
+  const canApply = !sidang || sidang.status === 'dibatalkan';
+
   return (
     <div className="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full space-y-6 animate-in fade-in duration-300">
       <Head title="Pengajuan Sidang Kerja Praktik" />
@@ -136,6 +148,13 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
         </div>
       )}
 
+      {(errors as any)?.error && (
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center gap-3 shadow-xs">
+          <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+          <p className="text-sm font-medium">{(errors as any).error}</p>
+        </div>
+      )}
+
       {/* Info Mahasiswa & Instansi */}
       <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -154,15 +173,28 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
           </div>
         </div>
 
-        <div>
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status Sidang</span>
-          <div className="mt-1">
-            {sidang ? getStatusBadge(sidang.status) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
-                Belum Diajukan
-              </span>
-            )}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Status Sidang</span>
+            <div className="mt-1">
+              {sidang ? getStatusBadge(sidang.status) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+                  Belum Diajukan
+                </span>
+              )}
+            </div>
           </div>
+
+          {canApply && (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-1.5 bg-[#00288e] hover:bg-[#002277] text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-xs active:scale-95 shrink-0"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Ajukan Sidang</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -238,16 +270,16 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
         </div>
       )}
 
-      {/* Checklist Syarat Sidang (Req 12) */}
+      {/* Checklist Syarat Sidang */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div>
             <h3 className="font-bold text-base text-slate-900">Checklist Syarat Pendaftaran Sidang</h3>
             <p className="text-xs text-slate-500">
               Sesuai SOP Kerja Praktik, seluruh syarat berikut harus terpenuhi sebelum formulir pengajuan sidang dibuka.
             </p>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             {eligibility.eligible ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -296,11 +328,21 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
       </div>
 
       {/* Form Pengajuan Sidang (Jika belum mengajukan atau belum selesai) */}
-      {(!sidang || sidang.status === 'dibatalkan') && (
+      {canApply && (
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 text-slate-900 border-b border-slate-100 pb-3">
-            <Calendar className="w-5 h-5 text-[#00288e]" />
-            <h3 className="font-bold text-base">Formulir Pengajuan Jadwal Sidang</h3>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2 text-slate-900">
+              <Calendar className="w-5 h-5 text-[#00288e]" />
+              <h3 className="font-bold text-base">Formulir Pengajuan Jadwal Sidang</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-1.5 bg-[#00288e] hover:bg-[#002277] text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-xs active:scale-95"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Ajukan Sidang</span>
+            </button>
           </div>
 
           {eligibility.eligible ? (
@@ -337,30 +379,176 @@ export default function SidangScreen({ pendaftaran, sidang, eligibility, flash }
               </div>
             </form>
           ) : (
-            <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-3">
+            <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-4">
               <HelpCircle className="w-10 h-10 text-slate-400 mx-auto opacity-60" />
-              <h4 className="text-sm font-bold text-slate-800">Form Pengajuan Belum Dapat Dibuka</h4>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Silakan lengkapi prasyarat di atas terlebih dahulu. Pastikan seluruh logbook telah disetujui dosen, laporan akhir telah diunggah, dan nilai industri telah diinput oleh pembimbing lapangan.
+              <h4 className="text-sm font-bold text-slate-800">Prasyarat Sidang Belum Lengkap</h4>
+              <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                Terdapat {eligibility.missing.length} syarat yang perlu dilengkapi terlebih dahulu. Anda dapat menekan tombol <strong>Ajukan Sidang</strong> untuk memeriksa detail atau menggunakan pintasan di bawah untuk menyelesaikan prasyarat:
               </p>
-              <div className="flex justify-center gap-3 pt-2">
+              <div className="flex flex-wrap justify-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-4 py-2 bg-[#00288e] hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Ajukan Sidang</span>
+                </button>
                 <Link
                   href="/mahasiswa/logbook"
-                  className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
+                  className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
                 >
                   Cek Logbook
                 </Link>
                 <Link
                   href="/mahasiswa/dokumen-akhir"
-                  className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
+                  className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
                 >
                   Upload Laporan Akhir
+                </Link>
+                <Link
+                  href="/mahasiswa/penilaian"
+                  className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
+                >
+                  Cek Nilai Industri
                 </Link>
               </div>
             </div>
           )}
         </div>
       )}
+
+      {/* Modal Ajukan Sidang */}
+      <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="lg">
+        <div className="p-6 space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#00288e] flex items-center justify-center font-bold">
+                <Send className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Pengajuan Sidang Kerja Praktik</h3>
+                <p className="text-xs text-slate-500">Pendaftaran jadwal seminar ke Koordinator Program Studi</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {eligibility.eligible ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl flex items-start gap-2.5 text-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">Semua Syarat Sidang Terpenuhi</p>
+                  <p className="mt-0.5">Logbook telah disetujui, laporan akhir telah terunggah, dan nilai industri telah diinput oleh pembimbing mitra.</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Catatan / Preferensi Hari Sidang (Opsional)
+                </label>
+                <textarea
+                  rows={3}
+                  value={data.catatan}
+                  onChange={(e) => setData('catatan', e.target.value)}
+                  placeholder="Contoh: Mengajukan sidang pada minggu depan hari Rabu atau Kamis jika memungkinkan..."
+                  className="w-full text-xs p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-50 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={processing}
+                  className="inline-flex items-center gap-1.5 bg-[#00288e] hover:bg-[#002277] text-white px-5 py-2 rounded-lg text-xs font-bold transition shadow-xs disabled:opacity-50"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{processing ? 'Mengirim...' : 'Kirim Pengajuan Sidang'}</span>
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-start gap-2.5 text-xs">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">Prasyarat Sidang Belum Lengkap</p>
+                  <p className="mt-0.5">
+                    Terdapat {eligibility.missing.length} syarat yang belum terpenuhi. Mohon lengkapi seluruh poin di bawah agar permohonan sidang dapat diproses oleh Koordinator Program Studi:
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {eligibility.requirements.map((req) => (
+                  <div
+                    key={req.key}
+                    className={`p-3 rounded-lg border flex items-center justify-between text-xs ${
+                      req.is_met ? 'bg-emerald-50/50 border-emerald-200 text-emerald-900' : 'bg-rose-50/50 border-rose-200 text-rose-900'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {req.is_met ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                      )}
+                      <div>
+                        <span className="font-bold block">{req.title}</span>
+                        <span className="text-[11px] opacity-80">{req.details}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Link
+                    href="/mahasiswa/logbook"
+                    className="flex-1 sm:flex-none text-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold text-slate-700 transition"
+                  >
+                    Logbook
+                  </Link>
+                  <Link
+                    href="/mahasiswa/dokumen-akhir"
+                    className="flex-1 sm:flex-none text-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold text-slate-700 transition"
+                  >
+                    Laporan Akhir
+                  </Link>
+                  <Link
+                    href="/mahasiswa/penilaian"
+                    className="flex-1 sm:flex-none text-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold text-slate-700 transition"
+                  >
+                    Nilai Industri
+                  </Link>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-full sm:w-auto px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-900 transition"
+                >
+                  Mengerti
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
 
       {/* Berkas & Formulir Resmi Persyaratan Sidang / Seminar KP */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 sm:p-6 space-y-4">

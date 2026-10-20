@@ -168,6 +168,15 @@ class DosenPenilaianController extends Controller
 
             $nilaiAkhir->save();
 
+            // Berita Acara aktif otomatis setelah dosen pembimbing selesai menilai
+            \App\Models\BeritaAcara::firstOrCreate(
+                ['pendaftaran_id' => $pendaftaran->id],
+                [
+                    'status' => 'menunggu',
+                    'path_file' => 'generated/berita_acara/ba_' . $pendaftaran->id . '.pdf',
+                ]
+            );
+
             // Ubah status pendaftaran menjadi selesai jika belum
             if ($pendaftaran->status !== 'selesai') {
                 $pendaftaran->update(['status' => 'selesai']);
@@ -176,16 +185,31 @@ class DosenPenilaianController extends Controller
             // Notifikasi ke mahasiswa
             \App\Models\Notifikasi::create([
                 'user_id' => $pendaftaran->mahasiswa_id,
-                'judul' => 'Nilai Dosen Pembimbing Diberikan',
-                'pesan' => 'Dosen Pembimbing telah menginputkan nilai evaluasi KP Anda (Nilai: ' . round($totalNilaiPembimbing, 1) . ').',
-                'tipe' => 'info',
-                'link' => '/mahasiswa/penilaian',
+                'judul' => 'Nilai Dosen Pembimbing Telah Diberikan',
+                'pesan' => 'Dosen Pembimbing telah menginputkan nilai evaluasi KP Anda (Nilai: ' . round($totalNilaiPembimbing, 1) . '). Tahap Berita Acara kini aktif dan menunggu validasi Koordinator Program Studi.',
+                'tipe' => 'sukses',
+                'priority' => 'high',
+                'link' => '/mahasiswa/berita-acara',
             ]);
+
+            // Notifikasi ke Koordinator Program Studi (Prodi)
+            $prodiUsers = \App\Models\User::where('role', 'prodi')->get();
+            foreach ($prodiUsers as $prodi) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $prodi->id,
+                    'judul' => 'Berita Acara Siap Divalidasi',
+                    'pesan' => "Dosen Pembimbing telah menilai mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}). Berita Acara resmi (Form KP-5) siap divalidasi dan diterbitkan.",
+                    'tipe' => 'info',
+                    'priority' => 'high',
+                    'link' => '/prodi/berita-acara',
+                ]);
+            }
 
             DB::commit();
             return redirect()->route('dosen.penilaian.index')->with('success', 'Nilai berhasil disimpan.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+            \Log::error('DosenPenilaian error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
             return back()->withErrors(['error' => 'Gagal menyimpan nilai: ' . $e->getMessage()]);
         }
     }

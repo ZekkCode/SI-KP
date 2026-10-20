@@ -152,8 +152,15 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
     if (!selectedPendaftaran) return;
 
     post(route('instansi.evaluation.store', selectedPendaftaran.id), {
-      onSuccess: () => {
-        closeModal();
+      preserveScroll: true,
+      onSuccess: (page) => {
+        const pageErrors = page?.props?.errors || {};
+        if (Object.keys(pageErrors).length === 0) {
+          closeModal();
+        }
+      },
+      onError: () => {
+        // Modal stays open so user can inspect and fix errors
       },
     });
   };
@@ -191,6 +198,13 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
         <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center gap-3 text-rose-800 dark:text-rose-200 shadow-xs">
           <AlertCircle size={20} className="shrink-0 text-rose-600 dark:text-rose-400" />
           <div className="text-sm font-medium">{flash.error}</div>
+        </div>
+      )}
+
+      {(errors as any)?.error && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center gap-3 text-rose-800 dark:text-rose-200 shadow-xs">
+          <AlertCircle size={20} className="shrink-0 text-rose-600 dark:text-rose-400" />
+          <div className="text-sm font-medium">{(errors as any).error}</div>
         </div>
       )}
 
@@ -457,7 +471,7 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
       </div>
 
       {/* Modal Evaluasi */}
-      <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
+      <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl" closeable={false}>
         <div className="p-0">
           <div className="p-6 border-b border-outline-variant flex items-center justify-between">
             <div>
@@ -479,6 +493,26 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
           </div>
 
           <form onSubmit={submitGrading} className="p-6 space-y-6">
+            {/* Box Peringatan / Error Validasi In-Modal */}
+            {((errors as any).error || Object.keys(errors).length > 0) && (
+              <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-start gap-3 shadow-xs animate-in fade-in">
+                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-bold">Terjadi Kendala Pengisian / Penyimpanan Nilai:</p>
+                  {(errors as any).error && <p>{(errors as any).error}</p>}
+                  {Object.keys(errors).filter((k) => k !== 'error').length > 0 && (
+                    <ul className="list-disc list-inside space-y-0.5 text-rose-700">
+                      {Object.entries(errors)
+                        .filter(([k]) => k !== 'error')
+                        .map(([k, msg]) => (
+                          <li key={k}>{msg}</li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between bg-blue-50/70 border border-blue-200 px-3.5 py-2.5 rounded-xl text-xs">
               <span className="text-slate-600 font-medium">Memerlukan blanko fisik Form KP-6a untuk dicetak & dicap?</span>
               <a
@@ -516,6 +550,11 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                         step="any"
                         value={data[param.id as keyof typeof data]}
                         onChange={(e) => handleScoreChange(param.id as keyof typeof data, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
                         placeholder="Contoh: 85.5"
                         className="w-full bg-surface border border-outline-variant rounded-lg p-2 text-sm text-center font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow"
                       />
