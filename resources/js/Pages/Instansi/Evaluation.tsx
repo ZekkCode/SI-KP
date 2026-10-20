@@ -472,27 +472,33 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
 
       {/* Modal Evaluasi */}
       <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl" closeable={false}>
-        <div className="p-0">
-          <div className="p-6 border-b border-outline-variant flex items-center justify-between">
+        <div className="flex flex-col max-h-[90vh]">
+          {/* Header Modal (Pinned) */}
+          <div className="p-5 sm:p-6 border-b border-slate-200 bg-white flex items-center justify-between shrink-0 rounded-t-2xl">
             <div>
-              <h2 className="text-xl font-display font-semibold text-on-surface">Evaluasi Kerja Praktik Industri</h2>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-[#00288e] border border-blue-200 mb-1">
+                Form KP-6a UTM
+              </div>
+              <h2 className="text-lg sm:text-xl font-display font-bold text-slate-900">Evaluasi Kerja Praktik Industri</h2>
               {selectedPendaftaran && (
-                <p className="text-sm text-on-surface-variant mt-1">
-                  Mahasiswa: <span className="font-semibold text-on-surface">{selectedPendaftaran.mahasiswa?.name || 'Mahasiswa'}</span>{' '}
-                  <span className="text-secondary font-mono">({selectedPendaftaran.mahasiswa?.nim || '-'})</span>
+                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                  Mahasiswa: <span className="font-bold text-slate-900">{selectedPendaftaran.mahasiswa?.name || 'Mahasiswa'}</span>{' '}
+                  <span className="text-slate-500 font-mono font-semibold">({selectedPendaftaran.mahasiswa?.nim || '-'})</span>
                 </p>
               )}
             </div>
             <button
               type="button"
               onClick={closeModal}
-              className="text-on-surface-variant hover:bg-surface-container p-1.5 rounded-lg transition-colors"
+              className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-2 rounded-xl transition-colors shrink-0"
+              title="Tutup Modal"
             >
               <X size={20} />
             </button>
           </div>
 
-          <form onSubmit={submitGrading} className="p-6 space-y-6">
+          {/* Form Modal (Scrollable Body) */}
+          <form onSubmit={submitGrading} className="p-5 sm:p-6 space-y-5 overflow-y-auto bg-white">
             {/* Box Peringatan / Error Validasi In-Modal */}
             {((errors as any).error || Object.keys(errors).length > 0) && (
               <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-start gap-3 shadow-xs animate-in fade-in">
@@ -513,8 +519,9 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
               </div>
             )}
 
-            <div className="flex items-center justify-between bg-blue-50/70 border border-blue-200 px-3.5 py-2.5 rounded-xl text-xs">
-              <span className="text-slate-600 font-medium">Memerlukan blanko fisik Form KP-6a untuk dicetak & dicap?</span>
+            {/* Link Unduh Blanko Fisik */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-blue-50/70 border border-blue-200 px-3.5 py-2.5 rounded-xl text-xs">
+              <span className="text-slate-700 font-medium">Memerlukan blanko fisik Form KP-6a untuk dicetak & dicap?</span>
               <a
                 href="/dokumen/lampiran/Lampiran_07_Penilaian_Pembimbing_Lapangan_Form_KP-6a.pdf"
                 download
@@ -525,11 +532,17 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
               </a>
             </div>
 
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">
-              <h3 className="text-sm font-display font-semibold text-on-surface mb-4 flex items-center gap-2">
-                <BarChart2 className="w-4 h-4 text-primary" />
-                Parameter Penilaian Kinerja (Rentang Nilai 0 - 100)
-              </h3>
+            {/* Parameter Penilaian Card */}
+            <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
+                <h3 className="text-xs sm:text-sm font-display font-bold text-slate-800 flex items-center gap-2">
+                  <BarChart2 className="w-4 h-4 text-[#00288e]" />
+                  <span>Parameter Penilaian Kinerja</span>
+                </h3>
+                <span className="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                  Rentang: 0 - 100
+                </span>
+              </div>
 
               <div className="space-y-4">
                 {[
@@ -537,9 +550,9 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                   { id: 'kerjasama', label: 'Kemampuan Bekerjasama & Komunikasi Tim (Bobot 30%)', error: errors.kerjasama },
                   { id: 'kinerja', label: 'Kinerja Praktis, Tanggung Jawab & Pemahaman Tugas (Bobot 40%)', error: errors.kinerja },
                 ].map((param) => (
-                  <div key={param.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <label htmlFor={param.id} className="text-sm font-medium text-on-surface-variant sm:w-2/3">
-                      {param.label} <span className="text-error">*</span>
+                  <div key={param.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white p-3 rounded-lg border border-slate-200/80 shadow-2xs">
+                    <label htmlFor={param.id} className="text-xs sm:text-sm font-semibold text-slate-800 sm:w-2/3 cursor-pointer">
+                      {param.label} <span className="text-rose-600 font-bold">*</span>
                     </label>
                     <div className="sm:w-1/3 flex flex-col">
                       <input
@@ -556,35 +569,37 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                           }
                         }}
                         placeholder="Contoh: 85.5"
-                        className="w-full bg-surface border border-outline-variant rounded-lg p-2 text-sm text-center font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow"
+                        className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs placeholder:font-normal placeholder:text-slate-400"
                       />
-                      {param.error && <span className="text-[10px] text-error mt-1">{param.error}</span>}
+                      {param.error && <span className="text-[10px] font-semibold text-rose-600 mt-1">{param.error}</span>}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-5 mt-5 border-t border-outline-variant">
-                <div className="flex justify-between items-center bg-surface-low p-4 rounded-xl border border-outline-variant">
+              {/* Agregasi Nilai Preview */}
+              <div className="pt-4 mt-4 border-t border-slate-200">
+                <div className="flex justify-between items-center bg-blue-50/70 p-4 rounded-xl border border-blue-200">
                   <div>
-                    <span className="text-sm font-display font-semibold text-on-surface block">
+                    <span className="text-xs sm:text-sm font-display font-bold text-slate-900 block">
                       Agregasi Nilai Instansi (Otomatis)
                     </span>
-                    <span className="text-[11px] text-secondary">
+                    <span className="text-[11px] text-slate-600 font-medium">
                       Formula UTM: (Disiplin × 30%) + (Kerjasama × 30%) + (Kinerja × 40%)
                     </span>
                   </div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-display font-bold text-primary">{totalPreview.toFixed(1)}</span>
-                    <span className="text-xs text-secondary">/ 100</span>
+                  <div className="flex items-baseline gap-1.5 bg-white px-3.5 py-1.5 rounded-lg border border-blue-200 shadow-2xs">
+                    <span className="text-2xl font-display font-black text-[#00288e]">{totalPreview.toFixed(1)}</span>
+                    <span className="text-xs text-slate-400 font-semibold">/ 100</span>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Catatan Evaluasi */}
             <div>
-              <label htmlFor="catatan" className="block text-sm font-medium text-on-surface mb-2">
-                Catatan Evaluasi / Pesan Pembimbing Lapangan (Opsional)
+              <label htmlFor="catatan" className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
+                Catatan Evaluasi / Pesan Pembimbing Lapangan <span className="text-slate-400 font-normal">(Opsional)</span>
               </label>
               <textarea
                 id="catatan"
@@ -592,36 +607,38 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                 value={data.catatan}
                 onChange={(e) => handleScoreChange('catatan', e.target.value)}
                 placeholder="Tuliskan masukan atas pencapaian atau hal-hal yang perlu ditingkatkan oleh mahasiswa..."
-                className="w-full p-3 bg-surface border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y"
+                className="w-full p-3 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all resize-y shadow-2xs placeholder:text-slate-400"
               ></textarea>
-              {errors.catatan && <p className="text-error text-xs mt-1">{errors.catatan}</p>}
+              {errors.catatan && <p className="text-rose-600 text-xs mt-1">{errors.catatan}</p>}
             </div>
 
-            <div className="flex items-center gap-3 bg-secondary-container/30 border border-secondary-container p-4 rounded-xl">
-              <div className="w-10 h-10 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center shrink-0">
-                <ScanLine className="w-5 h-5" />
+            {/* Info Validitas */}
+            <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
+              <div className="w-9 h-9 bg-blue-100 text-[#00288e] rounded-lg flex items-center justify-center shrink-0">
+                <ScanLine className="w-4 h-4" />
               </div>
-              <div className="text-xs text-on-surface-variant leading-relaxed">
-                <span className="font-semibold block text-on-surface">Validitas Data Evaluasi</span>
+              <div className="text-xs text-slate-600 leading-relaxed">
+                <span className="font-bold block text-slate-800">Validitas Data Evaluasi</span>
                 Nilai yang disimpan akan masuk secara resmi ke rekapitulasi penilaian akhir Program Studi dan dapat ditinjau oleh Dosen Pembimbing.
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+            {/* Footer Buttons (Pinned at bottom of modal) */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 bg-white sticky bottom-0">
               <button
                 type="button"
                 onClick={closeModal}
-                className="px-4 py-2 border border-outline-variant text-secondary text-sm font-medium rounded-lg hover:bg-surface-container transition-colors"
+                className="px-4 py-2 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-lg hover:bg-slate-100 transition-colors"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 disabled={processing || data.kedisiplinan === '' || data.kerjasama === '' || data.kinerja === ''}
-                className="px-6 py-2 bg-primary text-on-primary text-sm font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-2"
+                className="px-6 py-2 bg-[#00288e] hover:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-2 cursor-pointer"
               >
                 <Upload size={16} />
-                {processing ? 'Menyimpan...' : 'Simpan Nilai'}
+                <span>{processing ? 'Menyimpan...' : 'Simpan Nilai'}</span>
               </button>
             </div>
           </form>
