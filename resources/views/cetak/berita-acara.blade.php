@@ -167,7 +167,7 @@
             <tr>
                 <td>Tempat / Perusahaan KP</td>
                 <td>:</td>
-                <td>{{ $pendaftaran->instansi->nama ?? '-' }} ({{ $pendaftaran->instansi->kota ?? '' }})</td>
+                <td>{{ $pendaftaran->instansi?->nama ?? $pendaftaran->tempat_kp ?? '-' }}{{ $pendaftaran->instansi?->kota ? ' (' . $pendaftaran->instansi->kota . ')' : '' }}</td>
             </tr>
             <tr>
                 <td>Periode Pelaksanaan</td>

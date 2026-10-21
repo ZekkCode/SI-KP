@@ -735,7 +735,7 @@ class CriticalWorkflowsTest extends TestCase
             'status' => 'aktif',
         ]);
 
-        // Berikan dokumen akhir agar step 7 terbuka
+        // Berikan dokumen akhir dan sidang selesai agar Step 9 (Berita Acara) terbuka
         \App\Models\DokumenAkhir::create([
             'pendaftaran_id' => $pendaftaran->id,
             'jenis' => 'laporan_akhir',
@@ -743,6 +743,13 @@ class CriticalWorkflowsTest extends TestCase
             'path' => 'dokumen/laporan.pdf',
             'uploaded_at' => now(),
         ]);
+
+        \App\Models\Sidang::create([
+            'pendaftaran_id' => $pendaftaran->id,
+            'status' => 'selesai',
+            'dosen_penguji_id' => $this->dosen->id,
+        ]);
+        $pendaftaran->update(['status' => 'selesai']);
 
         $file = UploadedFile::fake()->create('berita_acara.pdf', 1024, 'application/pdf');
 
