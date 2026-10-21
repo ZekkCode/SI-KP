@@ -32,9 +32,9 @@ export default function MahasiswaLayout({ children }: PropsWithChildren) {
         { href: '/mahasiswa/proposal', label: t('nav.proposal', undefined, 'Proposal'), icon: File, step: 4 },
         { href: '/mahasiswa/logbook', label: t('nav.monitoring', undefined, 'Monitoring Logbook'), icon: BookOpen, step: 6 },
         { href: '/mahasiswa/dokumen-akhir', label: t('nav.laporan_akhir', undefined, 'Laporan Akhir'), icon: FileCheck, step: 7 },
-        { href: '/mahasiswa/berita-acara', label: t('nav.berita_acara', undefined, 'Berita Acara'), icon: FileClock, step: 7 },
         { href: '/mahasiswa/sidang', label: 'Sidang KP', icon: CalendarDays, step: 8 },
         { href: '/mahasiswa/penilaian', label: t('nav.penilaian', undefined, 'Penilaian Akhir'), icon: Award, step: 9 },
+        { href: '/mahasiswa/berita-acara', label: t('nav.berita_acara', undefined, 'Berita Acara'), icon: FileClock, step: 9 },
     ];
 
     return (

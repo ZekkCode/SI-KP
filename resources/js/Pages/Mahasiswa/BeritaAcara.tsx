@@ -118,7 +118,7 @@ export default function BeritaAcara({
       <div>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
           <FileText className="w-3.5 h-3.5" />
-          Tahap 7: Berita Acara KP Resmi
+          Tahap 9: Berita Acara Kelulusan &amp; Nilai KP (Form KP-5)
         </span>
         <h1 className="text-2xl font-bold text-slate-800">Berita Acara Seminar Kerja Praktik</h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -305,10 +305,10 @@ export default function BeritaAcara({
                       href={`/mahasiswa/berita-acara/${pendaftaran.id}/cetak`}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 bg-[#00288e] hover:bg-blue-800 text-white px-5 py-2.5 rounded-lg text-xs font-semibold shadow-xs transition"
+                      className="inline-flex items-center gap-2 bg-[#00288e] hover:bg-blue-800 text-white px-6 py-2.5 rounded-lg text-xs font-bold shadow-xs transition active:scale-95"
                     >
                       <Printer className="w-4 h-4" />
-                      <span>Pratinjau Draft Form KP-5</span>
+                      <span>Cetak / Unduh Berita Acara Resmi (Form KP-5)</span>
                       <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                     </a>
                   </div>

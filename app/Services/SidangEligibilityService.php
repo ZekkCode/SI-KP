@@ -66,13 +66,12 @@ class SidangEligibilityService
             'details' => $laporanDetail,
         ];
 
-        // 3. Syarat Nilai dari Pembimbing Lapangan / Instansi
+        // 3. Status Nilai dari Pembimbing Lapangan / Instansi (Dapat diserahkan sebelum atau saat pelaksanaan ujian)
         $hasNilaiInstansi = $pendaftaran->nilais()->where('tipe', 'instansi')->exists() 
             || ($pendaftaran->nilaiAkhir && $pendaftaran->nilaiAkhir->nilai_instansi !== null);
 
         if (!$hasNilaiInstansi) {
-            $missing[] = 'Pembimbing Lapangan / Instansi belum memberikan nilai evaluasi magang.';
-            $nilaiDetail = 'Nilai evaluasi dari Pembimbing Lapangan belum masuk ke sistem.';
+            $nilaiDetail = 'Nilai evaluasi industri dapat dilengkapi oleh Pembimbing Lapangan sebelum/saat ujian berlangsung.';
         } else {
             $nilaiValue = $pendaftaran->nilaiAkhir?->nilai_instansi;
             $nilaiDetail = 'Nilai evaluasi dari Pembimbing Lapangan telah terisi' . ($nilaiValue !== null ? " (Nilai: {$nilaiValue})." : '.');
@@ -81,12 +80,14 @@ class SidangEligibilityService
         $requirements[] = [
             'key' => 'nilai_instansi',
             'title' => 'Nilai Evaluasi Industri (PL)',
-            'description' => 'Pembimbing Lapangan telah menginput form penilaian kinerja dan kedisiplinan mahasiswa.',
+            'description' => 'Pembimbing Lapangan menginput form penilaian kinerja dan kedisiplinan mahasiswa.',
             'is_met' => $hasNilaiInstansi,
+            'is_optional' => true,
             'details' => $nilaiDetail,
         ];
 
-        $isEligible = $logbookMet && $laporanMet && $hasNilaiInstansi;
+        // Mahasiswa berhak mendaftar sidang jika Logbook & Laporan Akhir KP telah lengkap
+        $isEligible = $logbookMet && $laporanMet;
 
         return [
             'eligible' => $isEligible,
@@ -95,3 +96,4 @@ class SidangEligibilityService
         ];
     }
 }
+

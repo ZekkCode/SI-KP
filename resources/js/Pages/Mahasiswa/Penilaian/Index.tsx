@@ -102,6 +102,14 @@ export default function Index({ hasData, message, rapor }: PenilaianProps) {
                                     Berkas KP-6a (Instansi)
                                 </a>
                             )}
+
+                            <Link
+                                href="/mahasiswa/berita-acara"
+                                className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-3.5 py-2 rounded-lg font-semibold transition-colors text-xs shadow-xs"
+                            >
+                                <FileText className="w-4 h-4" />
+                                Berita Acara (Form KP-5)
+                            </Link>
                         </div>
                     )}
                 </div>

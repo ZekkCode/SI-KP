@@ -156,16 +156,9 @@ Route::middleware(['auth', 'role:mahasiswa'])
         });
 
         // =========================
-        // DOKUMEN AKHIR & BERITA ACARA (Step 7)
+        // DOKUMEN LAPORAN AKHIR (Step 7)
         // =========================
         Route::middleware('kp.step:7')->group(function () {
-            Route::get('/berita-acara', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'index'])
-                ->name('berita-acara');
-            Route::post('/berita-acara', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'store'])
-                ->name('berita-acara.store');
-            Route::get('/berita-acara/{id}/cetak', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'cetak'])
-                ->name('berita-acara.cetak');
-
             Route::get('/dokumen-akhir', [App\Http\Controllers\Mahasiswa\MahasiswaDokumenAkhirController::class, 'index'])
                 ->name('dokumen-akhir.index');
             Route::post('/dokumen-akhir', [App\Http\Controllers\Mahasiswa\MahasiswaDokumenAkhirController::class, 'store'])
@@ -183,7 +176,7 @@ Route::middleware(['auth', 'role:mahasiswa'])
         });
 
         // =========================
-        // PENILAIAN (Step 9)
+        // PENILAIAN & BERITA ACARA (Step 9)
         // =========================
         Route::middleware('kp.step:9')->group(function () {
             Route::get('/penilaian', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'index'])
@@ -194,6 +187,13 @@ Route::middleware(['auth', 'role:mahasiswa'])
                 ->name('penilaian.cetak-instansi');
             Route::get('/penilaian/cetak-dosen', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'cetakDosen'])
                 ->name('penilaian.cetak-dosen');
+
+            Route::get('/berita-acara', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'index'])
+                ->name('berita-acara');
+            Route::post('/berita-acara', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'store'])
+                ->name('berita-acara.store');
+            Route::get('/berita-acara/{id}/cetak', [App\Http\Controllers\Mahasiswa\MahasiswaBeritaAcaraController::class, 'cetak'])
+                ->name('berita-acara.cetak');
         });
     });
 
