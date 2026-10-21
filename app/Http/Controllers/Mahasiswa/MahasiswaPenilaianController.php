@@ -167,19 +167,43 @@ class MahasiswaPenilaianController extends Controller
 
         $nilais = $pendaftaran->nilais;
 
-        $komponenInstansi = $nilais->where('tipe', 'instansi')->map(function($n) {
+        $hurufDetail = [];
+        if ($pendaftaran->nilaiAkhir?->catatan && preg_match('/\[Instansi_Huruf\]:\s*(\{.*\})/m', $pendaftaran->nilaiAkhir->catatan, $mH)) {
+            $hurufDetail = json_decode($mH[1], true) ?: [];
+        }
+
+        $convertHuruf = function($score) {
+            if ($score === null || $score === '') return '-';
+            if ($score > 80) return 'A';
+            if ($score >= 75) return 'B+';
+            if ($score >= 70) return 'B';
+            if ($score >= 60) return 'C+';
+            if ($score >= 55) return 'C';
+            if ($score >= 50) return 'D+';
+            if ($score >= 45) return 'D';
+            return 'E';
+        };
+
+        $komponenInstansi = $nilais->where('tipe', 'instansi')->map(function($n) use ($hurufDetail, $convertHuruf) {
+            $huruf = $hurufDetail[$n->komponen] ?? $convertHuruf($n->nilai);
             return [
                 'komponen' => $n->komponen,
                 'bobot' => $n->bobot,
-                'nilai' => $n->nilai
+                'nilai' => $n->nilai,
+                'huruf' => $huruf,
             ];
         })->values();
+
+        $agregat = $pendaftaran->nilaiAkhir ? $pendaftaran->nilaiAkhir->nilai_instansi : null;
+        $hurufTotal = $hurufDetail['total'] ?? ($agregat !== null ? $convertHuruf($agregat) : '-');
 
         $rapor = [
             'mahasiswa' => $pendaftaran->mahasiswa,
             'instansi' => $pendaftaran->instansi ? $pendaftaran->instansi->nama : '-',
             'pembimbing_lapangan' => $pendaftaran->pembimbingLapangan ? $pendaftaran->pembimbingLapangan->nama : '-',
-            'agregat_instansi' => $pendaftaran->nilaiAkhir ? $pendaftaran->nilaiAkhir->nilai_instansi : null,
+            'jabatan_pl' => $pendaftaran->pembimbingLapangan?->jabatan ?? 'Pembimbing Lapangan',
+            'agregat_instansi' => $agregat,
+            'nilai_huruf_instansi' => $hurufTotal,
             'rincian_instansi' => $komponenInstansi,
         ];
 

@@ -33,7 +33,9 @@ interface Pendaftaran {
   status_kp: string;
   is_dinilai: boolean;
   nilai_instansi: string | number | null;
+  nilai_huruf?: string | null;
   komponen_nilai: Record<string, string | number> | null;
+  komponen_huruf?: Record<string, string> | null;
   catatan?: string | null;
 }
 
@@ -41,6 +43,20 @@ interface Props {
   pendaftarans: Pendaftaran[];
   error?: string;
 }
+
+export const calculateGradeLetter = (score: number): string => {
+  if (isNaN(score) || score < 0) return '';
+  if (score > 80) return 'A';
+  if (score >= 75) return 'B+';
+  if (score >= 70) return 'B';
+  if (score >= 60) return 'C+';
+  if (score >= 55) return 'C';
+  if (score >= 50) return 'D+';
+  if (score >= 45) return 'D';
+  return 'E';
+};
+
+export const GRADE_OPTIONS = ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'E'];
 
 export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
   const { flash } = usePage().props as any;
@@ -50,9 +66,15 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'belum' | 'sudah'>('all');
 
   const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
+    tugas: '',
+    tugas_huruf: '',
+    sikap: '',
+    sikap_huruf: '',
     kedisiplinan: '',
-    kerjasama: '',
-    kinerja: '',
+    kedisiplinan_huruf: '',
+    laporan: '',
+    laporan_huruf: '',
+    nilai_huruf: '',
     catatan: '',
   });
 
@@ -96,21 +118,41 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
     clearErrors();
     setSelectedPendaftaran(pendaftaran);
 
-    if (pendaftaran.komponen_nilai) {
-      setData({
-        kedisiplinan: pendaftaran.komponen_nilai.kedisiplinan != null ? String(pendaftaran.komponen_nilai.kedisiplinan) : '',
-        kerjasama: pendaftaran.komponen_nilai.kerjasama != null ? String(pendaftaran.komponen_nilai.kerjasama) : '',
-        kinerja: pendaftaran.komponen_nilai.kinerja != null ? String(pendaftaran.komponen_nilai.kinerja) : '',
-        catatan: pendaftaran.catatan || '',
-      });
-    } else {
-      setData({
-        kedisiplinan: '',
-        kerjasama: '',
-        kinerja: '',
-        catatan: pendaftaran.catatan || '',
-      });
+    const kNilai = pendaftaran.komponen_nilai || {};
+    const kHuruf = pendaftaran.komponen_huruf || {};
+
+    const rawTugas = kNilai.tugas != null ? String(kNilai.tugas) : (kNilai.kinerja != null ? String(kNilai.kinerja) : '');
+    const rawSikap = kNilai.sikap != null ? String(kNilai.sikap) : (kNilai.kerjasama != null ? String(kNilai.kerjasama) : '');
+    const rawDisiplin = kNilai.kedisiplinan != null ? String(kNilai.kedisiplinan) : '';
+    const rawLaporan = kNilai.laporan != null ? String(kNilai.laporan) : '';
+
+    const tugasHuruf = kHuruf.tugas || (rawTugas !== '' ? calculateGradeLetter(parseFloat(rawTugas)) : '');
+    const sikapHuruf = kHuruf.sikap || (rawSikap !== '' ? calculateGradeLetter(parseFloat(rawSikap)) : '');
+    const disiplinHuruf = kHuruf.kedisiplinan || (rawDisiplin !== '' ? calculateGradeLetter(parseFloat(rawDisiplin)) : '');
+    const laporanHuruf = kHuruf.laporan || (rawLaporan !== '' ? calculateGradeLetter(parseFloat(rawLaporan)) : '');
+
+    let totalScore = 0;
+    if (rawTugas !== '' || rawSikap !== '' || rawDisiplin !== '' || rawLaporan !== '') {
+      totalScore = (parseFloat(rawTugas) || 0) * 0.35 +
+                   (parseFloat(rawSikap) || 0) * 0.25 +
+                   (parseFloat(rawDisiplin) || 0) * 0.20 +
+                   (parseFloat(rawLaporan) || 0) * 0.20;
     }
+
+    const totalHuruf = pendaftaran.nilai_huruf || kHuruf.total || (totalScore > 0 ? calculateGradeLetter(totalScore) : '');
+
+    setData({
+      tugas: rawTugas,
+      tugas_huruf: tugasHuruf,
+      sikap: rawSikap,
+      sikap_huruf: sikapHuruf,
+      kedisiplinan: rawDisiplin,
+      kedisiplinan_huruf: disiplinHuruf,
+      laporan: rawLaporan,
+      laporan_huruf: laporanHuruf,
+      nilai_huruf: totalHuruf,
+      catatan: pendaftaran.catatan || '',
+    });
     setIsModalOpen(true);
   };
 
@@ -123,14 +165,24 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
     }, 200);
   };
 
-  const handleScoreChange = (field: keyof typeof data, value: string) => {
-    if (field === 'catatan') {
-      setData(field, value);
-      return;
-    }
-
+  const handleScoreChange = (field: 'tugas' | 'sikap' | 'kedisiplinan' | 'laporan', value: string) => {
     if (value === '') {
-      setData(field, '');
+      const nextData = {
+        ...data,
+        [field]: '',
+        [`${field}_huruf`]: '',
+      };
+      const t = parseFloat(field === 'tugas' ? '' : data.tugas) || 0;
+      const s = parseFloat(field === 'sikap' ? '' : data.sikap) || 0;
+      const d = parseFloat(field === 'kedisiplinan' ? '' : data.kedisiplinan) || 0;
+      const l = parseFloat(field === 'laporan' ? '' : data.laporan) || 0;
+      const hasAny = (field === 'tugas' ? '' : data.tugas) !== '' ||
+                     (field === 'sikap' ? '' : data.sikap) !== '' ||
+                     (field === 'kedisiplinan' ? '' : data.kedisiplinan) !== '' ||
+                     (field === 'laporan' ? '' : data.laporan) !== '';
+      const total = (t * 0.35) + (s * 0.25) + (d * 0.20) + (l * 0.20);
+      nextData.nilai_huruf = hasAny ? calculateGradeLetter(total) : '';
+      setData(nextData);
       return;
     }
 
@@ -142,9 +194,34 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
         return;
       }
       if (num <= 100) {
-        setData(field, value);
+        const autoLetter = calculateGradeLetter(num);
+        const nextData = {
+          ...data,
+          [field]: value,
+          [`${field}_huruf`]: autoLetter,
+        };
+
+        const t = parseFloat(field === 'tugas' ? value : data.tugas) || 0;
+        const s = parseFloat(field === 'sikap' ? value : data.sikap) || 0;
+        const d = parseFloat(field === 'kedisiplinan' ? value : data.kedisiplinan) || 0;
+        const l = parseFloat(field === 'laporan' ? value : data.laporan) || 0;
+        const total = (t * 0.35) + (s * 0.25) + (d * 0.20) + (l * 0.20);
+        nextData.nilai_huruf = calculateGradeLetter(total);
+
+        setData(nextData);
       }
     }
+  };
+
+  const handleGradeLetterChange = (
+    field: 'tugas_huruf' | 'sikap_huruf' | 'kedisiplinan_huruf' | 'laporan_huruf' | 'nilai_huruf',
+    letter: string
+  ) => {
+    setData(field, letter);
+  };
+
+  const handleCatatanChange = (value: string) => {
+    setData('catatan', value);
   };
 
   const submitGrading = (e: React.FormEvent) => {
@@ -165,11 +242,13 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
     });
   };
 
-  // Helper to calculate runtime total for preview (Kedisiplinan 30%, Kerjasama 30%, Kinerja Praktis 40%)
-  const disiplin = parseFloat(data.kedisiplinan) || 0;
-  const kerja = parseFloat(data.kerjasama) || 0;
-  const praktek = parseFloat(data.kinerja) || 0;
-  const totalPreview = disiplin * 0.3 + kerja * 0.3 + praktek * 0.4;
+  // Nilai total otomatis Form KP-6a (35% Tugas + 25% Sikap + 20% Disiplin + 20% Laporan)
+  const valTugas = parseFloat(data.tugas) || 0;
+  const valSikap = parseFloat(data.sikap) || 0;
+  const valDisiplin = parseFloat(data.kedisiplinan) || 0;
+  const valLaporan = parseFloat(data.laporan) || 0;
+  const totalScore = (valTugas * 0.35) + (valSikap * 0.25) + (valDisiplin * 0.20) + (valLaporan * 0.20);
+  const isFormFilled = data.tugas !== '' && data.sikap !== '' && data.kedisiplinan !== '' && data.laporan !== '';
 
   const getInitials = (name?: string) => {
     if (!name) return 'M';
@@ -243,7 +322,7 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                 Form KP-6a
               </span>
               <p className="text-xs font-semibold text-slate-900 mt-1 truncate">Penilaian Pembimbing Lapangan</p>
-              <p className="text-[11px] text-slate-500">Bobot: Disiplin 30%, Kerjasama 30%, Kinerja 40%</p>
+              <p className="text-[11px] text-slate-500">Bobot: Tugas 35%, Sikap 25%, Disiplin 20%, Laporan 20%</p>
             </div>
           </a>
 
@@ -421,14 +500,21 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                                 {Number(p.nilai_instansi).toFixed(1)}
                               </span>
                               <span className="text-[11px] text-secondary">/ 100</span>
+                              {p.nilai_huruf && (
+                                <span className="px-2 py-0.5 rounded text-xs font-black bg-blue-100 text-[#00288e] border border-blue-200">
+                                  {p.nilai_huruf}
+                                </span>
+                              )}
                             </div>
                             {komponen && (
-                              <div className="text-[11px] text-on-surface-variant/80 flex items-center gap-2 font-mono">
+                              <div className="text-[11px] text-on-surface-variant/80 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono">
+                                <span>T: {komponen.tugas ?? komponen.kinerja ?? '-'}</span>
+                                <span>•</span>
+                                <span>S: {komponen.sikap ?? komponen.kerjasama ?? '-'}</span>
+                                <span>•</span>
                                 <span>D: {komponen.kedisiplinan ?? '-'}</span>
                                 <span>•</span>
-                                <span>K: {komponen.kerjasama ?? '-'}</span>
-                                <span>•</span>
-                                <span>P: {komponen.kinerja ?? '-'}</span>
+                                <span>L: {komponen.laporan ?? '-'}</span>
                               </div>
                             )}
                           </div>
@@ -532,67 +618,257 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
               </a>
             </div>
 
-            {/* Parameter Penilaian Card */}
-            <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-4 sm:p-5">
-              <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
-                <h3 className="text-xs sm:text-sm font-display font-bold text-slate-800 flex items-center gap-2">
-                  <BarChart2 className="w-4 h-4 text-[#00288e]" />
-                  <span>Parameter Penilaian Kinerja</span>
-                </h3>
-                <span className="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
-                  Rentang: 0 - 100
+            {/* Form KP-6a Official Grading Table */}
+            <div className="border border-slate-300 rounded-xl overflow-hidden shadow-2xs">
+              <div className="bg-slate-100/90 px-4 py-2.5 border-b border-slate-300 flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-slate-800 uppercase tracking-wide">
+                  Tabel Penilaian Pembimbing Lapangan (Form KP-6a)
+                </span>
+                <span className="text-[11px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-300">
+                  Skala Nilai: 0 – 100
                 </span>
               </div>
 
-              <div className="space-y-4">
-                {[
-                  { id: 'kedisiplinan', label: 'Kedisiplinan, Kehadiran & Etika Kerja (Bobot 30%)', error: errors.kedisiplinan },
-                  { id: 'kerjasama', label: 'Kemampuan Bekerjasama & Komunikasi Tim (Bobot 30%)', error: errors.kerjasama },
-                  { id: 'kinerja', label: 'Kinerja Praktis, Tanggung Jawab & Pemahaman Tugas (Bobot 40%)', error: errors.kinerja },
-                ].map((param) => (
-                  <div key={param.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white p-3 rounded-lg border border-slate-200/80 shadow-2xs">
-                    <label htmlFor={param.id} className="text-xs sm:text-sm font-semibold text-slate-800 sm:w-2/3 cursor-pointer">
-                      {param.label} <span className="text-rose-600 font-bold">*</span>
-                    </label>
-                    <div className="sm:w-1/3 flex flex-col">
-                      <input
-                        id={param.id}
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="any"
-                        value={data[param.id as keyof typeof data]}
-                        onChange={(e) => handleScoreChange(param.id as keyof typeof data, e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                          }
-                        }}
-                        placeholder="Contoh: 85.5"
-                        className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs placeholder:font-normal placeholder:text-slate-400"
-                      />
-                      {param.error && <span className="text-[10px] font-semibold text-rose-600 mt-1">{param.error}</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-slate-200/80 text-slate-800 font-bold border-b border-slate-300 text-center">
+                      <th className="py-2.5 px-3 text-left w-[42%]">Kriteria Penilaian</th>
+                      <th className="py-2.5 px-3 w-[14%]">Bobot</th>
+                      <th className="py-2.5 px-3 w-[24%]">Nilai (0 – 100)</th>
+                      <th className="py-2.5 px-3 w-[20%]">Nilai Huruf **)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 bg-white">
+                    {/* Header Bagian Form KP-6a */}
+                    <tr className="bg-slate-50 font-bold text-slate-700">
+                      <td colSpan={4} className="py-2 px-3 text-xs tracking-wider uppercase text-slate-600">
+                        Dari Perusahaan:
+                      </td>
+                    </tr>
 
-              {/* Agregasi Nilai Preview */}
-              <div className="pt-4 mt-4 border-t border-slate-200">
-                <div className="flex justify-between items-center bg-blue-50/70 p-4 rounded-xl border border-blue-200">
-                  <div>
-                    <span className="text-xs sm:text-sm font-display font-bold text-slate-900 block">
-                      Agregasi Nilai Instansi (Otomatis)
-                    </span>
-                    <span className="text-[11px] text-slate-600 font-medium">
-                      Formula UTM: (Disiplin × 30%) + (Kerjasama × 30%) + (Kinerja × 40%)
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-1.5 bg-white px-3.5 py-1.5 rounded-lg border border-blue-200 shadow-2xs">
-                    <span className="text-2xl font-display font-black text-[#00288e]">{totalPreview.toFixed(1)}</span>
-                    <span className="text-xs text-slate-400 font-semibold">/ 100</span>
-                  </div>
-                </div>
+                    {/* 1. Kemampuan menyelesaikan tugas (35%) */}
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 px-3 font-medium text-slate-800">
+                        <div className="font-semibold text-slate-900">1. Kemampuan menyelesaikan tugas</div>
+                        <div className="text-[11px] text-slate-500 font-normal mt-0.5">Kualitas hasil tugas, ketuntasan, dan pemahaman teknis</div>
+                      </td>
+                      <td className="py-3 px-3 text-center font-bold font-mono text-slate-700 bg-slate-50/50">
+                        35%
+                      </td>
+                      <td className="py-3 px-3">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="any"
+                          value={data.tugas}
+                          onChange={(e) => handleScoreChange('tugas', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') e.preventDefault();
+                          }}
+                          placeholder="0 - 100"
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2.5 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs"
+                        />
+                        {errors.tugas && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.tugas}</p>}
+                      </td>
+                      <td className="py-3 px-3">
+                        <select
+                          value={data.tugas_huruf}
+                          onChange={(e) => handleGradeLetterChange('tugas_huruf', e.target.value)}
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
+                        >
+                          <option value="">-</option>
+                          {GRADE_OPTIONS.map((g) => (
+                            <option key={g} value={g}>{g}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+
+                    {/* 2. Tingkah laku/ sikap (25%) */}
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 px-3 font-medium text-slate-800">
+                        <div className="font-semibold text-slate-900">2. Tingkah laku/ sikap</div>
+                        <div className="text-[11px] text-slate-500 font-normal mt-0.5">Etika kerja, kesopanan, inisiatif, dan komunikasi kerja tim</div>
+                      </td>
+                      <td className="py-3 px-3 text-center font-bold font-mono text-slate-700 bg-slate-50/50">
+                        25%
+                      </td>
+                      <td className="py-3 px-3">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="any"
+                          value={data.sikap}
+                          onChange={(e) => handleScoreChange('sikap', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') e.preventDefault();
+                          }}
+                          placeholder="0 - 100"
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2.5 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs"
+                        />
+                        {errors.sikap && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.sikap}</p>}
+                      </td>
+                      <td className="py-3 px-3">
+                        <select
+                          value={data.sikap_huruf}
+                          onChange={(e) => handleGradeLetterChange('sikap_huruf', e.target.value)}
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
+                        >
+                          <option value="">-</option>
+                          {GRADE_OPTIONS.map((g) => (
+                            <option key={g} value={g}>{g}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+
+                    {/* 3. Kedisiplinan (20%) */}
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 px-3 font-medium text-slate-800">
+                        <div className="font-semibold text-slate-900">3. Kedisiplinan</div>
+                        <div className="text-[11px] text-slate-500 font-normal mt-0.5">Kehadiran, kepatuhan jam operasional, dan tata tertib instansi</div>
+                      </td>
+                      <td className="py-3 px-3 text-center font-bold font-mono text-slate-700 bg-slate-50/50">
+                        20%
+                      </td>
+                      <td className="py-3 px-3">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="any"
+                          value={data.kedisiplinan}
+                          onChange={(e) => handleScoreChange('kedisiplinan', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') e.preventDefault();
+                          }}
+                          placeholder="0 - 100"
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2.5 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs"
+                        />
+                        {errors.kedisiplinan && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.kedisiplinan}</p>}
+                      </td>
+                      <td className="py-3 px-3">
+                        <select
+                          value={data.kedisiplinan_huruf}
+                          onChange={(e) => handleGradeLetterChange('kedisiplinan_huruf', e.target.value)}
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
+                        >
+                          <option value="">-</option>
+                          {GRADE_OPTIONS.map((g) => (
+                            <option key={g} value={g}>{g}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+
+                    {/* 4. Laporan (20%) */}
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 px-3 font-medium text-slate-800">
+                        <div className="font-semibold text-slate-900">4. Laporan</div>
+                        <div className="text-[11px] text-slate-500 font-normal mt-0.5">Kelengkapan catatan harian, laporan magang &amp; luaran kerja</div>
+                      </td>
+                      <td className="py-3 px-3 text-center font-bold font-mono text-slate-700 bg-slate-50/50">
+                        20%
+                      </td>
+                      <td className="py-3 px-3">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="any"
+                          value={data.laporan}
+                          onChange={(e) => handleScoreChange('laporan', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') e.preventDefault();
+                          }}
+                          placeholder="0 - 100"
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2.5 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs"
+                        />
+                        {errors.laporan && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.laporan}</p>}
+                      </td>
+                      <td className="py-3 px-3">
+                        <select
+                          value={data.laporan_huruf}
+                          onChange={(e) => handleGradeLetterChange('laporan_huruf', e.target.value)}
+                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
+                        >
+                          <option value="">-</option>
+                          {GRADE_OPTIONS.map((g) => (
+                            <option key={g} value={g}>{g}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+
+                    {/* Row 5: TOTAL */}
+                    <tr className="bg-blue-50/80 border-t-2 border-slate-300 font-bold text-slate-900">
+                      <td colSpan={2} className="py-3 px-4 text-right uppercase tracking-wider text-xs sm:text-sm">
+                        <div className="font-bold text-[#00288e]">TOTAL (100%)</div>
+                        <div className="text-[10px] text-slate-500 font-normal lowercase">Dihitung otomatis oleh sistem</div>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <div className="inline-flex items-baseline gap-1 bg-white px-3 py-1.5 rounded-lg border border-blue-300 shadow-2xs">
+                          <span className="text-base sm:text-lg font-black font-display text-[#00288e]">
+                            {totalScore > 0 ? totalScore.toFixed(2) : '0.00'}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-semibold">/100</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <div className="inline-block bg-white px-3 py-1.5 rounded-lg border border-blue-300 shadow-2xs font-black text-sm text-[#00288e]">
+                          {data.nilai_huruf || '-'}
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Row 6: NILAI HURUF ***) */}
+                    <tr className="bg-blue-100/50 border-t border-blue-200">
+                      <td colSpan={2} className="py-3 px-4 text-right font-bold text-slate-900 text-xs sm:text-sm">
+                        NILAI HURUF ***)
+                      </td>
+                      <td colSpan={2} className="py-3 px-3">
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={data.nilai_huruf}
+                            onChange={(e) => handleGradeLetterChange('nilai_huruf', e.target.value)}
+                            className="w-full bg-white border border-blue-300 rounded-lg py-2 px-3 text-center font-black text-base text-[#00288e] focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs cursor-pointer"
+                          >
+                            <option value="">Pilih Nilai Huruf Akhir</option>
+                            {GRADE_OPTIONS.map((g) => (
+                              <option key={g} value={g}>{g}</option>
+                            ))}
+                          </select>
+                        </div>
+                        {errors.nilai_huruf && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.nilai_huruf}</p>}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Catatan Kaki Skala Nilai Resmi UTM */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 text-[11px] text-slate-600">
+              <div className="font-semibold text-slate-800">
+                Keterangan Skala Nilai Form KP-6a UTM:
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 font-mono text-[11px] bg-white p-2.5 rounded-lg border border-slate-200">
+                <div className="text-slate-700"><span className="font-bold text-blue-700">A</span> : 80 &lt; Nilai &le; 100</div>
+                <div className="text-slate-700"><span className="font-bold text-blue-700">B+</span> : 75 &le; Nilai &lt; 80</div>
+                <div className="text-slate-700"><span className="font-bold text-blue-700">B</span> : 70 &le; Nilai &lt; 75</div>
+                <div className="text-slate-700"><span className="font-bold text-blue-700">C+</span> : 60 &le; Nilai &lt; 70</div>
+                <div className="text-slate-700"><span className="font-bold text-amber-700">C</span> : 55 &le; Nilai &lt; 60</div>
+                <div className="text-slate-700"><span className="font-bold text-amber-700">D+</span> : 50 &le; Nilai &lt; 55</div>
+                <div className="text-slate-700"><span className="font-bold text-rose-700">D</span> : 45 &le; Nilai &lt; 50</div>
+                <div className="text-slate-700"><span className="font-bold text-rose-700">E</span> : 0 &le; Nilai &lt; 45</div>
+              </div>
+              <div className="space-y-0.5 text-slate-500 italic text-[10px]">
+                <div>*) Diisi oleh Dosen Penguji</div>
+                <div>**) Diisi oleh Pembimbing Lapangan &amp; Dosen Pembimbing</div>
+                <div>***) Cukup masukkan Nilai Angka (0 – 100), sistem otomatis menghitung Total Nilai berbobot &amp; mengonversi Nilai Huruf. Anda juga dapat menyesuaikan Nilai Huruf secara manual.</div>
               </div>
             </div>
 
@@ -605,8 +881,8 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                 id="catatan"
                 rows={3}
                 value={data.catatan}
-                onChange={(e) => handleScoreChange('catatan', e.target.value)}
-                placeholder="Tuliskan masukan atas pencapaian atau hal-hal yang perlu ditingkatkan oleh mahasiswa..."
+                onChange={(e) => handleCatatanChange(e.target.value)}
+                placeholder="Tuliskan masukan atas performa, sikap, atau hal-hal yang perlu ditingkatkan oleh mahasiswa..."
                 className="w-full p-3 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all resize-y shadow-2xs placeholder:text-slate-400"
               ></textarea>
               {errors.catatan && <p className="text-rose-600 text-xs mt-1">{errors.catatan}</p>}
@@ -618,7 +894,7 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                 <ScanLine className="w-4 h-4" />
               </div>
               <div className="text-xs text-slate-600 leading-relaxed">
-                <span className="font-bold block text-slate-800">Validitas Data Evaluasi</span>
+                <span className="font-bold block text-slate-800">Validitas Data Evaluasi Form KP-6a</span>
                 Nilai yang disimpan akan masuk secara resmi ke rekapitulasi penilaian akhir Program Studi dan dapat ditinjau oleh Dosen Pembimbing.
               </div>
             </div>
@@ -634,7 +910,7 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
               </button>
               <button
                 type="submit"
-                disabled={processing || data.kedisiplinan === '' || data.kerjasama === '' || data.kinerja === ''}
+                disabled={processing || !isFormFilled}
                 className="px-6 py-2 bg-[#00288e] hover:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs flex items-center gap-2 cursor-pointer"
               >
                 <Upload size={16} />

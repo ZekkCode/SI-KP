@@ -52,13 +52,19 @@ class InstansiPenilaianController extends Controller
                 $isDinilai = $pendaftaran->nilais->count() > 0 || $pendaftaran->nilaiAkhir?->nilai_instansi !== null;
                 
                 $catatanInstansi = null;
+                $hurufDetail = null;
                 if ($pendaftaran->nilaiAkhir?->catatan) {
+                    if (preg_match('/\[Instansi_Huruf\]:\s*(\{.*\})/m', $pendaftaran->nilaiAkhir->catatan, $mH)) {
+                        $hurufDetail = json_decode($mH[1], true);
+                    }
                     if (preg_match('/\[Instansi\]:\s*(.+)$/m', $pendaftaran->nilaiAkhir->catatan, $matches)) {
                         $catatanInstansi = trim($matches[1]);
-                    } else {
+                    } elseif (!$hurufDetail) {
                         $catatanInstansi = $pendaftaran->nilaiAkhir->catatan;
                     }
                 }
+
+                $komponenMap = $isDinilai ? $pendaftaran->nilais->pluck('nilai', 'komponen')->toArray() : null;
 
                 return [
                     'id' => $pendaftaran->id,
@@ -66,7 +72,9 @@ class InstansiPenilaianController extends Controller
                     'status_kp' => $pendaftaran->status,
                     'is_dinilai' => $isDinilai,
                     'nilai_instansi' => $pendaftaran->nilaiAkhir ? $pendaftaran->nilaiAkhir->nilai_instansi : null,
-                    'komponen_nilai' => $isDinilai ? $pendaftaran->nilais->pluck('nilai', 'komponen') : null,
+                    'nilai_huruf' => $hurufDetail['total'] ?? $pendaftaran->nilaiAkhir?->nilai_huruf ?? null,
+                    'komponen_nilai' => $komponenMap,
+                    'komponen_huruf' => $hurufDetail,
                     'catatan' => $catatanInstansi,
                 ];
             });
@@ -77,14 +85,24 @@ class InstansiPenilaianController extends Controller
     }
 
     /**
-     * Menyimpan nilai evaluasi dari Instansi.
+     * Menyimpan nilai evaluasi dari Instansi sesuai Form KP-6a.
      */
     public function store(Request $request, $id): RedirectResponse
     {
+        // Mendukung input Form KP-6a resmi (tugas 35%, sikap 25%, kedisiplinan 20%, laporan 20%)
+        // serta fallback untuk kompatibilitas data lama
         $request->validate([
+            'tugas' => 'nullable|numeric|min:0|max:100',
+            'sikap' => 'nullable|numeric|min:0|max:100',
             'kedisiplinan' => 'required|numeric|min:0|max:100',
-            'kerjasama' => 'required|numeric|min:0|max:100',
-            'kinerja' => 'required|numeric|min:0|max:100',
+            'laporan' => 'nullable|numeric|min:0|max:100',
+            'kerjasama' => 'nullable|numeric|min:0|max:100',
+            'kinerja' => 'nullable|numeric|min:0|max:100',
+            'tugas_huruf' => 'nullable|string',
+            'sikap_huruf' => 'nullable|string',
+            'kedisiplinan_huruf' => 'nullable|string',
+            'laporan_huruf' => 'nullable|string',
+            'nilai_huruf' => 'nullable|string',
             'catatan' => 'nullable|string'
         ]);
 
@@ -115,11 +133,21 @@ class InstansiPenilaianController extends Controller
                 ->where('tipe', 'instansi')
                 ->delete();
 
-            // Simpan komponen nilai (Kedisiplinan 30%, Kerjasama 30%, Kinerja Praktis 40%)
+            // Normalisasi nilai 4 Kriteria Form KP-6a resmi:
+            // 1. Kemampuan menyelesaikan tugas: 35%
+            // 2. Tingkah laku/ sikap: 25%
+            // 3. Kedisiplinan: 20%
+            // 4. Laporan: 20%
+            $valTugas = $request->tugas ?? $request->kinerja ?? 0;
+            $valSikap = $request->sikap ?? $request->kerjasama ?? 0;
+            $valDisiplin = $request->kedisiplinan ?? 0;
+            $valLaporan = $request->laporan ?? $request->kinerja ?? 0;
+
             $komponen = [
-                ['nama' => 'kedisiplinan', 'bobot' => 30, 'nilai' => $request->kedisiplinan],
-                ['nama' => 'kerjasama', 'bobot' => 30, 'nilai' => $request->kerjasama],
-                ['nama' => 'kinerja', 'bobot' => 40, 'nilai' => $request->kinerja],
+                ['nama' => 'tugas', 'label' => 'Kemampuan menyelesaikan tugas', 'bobot' => 35, 'nilai' => $valTugas],
+                ['nama' => 'sikap', 'label' => 'Tingkah laku/ sikap', 'bobot' => 25, 'nilai' => $valSikap],
+                ['nama' => 'kedisiplinan', 'label' => 'Kedisiplinan', 'bobot' => 20, 'nilai' => $valDisiplin],
+                ['nama' => 'laporan', 'label' => 'Laporan', 'bobot' => 20, 'nilai' => $valLaporan],
             ];
 
             $totalNilaiInstansi = 0;
@@ -137,9 +165,28 @@ class InstansiPenilaianController extends Controller
                 $totalNilaiInstansi += ($k['nilai'] * ($k['bobot'] / 100));
             }
 
+            $totalNilaiInstansi = round($totalNilaiInstansi, 2);
+
+            // Konversi nilai huruf otomatis sesuai skala UTM Form KP-6a (Image 2)
+            $convertHuruf = function($score) {
+                if ($score > 80) return 'A';
+                if ($score >= 75) return 'B+';
+                if ($score >= 70) return 'B';
+                if ($score >= 60) return 'C+';
+                if ($score >= 55) return 'C';
+                if ($score >= 50) return 'D+';
+                if ($score >= 45) return 'D';
+                return 'E';
+            };
+
+            $hurufTotal = $request->nilai_huruf ?: $convertHuruf($totalNilaiInstansi);
+
             // Simpan/Update Nilai Akhir
             $nilaiAkhir = NilaiAkhir::firstOrNew(['pendaftaran_id' => $pendaftaran->id]);
             $nilaiAkhir->nilai_instansi = $totalNilaiInstansi;
+            if (!$nilaiAkhir->nilai_huruf || $nilaiAkhir->nilai_pembimbing === null) {
+                $nilaiAkhir->nilai_huruf = $hurufTotal;
+            }
             
             // Kalkulasi nilai_total jika komponen nilai sudah lengkap
             $np = $nilaiAkhir->nilai_pembimbing;
@@ -153,23 +200,31 @@ class InstansiPenilaianController extends Controller
                     $total = ($np * 0.6) + ($ni * 0.4);
                 }
                 $nilaiAkhir->nilai_total = round($total, 2);
-
-                // Konversi Huruf
-                if ($total >= 85) $nilaiAkhir->nilai_huruf = 'A';
-                else if ($total >= 70) $nilaiAkhir->nilai_huruf = 'B';
-                else if ($total >= 55) $nilaiAkhir->nilai_huruf = 'C';
-                else if ($total >= 40) $nilaiAkhir->nilai_huruf = 'D';
-                else $nilaiAkhir->nilai_huruf = 'E';
-
-                $status = $total >= 55 ? 'lulus' : 'tidak_lulus';
-                $nilaiAkhir->status = $status;
+                $nilaiAkhir->nilai_huruf = $convertHuruf($total);
+                $nilaiAkhir->status = $total >= 55 ? 'lulus' : 'tidak_lulus';
             }
 
+            // Simpan detail huruf per komponen dan catatan
+            $hurufDetailJson = json_encode([
+                'tugas' => $request->tugas_huruf ?: $convertHuruf($valTugas),
+                'sikap' => $request->sikap_huruf ?: $convertHuruf($valSikap),
+                'kedisiplinan' => $request->kedisiplinan_huruf ?: $convertHuruf($valDisiplin),
+                'laporan' => $request->laporan_huruf ?: $convertHuruf($valLaporan),
+                'total' => $hurufTotal,
+            ]);
+
+            $catatanText = '';
             if ($request->filled('catatan')) {
-                $catatanLama = $nilaiAkhir->catatan ? preg_replace('/\[Instansi\]:[^\n]+(\n)?/', '', $nilaiAkhir->catatan) : '';
-                $catatanLama = trim((string)$catatanLama);
-                $nilaiAkhir->catatan = ($catatanLama !== '' ? $catatanLama . "\n" : '') . "[Instansi]: " . trim($request->catatan);
+                $catatanText = trim($request->catatan);
             }
+
+            $catatanLama = $nilaiAkhir->catatan ? preg_replace('/\[Instansi\]:[^\n]+(\n)?/', '', $nilaiAkhir->catatan) : '';
+            $catatanLama = preg_replace('/\[Instansi_Huruf\]:[^\n]+(\n)?/', '', (string)$catatanLama);
+            $catatanLama = trim((string)$catatanLama);
+
+            $nilaiAkhir->catatan = ($catatanLama !== '' ? $catatanLama . "\n" : '') .
+                "[Instansi_Huruf]: " . $hurufDetailJson . "\n" .
+                ($catatanText !== '' ? "[Instansi]: " . $catatanText : '');
 
             $nilaiAkhir->save();
 
