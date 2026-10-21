@@ -23,7 +23,7 @@ class DosenPenilaianController extends Controller
 
         // Ambil pendaftaran bimbingan beserta relasi nilai
         $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($dosenId) {
-                $query->where('penilai_id', $dosenId)->where('tipe', 'pembimbing');
+                $query->whereIn('tipe', ['pembimbing', 'penguji']);
             }])
             ->where(function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId)
@@ -36,14 +36,23 @@ class DosenPenilaianController extends Controller
                 if (!$pendaftaran->dosen_pembimbing_id) {
                     $pendaftaran->ensureDosenPembimbing();
                 }
-                $isDinilai = $pendaftaran->nilais->count() > 0;
+                $isDinilai = $pendaftaran->nilais->count() > 0 || $pendaftaran->nilaiAkhir?->nilai_pembimbing !== null;
+
+                $hurufDetail = null;
+                if ($pendaftaran->nilaiAkhir?->catatan && preg_match('/\[Dosen_Huruf\]:\s*(\{.*\})/m', $pendaftaran->nilaiAkhir->catatan, $mH)) {
+                    $hurufDetail = json_decode($mH[1], true);
+                }
+
                 return [
                     'id' => $pendaftaran->id,
                     'mahasiswa' => $pendaftaran->mahasiswa,
                     'status_kp' => $pendaftaran->status,
                     'is_dinilai' => $isDinilai,
                     'nilai_pembimbing' => $pendaftaran->nilaiAkhir ? $pendaftaran->nilaiAkhir->nilai_pembimbing : null,
+                    'nilai_ujian' => $pendaftaran->nilaiAkhir ? $pendaftaran->nilaiAkhir->nilai_ujian : null,
+                    'nilai_huruf' => $hurufDetail['total'] ?? $pendaftaran->nilaiAkhir?->nilai_huruf ?? null,
                     'komponen_nilai' => $isDinilai ? $pendaftaran->nilais->pluck('nilai', 'komponen') : null,
+                    'komponen_huruf' => $hurufDetail,
                 ];
             });
 
@@ -53,13 +62,13 @@ class DosenPenilaianController extends Controller
     }
 
     /**
-     * Menampilkan form penilaian.
+     * Menampilkan form penilaian sesuai Form KP-6b.
      */
     public function create($id)
     {
         $dosenId = Auth::id();
-        $pendaftaran = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($dosenId) {
-            $query->where('penilai_id', $dosenId)->where('tipe', 'pembimbing');
+        $pendaftaran = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) {
+            $query->whereIn('tipe', ['pembimbing', 'penguji']);
         }])
         ->where(function ($q) use ($dosenId) {
             $q->where('dosen_pembimbing_id', $dosenId)
@@ -68,29 +77,73 @@ class DosenPenilaianController extends Controller
         ->findOrFail($id);
 
         $isDinilai = $pendaftaran->nilais->count() > 0;
-        $komponen = $isDinilai ? $pendaftaran->nilais->pluck('nilai', 'komponen') : null;
+        $komponen = $isDinilai ? $pendaftaran->nilais->pluck('nilai', 'komponen')->toArray() : null;
+
+        $catatanDosen = '';
+        $hurufDetail = null;
+        if ($pendaftaran->nilaiAkhir?->catatan) {
+            if (preg_match('/\[Dosen_Huruf\]:\s*(\{.*\})/m', $pendaftaran->nilaiAkhir->catatan, $mH)) {
+                $hurufDetail = json_decode($mH[1], true);
+            }
+            if (preg_match('/\[Dosen Pembimbing\]:\s*(.+)$/m', $pendaftaran->nilaiAkhir->catatan, $mC)) {
+                $catatanDosen = trim($mC[1]);
+            } elseif (!$hurufDetail && !str_contains($pendaftaran->nilaiAkhir->catatan, '[')) {
+                $catatanDosen = $pendaftaran->nilaiAkhir->catatan;
+            }
+        }
 
         return Inertia::render('Dosen/Penilaian/Create', [
             'pendaftaran' => [
                 'id' => $pendaftaran->id,
                 'mahasiswa' => $pendaftaran->mahasiswa,
                 'status_kp' => $pendaftaran->status,
-                'catatan' => $pendaftaran->nilaiAkhir ? $pendaftaran->nilaiAkhir->catatan : '',
+                'catatan' => $catatanDosen,
+                'nilai_pembimbing' => $pendaftaran->nilaiAkhir?->nilai_pembimbing,
+                'nilai_ujian' => $pendaftaran->nilaiAkhir?->nilai_ujian,
+                'nilai_huruf' => $hurufDetail['total'] ?? $pendaftaran->nilaiAkhir?->nilai_huruf,
             ],
-            'nilai_sebelumnya' => $komponen
+            'nilai_sebelumnya' => $komponen,
+            'huruf_sebelumnya' => $hurufDetail,
         ]);
     }
 
     /**
-     * Menyimpan atau memperbarui nilai dari dosen pembimbing.
+     * Menyimpan atau memperbarui nilai dari dosen sesuai Form KP-6b.
      */
     public function store(Request $request, $id): RedirectResponse
     {
         $request->validate([
-            'sistematika' => 'required|numeric|min:0|max:100',
-            'kedalaman' => 'required|numeric|min:0|max:100',
-            'penguasaan' => 'required|numeric|min:0|max:100',
-            'presentasi' => 'required|numeric|min:0|max:100',
+            // Tabel 1: Komponen Penilaian Ujian KP (Penguji)
+            'perumusan_masalah' => 'nullable|numeric|min:0|max:100',
+            'manfaat' => 'nullable|numeric|min:0|max:100',
+            'tinjauan_pustaka' => 'nullable|numeric|min:0|max:100',
+            'metode' => 'nullable|numeric|min:0|max:100',
+            'presentasi' => 'nullable|numeric|min:0|max:100',
+
+            // Tabel 2: Penilaian Lapangan & Bimbingan (Pembimbing)
+            'permasalahan' => 'nullable|numeric|min:0|max:100',
+            'laporan' => 'nullable|numeric|min:0|max:100',
+            'ujian_kp' => 'nullable|numeric|min:0|max:100',
+
+            // Nilai Huruf
+            'perumusan_masalah_huruf' => 'nullable|string',
+            'manfaat_huruf' => 'nullable|string',
+            'tinjauan_pustaka_huruf' => 'nullable|string',
+            'metode_huruf' => 'nullable|string',
+            'presentasi_huruf' => 'nullable|string',
+            'nilai_ujian_huruf' => 'nullable|string',
+
+            'permasalahan_huruf' => 'nullable|string',
+            'laporan_huruf' => 'nullable|string',
+            'ujian_kp_huruf' => 'nullable|string',
+            'nilai_bimbingan_huruf' => 'nullable|string',
+            'nilai_huruf' => 'nullable|string',
+
+            // Fallback backward compatibility parameters
+            'sistematika' => 'nullable|numeric|min:0|max:100',
+            'kedalaman' => 'nullable|numeric|min:0|max:100',
+            'penguasaan' => 'nullable|numeric|min:0|max:100',
+
             'catatan' => 'nullable|string'
         ]);
 
@@ -104,38 +157,145 @@ class DosenPenilaianController extends Controller
 
         DB::beginTransaction();
         try {
-            // Hapus nilai lama jika ada
+            // Hapus nilai lama tipe pembimbing & penguji untuk pendaftaran ini
             Nilai::where('pendaftaran_id', $pendaftaran->id)
-                ->where('penilai_id', $penilaiId)
-                ->where('tipe', 'pembimbing')
+                ->whereIn('tipe', ['pembimbing', 'penguji'])
                 ->delete();
 
-            // Simpan komponen nilai
-            $komponen = [
-                ['nama' => 'sistematika', 'bobot' => 20, 'nilai' => $request->sistematika],
-                ['nama' => 'kedalaman', 'bobot' => 30, 'nilai' => $request->kedalaman],
-                ['nama' => 'penguasaan', 'bobot' => 30, 'nilai' => $request->penguasaan],
-                ['nama' => 'presentasi', 'bobot' => 20, 'nilai' => $request->presentasi],
-            ];
+            // Konversi nilai huruf sesuai standar UTM Form KP-6b
+            $convertHuruf = function($score) {
+                if ($score === null || $score === '' || is_nan((float)$score)) return '-';
+                $val = (float)$score;
+                if ($val > 80) return 'A';
+                if ($val >= 75) return 'B+';
+                if ($val >= 70) return 'B';
+                if ($val >= 60) return 'C+';
+                if ($val >= 55) return 'C';
+                if ($val >= 50) return 'D+';
+                if ($val >= 45) return 'D';
+                return 'E';
+            };
 
-            $totalNilaiPembimbing = 0;
+            $isFormKP6b = $request->filled('permasalahan') || $request->filled('perumusan_masalah') || $request->filled('laporan');
 
-            foreach ($komponen as $k) {
-                Nilai::create([
-                    'pendaftaran_id' => $pendaftaran->id,
-                    'penilai_id' => $penilaiId,
-                    'tipe' => 'pembimbing',
-                    'komponen' => $k['nama'],
-                    'bobot' => $k['bobot'],
-                    'nilai' => $k['nilai'],
+            if ($isFormKP6b) {
+                // Tabel 1: Komponen Penilaian Ujian KP (Penguji)
+                $valPerumusan = $request->perumusan_masalah ?? 0;
+                $valManfaat = $request->manfaat ?? 0;
+                $valTinjauan = $request->tinjauan_pustaka ?? 0;
+                $valMetode = $request->metode ?? 0;
+                $valPresentasi = $request->presentasi ?? 0;
+
+                $komponenUjian = [
+                    ['nama' => 'perumusan_masalah', 'label' => 'Perumusan Masalah', 'bobot' => 15, 'nilai' => $valPerumusan],
+                    ['nama' => 'manfaat', 'label' => 'Manfaat Hasil KP', 'bobot' => 20, 'nilai' => $valManfaat],
+                    ['nama' => 'tinjauan_pustaka', 'label' => 'Tinjauan Pustaka', 'bobot' => 15, 'nilai' => $valTinjauan],
+                    ['nama' => 'metode', 'label' => 'Metode Penelitian', 'bobot' => 20, 'nilai' => $valMetode],
+                    ['nama' => 'presentasi', 'label' => 'Presentasi & Tanya Jawab', 'bobot' => 30, 'nilai' => $valPresentasi],
+                ];
+
+                $totalNilaiUjian = 0;
+                foreach ($komponenUjian as $k) {
+                    Nilai::create([
+                        'pendaftaran_id' => $pendaftaran->id,
+                        'penilai_id' => $penilaiId,
+                        'tipe' => 'penguji',
+                        'komponen' => $k['nama'],
+                        'bobot' => $k['bobot'],
+                        'nilai' => $k['nilai'],
+                    ]);
+                    $totalNilaiUjian += ($k['nilai'] * ($k['bobot'] / 100));
+                }
+                $totalNilaiUjian = round($totalNilaiUjian, 2);
+
+                // Tabel 2: Penilaian Lapangan & Bimbingan (Pembimbing)
+                $valPermasalahan = $request->permasalahan ?? 0;
+                $valLaporan = $request->laporan ?? 0;
+                $valUjianKp = $request->filled('ujian_kp') ? $request->ujian_kp : $totalNilaiUjian;
+
+                $komponenBimbingan = [
+                    ['nama' => 'permasalahan', 'label' => 'Permasalahan Masalah dan Solusi', 'bobot' => 30, 'nilai' => $valPermasalahan],
+                    ['nama' => 'laporan', 'label' => 'Laporan', 'bobot' => 30, 'nilai' => $valLaporan],
+                    ['nama' => 'ujian_kp', 'label' => 'Ujian KP (Dari hasil ujian KP)', 'bobot' => 40, 'nilai' => $valUjianKp],
+                ];
+
+                $totalNilaiPembimbing = 0;
+                foreach ($komponenBimbingan as $k) {
+                    Nilai::create([
+                        'pendaftaran_id' => $pendaftaran->id,
+                        'penilai_id' => $penilaiId,
+                        'tipe' => 'pembimbing',
+                        'komponen' => $k['nama'],
+                        'bobot' => $k['bobot'],
+                        'nilai' => $k['nilai'],
+                    ]);
+                    $totalNilaiPembimbing += ($k['nilai'] * ($k['bobot'] / 100));
+                }
+                $totalNilaiPembimbing = round($totalNilaiPembimbing, 2);
+
+                $hurufUjian = $request->nilai_ujian_huruf ?: $convertHuruf($totalNilaiUjian);
+                $hurufPembimbing = $request->nilai_bimbingan_huruf ?: $convertHuruf($totalNilaiPembimbing);
+                $hurufTotal = $request->nilai_huruf ?: $hurufPembimbing;
+
+                $hurufDetailJson = json_encode([
+                    'ujian' => [
+                        'perumusan_masalah' => $request->perumusan_masalah_huruf ?: $convertHuruf($valPerumusan),
+                        'manfaat' => $request->manfaat_huruf ?: $convertHuruf($valManfaat),
+                        'tinjauan_pustaka' => $request->tinjauan_pustaka_huruf ?: $convertHuruf($valTinjauan),
+                        'metode' => $request->metode_huruf ?: $convertHuruf($valMetode),
+                        'presentasi' => $request->presentasi_huruf ?: $convertHuruf($valPresentasi),
+                        'total' => $hurufUjian,
+                    ],
+                    'bimbingan' => [
+                        'permasalahan' => $request->permasalahan_huruf ?: $convertHuruf($valPermasalahan),
+                        'laporan' => $request->laporan_huruf ?: $convertHuruf($valLaporan),
+                        'ujian_kp' => $request->ujian_kp_huruf ?: $convertHuruf($valUjianKp),
+                        'total' => $hurufPembimbing,
+                    ],
+                    'total' => $hurufTotal,
                 ]);
 
-                $totalNilaiPembimbing += ($k['nilai'] * ($k['bobot'] / 100));
+            } else {
+                // Fallback untuk backward-compatibility testing (sistematika, kedalaman, penguasaan, presentasi)
+                $valSistematika = $request->sistematika ?? 0;
+                $valKedalaman = $request->kedalaman ?? 0;
+                $valPenguasaan = $request->penguasaan ?? 0;
+                $valPresentasi = $request->presentasi ?? 0;
+
+                $komponen = [
+                    ['nama' => 'sistematika', 'bobot' => 20, 'nilai' => $valSistematika],
+                    ['nama' => 'kedalaman', 'bobot' => 30, 'nilai' => $valKedalaman],
+                    ['nama' => 'penguasaan', 'bobot' => 30, 'nilai' => $valPenguasaan],
+                    ['nama' => 'presentasi', 'bobot' => 20, 'nilai' => $valPresentasi],
+                ];
+
+                $totalNilaiPembimbing = 0;
+                foreach ($komponen as $k) {
+                    Nilai::create([
+                        'pendaftaran_id' => $pendaftaran->id,
+                        'penilai_id' => $penilaiId,
+                        'tipe' => 'pembimbing',
+                        'komponen' => $k['nama'],
+                        'bobot' => $k['bobot'],
+                        'nilai' => $k['nilai'],
+                    ]);
+                    $totalNilaiPembimbing += ($k['nilai'] * ($k['bobot'] / 100));
+                }
+                $totalNilaiPembimbing = round($totalNilaiPembimbing, 2);
+                $totalNilaiUjian = null;
+                $hurufTotal = $request->nilai_huruf ?: $convertHuruf($totalNilaiPembimbing);
+                $hurufDetailJson = null;
             }
 
             // Simpan/Update Nilai Akhir
             $nilaiAkhir = NilaiAkhir::firstOrNew(['pendaftaran_id' => $pendaftaran->id]);
             $nilaiAkhir->nilai_pembimbing = $totalNilaiPembimbing;
+            if ($totalNilaiUjian !== null) {
+                $nilaiAkhir->nilai_ujian = $totalNilaiUjian;
+            }
+            if ($hurufTotal && !$nilaiAkhir->nilai_huruf) {
+                $nilaiAkhir->nilai_huruf = $hurufTotal;
+            }
             
             // Kalkulasi nilai_total jika komponen nilai sudah lengkap
             $np = $nilaiAkhir->nilai_pembimbing;
@@ -149,22 +309,31 @@ class DosenPenilaianController extends Controller
                     $total = ($np * 0.6) + ($ni * 0.4);
                 }
                 $nilaiAkhir->nilai_total = round($total, 2);
-
-                // Konversi Huruf
-                if ($total >= 85) $nilaiAkhir->nilai_huruf = 'A';
-                else if ($total >= 70) $nilaiAkhir->nilai_huruf = 'B';
-                else if ($total >= 55) $nilaiAkhir->nilai_huruf = 'C';
-                else if ($total >= 40) $nilaiAkhir->nilai_huruf = 'D';
-                else $nilaiAkhir->nilai_huruf = 'E';
-
-                $status = $total >= 55 ? 'lulus' : 'tidak_lulus';
-                $nilaiAkhir->status = $status;
+                $nilaiAkhir->nilai_huruf = $hurufTotal ?: $convertHuruf($total);
+                $nilaiAkhir->status = $total >= 55 ? 'lulus' : 'tidak_lulus';
             }
 
+            // Simpan Catatan Dosen & Detail Huruf
+            $catatanText = '';
             if ($request->filled('catatan')) {
-                $catatanLama = $nilaiAkhir->catatan ? $nilaiAkhir->catatan . "\n" : "";
-                $nilaiAkhir->catatan = $catatanLama . "[Dosen Pembimbing]: " . $request->catatan;
+                $catatanText = trim($request->catatan);
             }
+            $existingCatatan = $nilaiAkhir->catatan ?? '';
+            $cleaned = preg_replace('/\[Dosen_Huruf\]:\s*\{.*\}\r?\n?/m', '', $existingCatatan);
+            $cleaned = preg_replace('/\[Dosen Pembimbing\]:\s*[^\r\n]+\r?\n?/m', '', $cleaned);
+            $cleaned = trim($cleaned);
+
+            $parts = [];
+            if ($cleaned !== '') {
+                $parts[] = $cleaned;
+            }
+            if ($hurufDetailJson) {
+                $parts[] = "[Dosen_Huruf]: " . $hurufDetailJson;
+            }
+            if ($catatanText !== '') {
+                $parts[] = "[Dosen Pembimbing]: " . $catatanText;
+            }
+            $nilaiAkhir->catatan = implode("\n", $parts);
 
             $nilaiAkhir->save();
 
@@ -223,4 +392,70 @@ class DosenPenilaianController extends Controller
             return back()->withErrors(['error' => 'Gagal menyimpan nilai: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Mencetak Formulir Berkas KP-6b (Penilaian Ujian & Bimbingan Dosen).
+     */
+    public function cetak($id)
+    {
+        $dosenId = Auth::id();
+        $pendaftaran = Pendaftaran::with([
+            'mahasiswa',
+            'nilaiAkhir',
+            'nilais',
+            'dosenPembimbing',
+            'instansi'
+        ])
+        ->where(function ($q) use ($dosenId) {
+            $q->where('dosen_pembimbing_id', $dosenId)
+              ->orWhereHas('mahasiswa', fn($mq) => $mq->where('dosen_wali_id', $dosenId));
+        })
+        ->findOrFail($id);
+
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        $nilaiAkhir = $pendaftaran->nilaiAkhir;
+        $nilais = $pendaftaran->nilais;
+
+        $hurufDetail = [];
+        if ($nilaiAkhir?->catatan && preg_match('/\[Dosen_Huruf\]:\s*(\{.*\})/m', $nilaiAkhir->catatan, $mH)) {
+            $hurufDetail = json_decode($mH[1], true) ?? [];
+        }
+
+        $rincianUjian = $nilais->where('tipe', 'penguji')->map(function($n) use ($hurufDetail) {
+            return [
+                'komponen' => $n->komponen,
+                'bobot' => $n->bobot,
+                'nilai' => $n->nilai,
+                'huruf' => $hurufDetail['ujian'][$n->komponen] ?? null,
+            ];
+        })->values();
+
+        $rincianBimbingan = $nilais->where('tipe', 'pembimbing')->map(function($n) use ($hurufDetail) {
+            return [
+                'komponen' => $n->komponen,
+                'bobot' => $n->bobot,
+                'nilai' => $n->nilai,
+                'huruf' => $hurufDetail['bimbingan'][$n->komponen] ?? null,
+            ];
+        })->values();
+
+        $rapor = [
+            'mahasiswa' => $pendaftaran->mahasiswa,
+            'status_kp' => $pendaftaran->status,
+            'dosen_pembimbing' => $dosbing?->name ?? ($pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->name : '-'),
+            'dosen_nip' => $dosbing?->nip ?? ($pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->nip : '-'),
+            'instansi' => $pendaftaran->instansi ? $pendaftaran->instansi->nama : '-',
+            'nilai_ujian' => $nilaiAkhir ? $nilaiAkhir->nilai_ujian : null,
+            'nilai_pembimbing' => $nilaiAkhir ? $nilaiAkhir->nilai_pembimbing : null,
+            'nilai_huruf_ujian' => $hurufDetail['ujian']['total'] ?? null,
+            'nilai_huruf_bimbingan' => $hurufDetail['bimbingan']['total'] ?? null,
+            'nilai_huruf_total' => $hurufDetail['total'] ?? $nilaiAkhir?->nilai_huruf ?? null,
+            'rincian_ujian' => $rincianUjian,
+            'rincian_bimbingan' => $rincianBimbingan,
+            'catatan' => $nilaiAkhir?->catatan,
+        ];
+
+        return view('cetak.penilaian-dosen', compact('rapor'));
+    }
 }
+

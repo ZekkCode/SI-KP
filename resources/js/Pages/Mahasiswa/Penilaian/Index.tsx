@@ -68,26 +68,38 @@ export default function Index({ hasData, message, rapor }: PenilaianProps) {
                     </div>
                     
                     {(rapor.rincian_dosen.length > 0 || rapor.rincian_instansi.length > 0) && (
-                        <div className="flex gap-2.5 shrink-0">
+                        <div className="flex flex-wrap gap-2.5 shrink-0">
                             <a
                                 href={route('mahasiswa.penilaian.cetak')}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 bg-[#00288e] hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors text-xs shadow-sm"
+                                className="inline-flex items-center gap-2 bg-[#00288e] hover:bg-blue-800 text-white px-3.5 py-2 rounded-lg font-semibold transition-colors text-xs shadow-sm"
                             >
                                 <Printer className="w-4 h-4" />
-                                Cetak Nilai
+                                Cetak Nilai Akhir
                             </a>
                             
+                            {rapor.rincian_dosen.length > 0 && (
+                                <a
+                                    href={route('mahasiswa.penilaian.cetak-dosen')}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 bg-white border border-blue-200 text-[#00288e] px-3.5 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors text-xs shadow-xs"
+                                >
+                                    <Printer className="w-4 h-4" />
+                                    Berkas KP-6b (Dosen)
+                                </a>
+                            )}
+
                             {rapor.rincian_instansi.length > 0 && (
                                 <a
                                     href={route('mahasiswa.penilaian.cetak-instansi')}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg font-semibold hover:bg-slate-50 transition-colors text-xs"
+                                    className="inline-flex items-center gap-1.5 bg-white border border-slate-300 text-slate-700 px-3.5 py-2 rounded-lg font-semibold hover:bg-slate-50 transition-colors text-xs shadow-xs"
                                 >
                                     <Printer className="w-4 h-4" />
-                                    Nilai Instansi
+                                    Berkas KP-6a (Instansi)
                                 </a>
                             )}
                         </div>

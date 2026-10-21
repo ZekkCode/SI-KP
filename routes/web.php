@@ -192,6 +192,8 @@ Route::middleware(['auth', 'role:mahasiswa'])
                 ->name('penilaian.cetak');
             Route::get('/penilaian/cetak-instansi', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'cetakInstansi'])
                 ->name('penilaian.cetak-instansi');
+            Route::get('/penilaian/cetak-dosen', [App\Http\Controllers\Mahasiswa\MahasiswaPenilaianController::class, 'cetakDosen'])
+                ->name('penilaian.cetak-dosen');
         });
     });
 
@@ -209,6 +211,7 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::put('/logbook/{id}', [App\Http\Controllers\Dosen\DosenLogbookController::class, 'update'])->name('logbook.update');
     Route::get('/penilaian', [App\Http\Controllers\Dosen\DosenPenilaianController::class, 'index'])->name('penilaian.index');
     Route::get('/penilaian/{pendaftaran}/nilai', [App\Http\Controllers\Dosen\DosenPenilaianController::class, 'create'])->name('penilaian.create');
+    Route::get('/penilaian/{pendaftaran}/cetak', [App\Http\Controllers\Dosen\DosenPenilaianController::class, 'cetak'])->name('penilaian.cetak');
     Route::post('/penilaian/{pendaftaran}', [App\Http\Controllers\Dosen\DosenPenilaianController::class, 'store'])->name('penilaian.store');
 });
 

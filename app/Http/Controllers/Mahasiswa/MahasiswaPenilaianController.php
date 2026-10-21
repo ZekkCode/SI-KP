@@ -209,4 +209,69 @@ class MahasiswaPenilaianController extends Controller
 
         return view('cetak.penilaian-instansi', compact('rapor'));
     }
+
+    /**
+     * Mencetak halaman nilai dosen (Berkas KP-6b) untuk Mahasiswa.
+     */
+    public function cetakDosen()
+    {
+        $user = Auth::user();
+        
+        $pendaftaran = Pendaftaran::with([
+            'nilaiAkhir', 
+            'nilais',
+            'dosenPembimbing',
+            'instansi',
+            'mahasiswa'
+        ])
+        ->where('mahasiswa_id', $user->id)
+        ->latest()
+        ->firstOrFail();
+
+        $dosbing = $pendaftaran->ensureDosenPembimbing();
+        $nilaiAkhir = $pendaftaran->nilaiAkhir;
+        $nilais = $pendaftaran->nilais;
+
+        $hurufDetail = [];
+        if ($nilaiAkhir?->catatan && preg_match('/\[Dosen_Huruf\]:\s*(\{.*\})/m', $nilaiAkhir->catatan, $mH)) {
+            $hurufDetail = json_decode($mH[1], true) ?? [];
+        }
+
+        $rincianUjian = $nilais->where('tipe', 'penguji')->map(function($n) use ($hurufDetail) {
+            return [
+                'komponen' => $n->komponen,
+                'bobot' => $n->bobot,
+                'nilai' => $n->nilai,
+                'huruf' => $hurufDetail['ujian'][$n->komponen] ?? null,
+            ];
+        })->values();
+
+        $rincianBimbingan = $nilais->where('tipe', 'pembimbing')->map(function($n) use ($hurufDetail) {
+            return [
+                'komponen' => $n->komponen,
+                'bobot' => $n->bobot,
+                'nilai' => $n->nilai,
+                'huruf' => $hurufDetail['bimbingan'][$n->komponen] ?? null,
+            ];
+        })->values();
+
+        $rapor = [
+            'mahasiswa' => $pendaftaran->mahasiswa,
+            'status_kp' => $pendaftaran->status,
+            'dosen_pembimbing' => $dosbing?->name ?? ($pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->name : '-'),
+            'dosen_nip' => $dosbing?->nip ?? ($pendaftaran->dosenPembimbing ? $pendaftaran->dosenPembimbing->nip : '-'),
+            'instansi' => $pendaftaran->instansi ? $pendaftaran->instansi->nama : '-',
+            'nilai_ujian' => $nilaiAkhir ? $nilaiAkhir->nilai_ujian : null,
+            'nilai_pembimbing' => $nilaiAkhir ? $nilaiAkhir->nilai_pembimbing : null,
+            'nilai_huruf_ujian' => $hurufDetail['ujian']['total'] ?? null,
+            'nilai_huruf_bimbingan' => $hurufDetail['bimbingan']['total'] ?? null,
+            'nilai_huruf_total' => $hurufDetail['total'] ?? $nilaiAkhir?->nilai_huruf ?? null,
+            'rincian_ujian' => $rincianUjian,
+            'rincian_bimbingan' => $rincianBimbingan,
+            'catatan' => $nilaiAkhir?->catatan,
+        ];
+
+        return view('cetak.penilaian-dosen', compact('rapor'));
+    }
 }
+
