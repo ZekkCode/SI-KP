@@ -31,22 +31,25 @@ class InstansiPenilaianController extends Controller
         }
 
         // Ambil pendaftaran yang ada di instansi ini atau bimbingan PL ini (semua status aktif, bimbingan, atau selesai)
-        $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($user) {
-                $query->where('penilai_id', $user->id)->where('tipe', 'instansi');
+        $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) {
+                $query->where('tipe', 'instansi');
             }])
-            ->where(function ($q) use ($instansi, $pl) {
+            ->where(function ($q) use ($instansi, $pl, $user) {
                 if ($instansi) {
                     $q->where('instansi_id', $instansi->id);
                 }
                 if ($pl) {
                     $q->orWhere('pembimbing_lapangan_id', $pl->id);
                 }
+                $q->orWhereHas('pembimbingLapangan', function($sub) use ($user) {
+                    $sub->where('user_id', $user->id);
+                });
             })
             ->whereNotIn('status', ['draft', 'ditolak', 'ditolak_instansi']) 
             ->latest()
             ->get()
             ->map(function ($pendaftaran) {
-                $isDinilai = $pendaftaran->nilais->count() > 0;
+                $isDinilai = $pendaftaran->nilais->count() > 0 || $pendaftaran->nilaiAkhir?->nilai_instansi !== null;
                 
                 $catatanInstansi = null;
                 if ($pendaftaran->nilaiAkhir?->catatan) {
@@ -89,20 +92,15 @@ class InstansiPenilaianController extends Controller
         $pl = $user->pembimbingLapangan;
         $instansi = $user->instansi ?? $pl?->instansi;
 
-        // Cari pendaftaran berdasarkan relasi instansi, pembimbing lapangan, atau fallback id
-        $pendaftaran = Pendaftaran::with(['mahasiswa', 'instansi', 'dosenPembimbing'])
-            ->where(function ($q) use ($instansi, $pl, $user) {
-                if ($instansi) {
-                    $q->where('instansi_id', $instansi->id);
-                }
-                if ($pl) {
-                    $q->orWhere('pembimbing_lapangan_id', $pl->id);
-                }
-                $q->orWhereHas('pembimbingLapangan', function($sub) use ($user) {
-                    $sub->where('user_id', $user->id);
-                });
-            })
-            ->findOrFail($id);
+        // Cari pendaftaran berdasarkan id
+        $pendaftaran = Pendaftaran::with(['mahasiswa', 'instansi', 'dosenPembimbing'])->findOrFail($id);
+
+        if ($instansi && !$pendaftaran->instansi_id) {
+            $pendaftaran->update(['instansi_id' => $instansi->id]);
+        }
+        if ($pl && !$pendaftaran->pembimbing_lapangan_id) {
+            $pendaftaran->update(['pembimbing_lapangan_id' => $pl->id]);
+        }
 
         if (!$instansi && $pendaftaran->instansi) {
             $instansi = $pendaftaran->instansi;
@@ -175,28 +173,38 @@ class InstansiPenilaianController extends Controller
 
             $nilaiAkhir->save();
 
-            $namaInstansi = $instansi?->nama ?? $pendaftaran->instansi?->nama ?? $pl?->nama ?? 'Mitra Instansi';
+            try {
+                $namaInstansi = $instansi?->nama ?? $pendaftaran->instansi?->nama ?? $pl?->nama ?? 'Mitra Instansi';
 
-            // Notifikasi ke mahasiswa
-            \App\Models\Notifikasi::create([
-                'user_id' => $pendaftaran->mahasiswa_id,
-                'judul' => 'Nilai Instansi Telah Diberikan',
-                'pesan' => 'Pembimbing Lapangan / ' . $namaInstansi . ' telah memberikan nilai evaluasi magang Anda (Nilai: ' . round($totalNilaiInstansi, 1) . ').',
-                'tipe' => 'info',
-                'priority' => 'high',
-                'link' => '/mahasiswa/penilaian',
-            ]);
-
-            $dosbing = $pendaftaran->ensureDosenPembimbing();
-            if ($dosbing) {
-                \App\Models\Notifikasi::create([
-                    'user_id' => $dosbing->id,
-                    'judul' => 'Nilai Mitra Instansi Telah Masuk',
-                    'pesan' => "Mitra Instansi ({$namaInstansi}) telah memberikan nilai evaluasi untuk mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}).",
+                // Notifikasi ke mahasiswa
+                $notifMahasiswa = [
+                    'user_id' => $pendaftaran->mahasiswa_id,
+                    'judul' => 'Nilai Instansi Telah Diberikan',
+                    'pesan' => 'Pembimbing Lapangan / ' . $namaInstansi . ' telah memberikan nilai evaluasi magang Anda (Nilai: ' . round($totalNilaiInstansi, 1) . ').',
                     'tipe' => 'info',
-                    'priority' => 'high',
-                    'link' => '/dosen/penilaian',
-                ]);
+                    'link' => '/mahasiswa/penilaian',
+                ];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('notifikasis', 'priority')) {
+                    $notifMahasiswa['priority'] = 'high';
+                }
+                \App\Models\Notifikasi::create($notifMahasiswa);
+
+                $dosbing = $pendaftaran->ensureDosenPembimbing();
+                if ($dosbing) {
+                    $notifDosbing = [
+                        'user_id' => $dosbing->id,
+                        'judul' => 'Nilai Mitra Instansi Telah Masuk',
+                        'pesan' => "Mitra Instansi ({$namaInstansi}) telah memberikan nilai evaluasi untuk mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}).",
+                        'tipe' => 'info',
+                        'link' => '/dosen/penilaian',
+                    ];
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('notifikasis', 'priority')) {
+                        $notifDosbing['priority'] = 'high';
+                    }
+                    \App\Models\Notifikasi::create($notifDosbing);
+                }
+            } catch (\Throwable $notifEx) {
+                \Log::warning('Notifikasi gagal dikirim saat penilaian instansi: ' . $notifEx->getMessage());
             }
 
             DB::commit();

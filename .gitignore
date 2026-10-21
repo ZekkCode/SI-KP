@@ -46,7 +46,6 @@ _ide_helper.php
 # -----------------------------------------------------------------------------
 # Frontend Build Artifacts
 # -----------------------------------------------------------------------------
-/public/build
 /public/hot
 /public/storage
 /public/fonts-manifest.dev.json

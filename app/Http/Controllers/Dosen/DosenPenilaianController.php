@@ -182,27 +182,37 @@ class DosenPenilaianController extends Controller
                 $pendaftaran->update(['status' => 'selesai']);
             }
 
-            // Notifikasi ke mahasiswa
-            \App\Models\Notifikasi::create([
-                'user_id' => $pendaftaran->mahasiswa_id,
-                'judul' => 'Nilai Dosen Pembimbing Telah Diberikan',
-                'pesan' => 'Dosen Pembimbing telah menginputkan nilai evaluasi KP Anda (Nilai: ' . round($totalNilaiPembimbing, 1) . '). Tahap Berita Acara kini aktif dan menunggu validasi Koordinator Program Studi.',
-                'tipe' => 'sukses',
-                'priority' => 'high',
-                'link' => '/mahasiswa/berita-acara',
-            ]);
+            try {
+                // Notifikasi ke mahasiswa
+                $notifMhs = [
+                    'user_id' => $pendaftaran->mahasiswa_id,
+                    'judul' => 'Nilai Dosen Pembimbing Telah Diberikan',
+                    'pesan' => 'Dosen Pembimbing telah menginputkan nilai evaluasi KP Anda (Nilai: ' . round($totalNilaiPembimbing, 1) . '). Tahap Berita Acara kini aktif dan menunggu validasi Koordinator Program Studi.',
+                    'tipe' => 'sukses',
+                    'link' => '/mahasiswa/berita-acara',
+                ];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('notifikasis', 'priority')) {
+                    $notifMhs['priority'] = 'high';
+                }
+                \App\Models\Notifikasi::create($notifMhs);
 
-            // Notifikasi ke Koordinator Program Studi (Prodi)
-            $prodiUsers = \App\Models\User::where('role', 'prodi')->get();
-            foreach ($prodiUsers as $prodi) {
-                \App\Models\Notifikasi::create([
-                    'user_id' => $prodi->id,
-                    'judul' => 'Berita Acara Siap Divalidasi',
-                    'pesan' => "Dosen Pembimbing telah menilai mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}). Berita Acara resmi (Form KP-5) siap divalidasi dan diterbitkan.",
-                    'tipe' => 'info',
-                    'priority' => 'high',
-                    'link' => '/prodi/berita-acara',
-                ]);
+                // Notifikasi ke Koordinator Program Studi (Prodi)
+                $prodiUsers = \App\Models\User::where('role', 'prodi')->get();
+                foreach ($prodiUsers as $prodi) {
+                    $notifProdi = [
+                        'user_id' => $prodi->id,
+                        'judul' => 'Berita Acara Siap Divalidasi',
+                        'pesan' => "Dosen Pembimbing telah menilai mahasiswa {$pendaftaran->mahasiswa?->name} ({$pendaftaran->mahasiswa?->nim}). Berita Acara resmi (Form KP-5) siap divalidasi dan diterbitkan.",
+                        'tipe' => 'info',
+                        'link' => '/prodi/berita-acara',
+                    ];
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('notifikasis', 'priority')) {
+                        $notifProdi['priority'] = 'high';
+                    }
+                    \App\Models\Notifikasi::create($notifProdi);
+                }
+            } catch (\Throwable $notifEx) {
+                \Log::warning('Notifikasi gagal dikirim pasca penilaian dosen: ' . $notifEx->getMessage());
             }
 
             DB::commit();
