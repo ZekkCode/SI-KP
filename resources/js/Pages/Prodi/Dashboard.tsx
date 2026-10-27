@@ -115,7 +115,7 @@ export default function ProdiDashboard({ stats, sidang_mendatang = [], error }: 
   ];
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-2">
+    <div className="p-6 flex flex-col gap-6 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-2">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display font-bold text-on-surface">Dashboard Koordinator Prodi</h1>

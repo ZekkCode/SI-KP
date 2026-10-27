@@ -54,7 +54,7 @@ class ProdiSidangController extends Controller
                 'id' => $s->id,
                 'status' => $s->status,
                 'tanggal_sidang' => $s->tanggal_sidang?->format('Y-m-d H:i'),
-                'tanggal_formatted' => $s->tanggal_sidang?->translatedFormat('d M Y, H:i') . ' WIB',
+                'tanggal_formatted' => $s->tanggal_sidang ? $s->tanggal_sidang->translatedFormat('d M Y, H:i') . ' WIB' : null,
                 'ruangan' => $s->ruangan,
                 'catatan' => $s->catatan,
                 'created_at' => $s->created_at?->format('d M Y H:i'),

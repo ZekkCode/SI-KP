@@ -111,31 +111,31 @@ export default function ArsipNilaiScreen({ arsip, stats, filters }: Props) {
     switch (status) {
       case 'lulus':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-            <CheckCircle2 className="w-3 h-3" /> Lulus
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 whitespace-nowrap">
+            <CheckCircle2 className="w-3 h-3 shrink-0" /> Lulus
           </span>
         );
       case 'tidak_lulus':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-            <XCircle className="w-3 h-3" /> Tidak Lulus
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200 whitespace-nowrap">
+            <XCircle className="w-3 h-3 shrink-0" /> Tidak Lulus
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-            <Clock className="w-3 h-3" /> Proses
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 whitespace-nowrap">
+            <Clock className="w-3 h-3 shrink-0" /> Proses
           </span>
         );
     }
   };
 
   const getHurufBadge = (huruf: string) => {
-    if (huruf === 'A') return <span className="px-2 py-0.5 rounded font-bold text-xs bg-emerald-100 text-emerald-800">A</span>;
-    if (huruf === 'B') return <span className="px-2 py-0.5 rounded font-bold text-xs bg-blue-100 text-blue-800">B</span>;
-    if (huruf === 'C') return <span className="px-2 py-0.5 rounded font-bold text-xs bg-amber-100 text-amber-800">C</span>;
-    if (huruf === 'D' || huruf === 'E') return <span className="px-2 py-0.5 rounded font-bold text-xs bg-rose-100 text-rose-800">{huruf}</span>;
-    return <span className="text-secondary">-</span>;
+    if (huruf === 'A') return <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg font-bold text-xs bg-emerald-50 text-emerald-800 border border-emerald-200">A</span>;
+    if (huruf === 'B') return <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg font-bold text-xs bg-blue-50 text-blue-800 border border-blue-200">B</span>;
+    if (huruf === 'C') return <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg font-bold text-xs bg-amber-50 text-amber-800 border border-amber-200">C</span>;
+    if (huruf === 'D' || huruf === 'E') return <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg font-bold text-xs bg-rose-50 text-rose-800 border border-rose-200">{huruf}</span>;
+    return <span className="text-slate-400 font-medium">-</span>;
   };
 
   return (
@@ -238,83 +238,116 @@ export default function ArsipNilaiScreen({ arsip, stats, filters }: Props) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
-        {arsip.length === 0 ? (
-          <div className="p-12 text-center flex flex-col items-center">
-            <Award className="w-12 h-12 text-outline mb-3 opacity-40" />
-            <h3 className="text-base font-bold text-on-surface">Tidak ada data arsip nilai</h3>
-            <p className="text-xs text-secondary mt-1 max-w-sm">
-              Belum ada data nilai mahasiswa yang sesuai dengan filter saat ini.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <ModernTable>
-              <ModernTableHeader>
-                <tr className="bg-surface-container-lowest border-b border-outline-variant text-secondary text-xs font-semibold">
-                  <ModernTableTh>Mahasiswa</ModernTableTh>
-                  <ModernTableTh>Instansi Magang</ModernTableTh>
-                  <ModernTableTh>Dosen Pembimbing</ModernTableTh>
-                  <ModernTableTh className="text-center">Pembimbing (30%)</ModernTableTh>
-                  <ModernTableTh className="text-center">Industri (30%)</ModernTableTh>
-                  <ModernTableTh className="text-center">Ujian (40%)</ModernTableTh>
-                  <ModernTableTh className="text-center">Nilai Akhir</ModernTableTh>
-                  <ModernTableTh className="text-center">Huruf</ModernTableTh>
-                  <ModernTableTh className="text-center">Status</ModernTableTh>
-                </tr>
-              </ModernTableHeader>
-              <ModernTableBody>
-                {arsip.map((item) => (
-                  <tr key={item.id} className="hover:bg-surface-container-lowest/50 transition-colors">
-                    <ModernTableTd>
-                      <div className="font-semibold text-sm text-on-surface">{item.mahasiswa.name}</div>
-                      <div className="text-xs text-secondary font-mono">{item.mahasiswa.nim}</div>
-                    </ModernTableTd>
+      {arsip.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-12 text-center flex flex-col items-center">
+          <Award className="w-12 h-12 text-slate-300 mb-3" />
+          <h3 className="text-base font-bold text-slate-900">Tidak ada data arsip nilai</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm">
+            Belum ada data nilai mahasiswa yang sesuai dengan filter saat ini.
+          </p>
+        </div>
+      ) : (
+        <ModernTable>
+          <ModernTableHeader className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+            <ModernTableTh className="w-12 text-center">No</ModernTableTh>
+            <ModernTableTh className="min-w-[210px]">Mahasiswa</ModernTableTh>
+            <ModernTableTh className="min-w-[190px]">Instansi Magang</ModernTableTh>
+            <ModernTableTh className="min-w-[190px]">Dosen Pembimbing</ModernTableTh>
+            <ModernTableTh className="w-28 text-center whitespace-nowrap">Pembimbing (30%)</ModernTableTh>
+            <ModernTableTh className="w-28 text-center whitespace-nowrap">Industri (30%)</ModernTableTh>
+            <ModernTableTh className="w-28 text-center whitespace-nowrap">Ujian (40%)</ModernTableTh>
+            <ModernTableTh className="w-28 text-center whitespace-nowrap">Nilai Akhir</ModernTableTh>
+            <ModernTableTh className="w-20 text-center">Huruf</ModernTableTh>
+            <ModernTableTh className="w-32 text-center">Status</ModernTableTh>
+          </ModernTableHeader>
+          <ModernTableBody>
+            {arsip.map((item, idx) => (
+              <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                {/* No */}
+                <ModernTableTd className="text-center font-medium text-xs text-slate-400">
+                  {idx + 1}
+                </ModernTableTd>
 
-                    <ModernTableTd>
-                      <div className="flex items-center gap-1.5 text-xs text-on-surface">
-                        <Building2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                        <span>{item.instansi.nama}</span>
+                {/* Mahasiswa */}
+                <ModernTableTd>
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 text-[#00288e] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                      {item.mahasiswa.name?.substring(0, 2).toUpperCase() || 'MH'}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs sm:text-sm text-slate-900 leading-snug truncate">
+                        {item.mahasiswa.name}
                       </div>
-                    </ModernTableTd>
-
-                    <ModernTableTd>
-                      <div className="flex items-center gap-1.5 text-xs text-on-surface">
-                        <GraduationCap className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                        <span>{item.dosen_pembimbing.name}</span>
+                      <div className="text-xs text-slate-500 font-mono mt-0.5">
+                        NIM: {item.mahasiswa.nim}
                       </div>
-                    </ModernTableTd>
+                    </div>
+                  </div>
+                </ModernTableTd>
 
-                    <ModernTableTd className="text-center font-mono text-xs">
-                      {item.nilai_pembimbing}
-                    </ModernTableTd>
+                {/* Instansi */}
+                <ModernTableTd>
+                  <div className="flex items-start gap-2">
+                    <Building2 className="w-4 h-4 text-[#00288e] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-slate-900 leading-snug">
+                        {item.instansi.nama}
+                      </div>
+                      {item.instansi.kota && (
+                        <div className="text-[11px] text-slate-500 mt-0.5">
+                          {item.instansi.kota}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </ModernTableTd>
 
-                    <ModernTableTd className="text-center font-mono text-xs">
-                      {item.nilai_instansi}
-                    </ModernTableTd>
+                {/* Dosen Pembimbing */}
+                <ModernTableTd>
+                  <div className="flex items-start gap-2">
+                    <GraduationCap className="w-4 h-4 text-[#00288e] shrink-0 mt-0.5" />
+                    <span className="text-xs font-semibold text-slate-800 leading-snug">
+                      {item.dosen_pembimbing.name}
+                    </span>
+                  </div>
+                </ModernTableTd>
 
-                    <ModernTableTd className="text-center font-mono text-xs">
-                      {item.nilai_ujian}
-                    </ModernTableTd>
+                {/* Nilai Pembimbing */}
+                <ModernTableTd className="text-center font-mono text-xs font-semibold text-slate-700">
+                  {item.nilai_pembimbing}
+                </ModernTableTd>
 
-                    <ModernTableTd className="text-center font-bold text-sm text-primary font-mono">
-                      {item.nilai_total}
-                    </ModernTableTd>
+                {/* Nilai Industri */}
+                <ModernTableTd className="text-center font-mono text-xs font-semibold text-slate-700">
+                  {item.nilai_instansi}
+                </ModernTableTd>
 
-                    <ModernTableTd className="text-center">
-                      {getHurufBadge(item.nilai_huruf)}
-                    </ModernTableTd>
+                {/* Nilai Ujian */}
+                <ModernTableTd className="text-center font-mono text-xs font-semibold text-slate-700">
+                  {item.nilai_ujian}
+                </ModernTableTd>
 
-                    <ModernTableTd className="text-center">
-                      {getStatusBadge(item.status)}
-                    </ModernTableTd>
-                  </tr>
-                ))}
-              </ModernTableBody>
-            </ModernTable>
-          </div>
-        )}
-      </div>
+                {/* Nilai Akhir */}
+                <ModernTableTd className="text-center">
+                  <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 font-bold text-xs text-[#00288e] font-mono">
+                    {item.nilai_total}
+                  </span>
+                </ModernTableTd>
+
+                {/* Huruf */}
+                <ModernTableTd className="text-center">
+                  {getHurufBadge(item.nilai_huruf)}
+                </ModernTableTd>
+
+                {/* Status */}
+                <ModernTableTd className="text-center">
+                  {getStatusBadge(item.status)}
+                </ModernTableTd>
+              </tr>
+            ))}
+          </ModernTableBody>
+        </ModernTable>
+      )}
     </div>
   );
 }

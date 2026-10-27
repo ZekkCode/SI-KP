@@ -59,19 +59,19 @@ export default function ReviewProposalScreen({ proposals }: Props) {
       case 'diajukan':
         return {
           label: 'Menunggu Review',
-          badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
+          badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
           icon: <Clock size={13} className="shrink-0" />,
         };
       case 'revisi':
         return {
           label: 'Perlu Revisi',
-          badgeClass: 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800',
+          badgeClass: 'bg-rose-50 text-rose-700 border border-rose-200',
           icon: <Edit3 size={13} className="shrink-0" />,
         };
       case 'disetujui':
         return {
           label: 'Disetujui',
-          badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+          badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
           icon: <CheckCircle2 size={13} className="shrink-0" />,
         };
       default:
@@ -177,113 +177,115 @@ export default function ReviewProposalScreen({ proposals }: Props) {
       </div>
 
       {/* Table Card */}
-      <div className="bg-surface-lowest rounded-xl border border-outline-variant shadow-xs overflow-hidden flex flex-col">
-        <div className="overflow-x-auto">
-          {filteredProposals.length === 0 ? (
-            <div className="p-12 text-center flex flex-col items-center">
-              <FileText size={44} className="text-outline mb-3 opacity-40" />
-              <p className="text-base font-semibold text-on-surface">
-                {proposals.length === 0 ? 'Belum Ada Proposal Masuk' : 'Tidak Ditemukan Proposal'}
-              </p>
-              <p className="text-xs sm:text-sm text-secondary mt-1 max-w-sm">
-                {proposals.length === 0
-                  ? 'Mahasiswa bimbingan Anda belum ada yang mengajukan proposal Kerja Praktik.'
-                  : 'Coba ubah kata kunci pencarian atau ganti status filter yang dipilih.'}
-              </p>
-            </div>
-          ) : (
-            <ModernTable>
-              <ModernTableHeader>
-                <tr className="bg-surface-container-lowest/80 border-b border-outline-variant text-on-surface-variant text-xs uppercase tracking-wider font-semibold">
-                  <ModernTableTh className="py-3.5 px-4 w-[280px]">Mahasiswa</ModernTableTh>
-                  <ModernTableTh className="py-3.5 px-4 min-w-[280px]">Judul Proposal</ModernTableTh>
-                  <ModernTableTh className="py-3.5 px-4 w-[160px]">Tanggal Pengajuan</ModernTableTh>
-                  <ModernTableTh className="py-3.5 px-4 w-[150px]">Status</ModernTableTh>
-                  <ModernTableTh className="py-3.5 px-4 w-[140px] text-right">Aksi</ModernTableTh>
-                </tr>
-              </ModernTableHeader>
-              <ModernTableBody>
-                {filteredProposals.map((proposal) => {
-                  const statusUi = formatStatus(proposal.status);
-                  const studentName = proposal.pendaftaran?.mahasiswa?.name || 'Mahasiswa';
-                  const studentNim = proposal.pendaftaran?.mahasiswa?.nim || '-';
-                  const initials = getInitials(studentName);
-
-                  return (
-                    <tr key={proposal.id} className="hover:bg-surface-container-lowest/50 transition-colors border-b border-outline-variant/50 last:border-0">
-                      {/* Mahasiswa */}
-                      <ModernTableTd className="py-3.5 px-4 align-top">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20">
-                            {initials}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-semibold text-sm text-on-surface truncate" title={studentName}>
-                              {studentName}
-                            </div>
-                            <div className="text-xs text-secondary font-mono mt-0.5">{studentNim}</div>
-                          </div>
-                        </div>
-                      </ModernTableTd>
-
-                      {/* Judul Proposal */}
-                      <ModernTableTd className="py-3.5 px-4 align-top">
-                        <div className="text-sm font-medium text-on-surface leading-snug line-clamp-2" title={proposal.judul}>
-                          {proposal.judul}
-                        </div>
-                        {proposal.abstrak && (
-                          <div className="text-xs text-secondary line-clamp-1 mt-1 italic">
-                            {proposal.abstrak}
-                          </div>
-                        )}
-                      </ModernTableTd>
-
-                      {/* Tanggal Pengajuan */}
-                      <ModernTableTd className="py-3.5 px-4 align-top whitespace-nowrap">
-                        <div className="text-xs text-secondary flex items-center gap-1.5 pt-0.5">
-                          <Clock size={13} className="text-on-surface-variant/70 shrink-0" />
-                          <span>
-                            {proposal.submitted_at
-                              ? new Date(proposal.submitted_at).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: 'numeric',
-                                })
-                              : '-'}
-                          </span>
-                        </div>
-                      </ModernTableTd>
-
-                      {/* Status */}
-                      <ModernTableTd className="py-3.5 px-4 align-top whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${statusUi.badgeClass}`}>
-                          {statusUi.icon}
-                          {statusUi.label}
-                        </span>
-                      </ModernTableTd>
-
-                      {/* Aksi */}
-                      <ModernTableTd className="py-3.5 px-4 align-top text-right whitespace-nowrap">
-                        <Link
-                          href={route('dosen.review.show', proposal.id)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                            proposal.status === 'diajukan'
-                              ? 'bg-primary text-on-primary hover:bg-primary/90 shadow-xs'
-                              : 'border border-outline-variant bg-surface hover:bg-surface-container text-on-surface'
-                          }`}
-                        >
-                          <span>{proposal.status === 'diajukan' ? 'Review Proposal' : 'Detail'}</span>
-                          <ArrowRight size={13} />
-                        </Link>
-                      </ModernTableTd>
-                    </tr>
-                  );
-                })}
-              </ModernTableBody>
-            </ModernTable>
-          )}
+      {filteredProposals.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-12 text-center flex flex-col items-center">
+          <FileText size={44} className="text-slate-300 mb-3" />
+          <p className="text-base font-bold text-slate-900">
+            {proposals.length === 0 ? 'Belum Ada Proposal Masuk' : 'Tidak Ditemukan Proposal'}
+          </p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm">
+            {proposals.length === 0
+              ? 'Mahasiswa bimbingan Anda belum ada yang mengajukan proposal Kerja Praktik.'
+              : 'Coba ubah kata kunci pencarian atau ganti status filter yang dipilih.'}
+          </p>
         </div>
-      </div>
+      ) : (
+        <ModernTable>
+          <ModernTableHeader className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+            <ModernTableTh className="w-12 text-center">No</ModernTableTh>
+            <ModernTableTh className="min-w-[220px]">Mahasiswa</ModernTableTh>
+            <ModernTableTh className="min-w-[280px]">Judul Proposal</ModernTableTh>
+            <ModernTableTh className="w-44 whitespace-nowrap">Tanggal Pengajuan</ModernTableTh>
+            <ModernTableTh className="w-40 text-center whitespace-nowrap">Status</ModernTableTh>
+            <ModernTableTh className="w-40 text-center whitespace-nowrap">Aksi</ModernTableTh>
+          </ModernTableHeader>
+          <ModernTableBody>
+            {filteredProposals.map((proposal, idx) => {
+              const statusUi = formatStatus(proposal.status);
+              const studentName = proposal.pendaftaran?.mahasiswa?.name || 'Mahasiswa';
+              const studentNim = proposal.pendaftaran?.mahasiswa?.nim || '-';
+              const initials = getInitials(studentName);
+
+              return (
+                <tr key={proposal.id} className="hover:bg-slate-50/80 transition-colors">
+                  {/* No */}
+                  <ModernTableTd className="text-center font-medium text-xs text-slate-400">
+                    {idx + 1}
+                  </ModernTableTd>
+
+                  {/* Mahasiswa */}
+                  <ModernTableTd>
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-blue-50 text-[#00288e] font-bold text-xs flex items-center justify-center shrink-0 border border-blue-200 mt-0.5">
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-xs sm:text-sm text-slate-900 leading-snug truncate" title={studentName}>
+                          {studentName}
+                        </div>
+                        <div className="text-xs text-slate-500 font-mono mt-0.5">
+                          NIM: {studentNim}
+                        </div>
+                      </div>
+                    </div>
+                  </ModernTableTd>
+
+                  {/* Judul Proposal */}
+                  <ModernTableTd>
+                    <div className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug line-clamp-2" title={proposal.judul}>
+                      {proposal.judul}
+                    </div>
+                    {proposal.abstrak && (
+                      <div className="text-xs text-slate-500 line-clamp-1 mt-1 italic">
+                        {proposal.abstrak}
+                      </div>
+                    )}
+                  </ModernTableTd>
+
+                  {/* Tanggal Pengajuan */}
+                  <ModernTableTd className="whitespace-nowrap">
+                    <div className="inline-flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200">
+                      <Clock size={13} className="text-slate-400 shrink-0" />
+                      <span>
+                        {proposal.submitted_at
+                          ? new Date(proposal.submitted_at).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })
+                          : '-'}
+                      </span>
+                    </div>
+                  </ModernTableTd>
+
+                  {/* Status */}
+                  <ModernTableTd className="text-center whitespace-nowrap">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusUi.badgeClass}`}>
+                      {statusUi.icon}
+                      {statusUi.label}
+                    </span>
+                  </ModernTableTd>
+
+                  {/* Aksi */}
+                  <ModernTableTd className="text-center whitespace-nowrap">
+                    <Link
+                      href={route('dosen.review.show', proposal.id)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs ${
+                        proposal.status === 'diajukan'
+                          ? 'bg-[#00288e] text-white hover:bg-[#002277]'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <span>{proposal.status === 'diajukan' ? 'Review Proposal' : 'Lihat Detail'}</span>
+                      <ArrowRight size={13} className="shrink-0" />
+                    </Link>
+                  </ModernTableTd>
+                </tr>
+              );
+            })}
+          </ModernTableBody>
+        </ModernTable>
+      )}
     </div>
   );
 }

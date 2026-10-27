@@ -113,108 +113,138 @@ export default function MitraInstansiScreen({ mitras, stats, filters }: Props) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
-        {mitras.length === 0 ? (
-          <div className="p-12 text-center flex flex-col items-center">
-            <Building2 className="w-12 h-12 text-outline mb-3 opacity-40" />
-            <h3 className="text-base font-bold text-on-surface">Tidak ada data mitra</h3>
-            <p className="text-xs text-secondary mt-1 max-w-sm">
-              Belum ada instansi mitra yang sesuai dengan pencarian saat ini.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <ModernTable>
-              <ModernTableHeader>
-                <tr className="bg-surface-container-lowest border-b border-outline-variant text-secondary text-xs font-semibold">
-                  <ModernTableTh>Perusahaan / Instansi</ModernTableTh>
-                  <ModernTableTh>Kontak & Alamat</ModernTableTh>
-                  <ModernTableTh>Pembimbing Lapangan</ModernTableTh>
-                  <ModernTableTh className="text-center">Aktif Saat Ini</ModernTableTh>
-                  <ModernTableTh className="text-center">Total Mahasiswa</ModernTableTh>
-                </tr>
-              </ModernTableHeader>
-              <ModernTableBody>
-                {mitras.map((mitra) => (
-                  <tr key={mitra.id} className="hover:bg-surface-container-lowest/50 transition-colors">
-                    {/* Instansi Info */}
-                    <ModernTableTd>
-                      <div className="font-semibold text-sm text-on-surface flex items-center gap-1.5">
-                        <Building2 className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span>{mitra.nama}</span>
-                      </div>
-                      {mitra.kota && (
-                        <div className="text-xs text-secondary ml-5 mt-0.5">{mitra.kota}</div>
-                      )}
-                    </ModernTableTd>
+      {mitras.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-12 text-center flex flex-col items-center">
+          <Building2 className="w-12 h-12 text-slate-300 mb-3" />
+          <h3 className="text-base font-bold text-slate-900">Tidak ada data mitra</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm">
+            Belum ada instansi mitra yang sesuai dengan pencarian saat ini.
+          </p>
+        </div>
+      ) : (
+        <ModernTable>
+          <ModernTableHeader className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+            <ModernTableTh className="w-12 text-center">No</ModernTableTh>
+            <ModernTableTh className="min-w-[230px]">Perusahaan / Instansi</ModernTableTh>
+            <ModernTableTh className="min-w-[250px]">Kontak & Alamat</ModernTableTh>
+            <ModernTableTh className="min-w-[220px]">Pembimbing Lapangan</ModernTableTh>
+            <ModernTableTh className="w-36 text-center">Aktif Saat Ini</ModernTableTh>
+            <ModernTableTh className="w-36 text-center">Total Mahasiswa</ModernTableTh>
+          </ModernTableHeader>
+          <ModernTableBody>
+            {mitras.map((mitra, idx) => (
+              <tr key={mitra.id} className="hover:bg-slate-50/80 transition-colors">
+                {/* No */}
+                <ModernTableTd className="text-center font-medium text-xs text-slate-400">
+                  {idx + 1}
+                </ModernTableTd>
 
-                    {/* Kontak & Alamat */}
-                    <ModernTableTd>
-                      <div className="space-y-1 text-xs text-secondary max-w-xs">
-                        {mitra.alamat && (
-                          <div className="flex items-start gap-1">
-                            <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-slate-400 mt-0.5" />
-                            <span className="line-clamp-2">{mitra.alamat}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-3">
-                          {mitra.email && (
-                            <div className="flex items-center gap-1 text-[11px] text-slate-600">
-                              <Mail className="w-3 h-3 text-slate-400" />
-                              <span>{mitra.email}</span>
-                            </div>
-                          )}
-                          {mitra.telepon && (
-                            <div className="flex items-center gap-1 text-[11px] text-slate-600">
-                              <Phone className="w-3 h-3 text-slate-400" />
-                              <span>{mitra.telepon}</span>
-                            </div>
-                          )}
-                        </div>
+                {/* Instansi Info */}
+                <ModernTableTd>
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 text-[#00288e] flex items-center justify-center shrink-0 mt-0.5">
+                      <Building2 className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs sm:text-sm text-slate-900 leading-snug">
+                        {mitra.nama}
                       </div>
-                    </ModernTableTd>
-
-                    {/* Pembimbing Lapangan */}
-                    <ModernTableTd>
-                      {mitra.pembimbing_lapangans.length > 0 ? (
-                        <div className="space-y-1 max-w-xs">
-                          {mitra.pembimbing_lapangans.map((pl) => (
-                            <div key={pl.id} className="flex items-center gap-1.5 text-xs text-slate-800">
-                              <Briefcase className="w-3 h-3 text-primary flex-shrink-0" />
-                              <span className="font-medium">{pl.nama}</span>
-                              {pl.jabatan && <span className="text-slate-400 text-[10px]">({pl.jabatan})</span>}
-                            </div>
-                          ))}
+                      {mitra.kota ? (
+                        <div className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 mt-0.5">
+                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>{mitra.kota}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-secondary italic">Belum terdaftar</span>
+                        <div className="text-[11px] text-slate-400 mt-0.5">Instansi Mitra KP</div>
                       )}
-                    </ModernTableTd>
+                    </div>
+                  </div>
+                </ModernTableTd>
 
-                    {/* Mahasiswa Aktif */}
-                    <ModernTableTd className="text-center">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
-                        mitra.mahasiswa_aktif > 0 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-slate-100 text-slate-600'
-                      }`}>
-                        {mitra.mahasiswa_aktif} Orang
-                      </span>
-                    </ModernTableTd>
+                {/* Kontak & Alamat */}
+                <ModernTableTd>
+                  <div className="space-y-1.5 text-xs text-slate-600 max-w-xs">
+                    {mitra.alamat ? (
+                      <div className="flex items-start gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400 mt-0.5" />
+                        <span className="line-clamp-2 leading-relaxed">{mitra.alamat}</span>
+                      </div>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 italic">Alamat belum dicantumkan</span>
+                    )}
+                    {(mitra.email || mitra.telepon) && (
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">
+                        {mitra.email && (
+                          <div className="inline-flex items-center gap-1 text-[11px] text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/80">
+                            <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="truncate max-w-[160px]">{mitra.email}</span>
+                          </div>
+                        )}
+                        {mitra.telepon && (
+                          <div className="inline-flex items-center gap-1 text-[11px] text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/80 whitespace-nowrap">
+                            <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span>{mitra.telepon}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </ModernTableTd>
 
-                    {/* Total Mahasiswa */}
-                    <ModernTableTd className="text-center">
-                      <span className="font-bold text-sm text-slate-800">
-                        {mitra.total_mahasiswa}
+                {/* Pembimbing Lapangan */}
+                <ModernTableTd>
+                  {mitra.pembimbing_lapangans.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {mitra.pembimbing_lapangans.map((pl) => (
+                        <div key={pl.id} className="flex items-start gap-2 text-xs">
+                          <Briefcase className="w-3.5 h-3.5 text-[#00288e] shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <div className="font-semibold text-slate-800 leading-snug">{pl.nama}</div>
+                            {pl.jabatan && (
+                              <div className="text-[11px] text-slate-500">{pl.jabatan}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200/80 text-[11px] text-slate-500 italic">
+                      Belum terdaftar
+                    </span>
+                  )}
+                </ModernTableTd>
+
+                {/* Mahasiswa Aktif */}
+                <ModernTableTd className="text-center">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap border ${
+                    mitra.mahasiswa_aktif > 0 
+                      ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                      : 'bg-slate-50 text-slate-500 border-slate-200'
+                  }`}>
+                    <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+                    <span>{mitra.mahasiswa_aktif} Mahasiswa</span>
+                  </span>
+                </ModernTableTd>
+
+                {/* Total Mahasiswa */}
+                <ModernTableTd className="text-center">
+                  <div className="inline-flex flex-col items-center">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs whitespace-nowrap">
+                      <Users className="w-3.5 h-3.5 shrink-0" />
+                      <span>{mitra.total_mahasiswa} Total</span>
+                    </span>
+                    {mitra.mahasiswa_selesai > 0 && (
+                      <span className="text-[10px] text-slate-500 mt-1 whitespace-nowrap">
+                        {mitra.mahasiswa_selesai} Selesai
                       </span>
-                    </ModernTableTd>
-                  </tr>
-                ))}
-              </ModernTableBody>
-            </ModernTable>
-          </div>
-        )}
-      </div>
+                    )}
+                  </div>
+                </ModernTableTd>
+              </tr>
+            ))}
+          </ModernTableBody>
+        </ModernTable>
+      )}
     </div>
   );
 }
