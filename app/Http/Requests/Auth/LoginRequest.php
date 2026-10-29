@@ -30,7 +30,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'max:128'],
-            'role' => ['nullable', 'string', 'in:mahasiswa,dosen,prodi,tu,instansi'],
+            'role' => ['nullable', 'string', 'in:mahasiswa,dosen,prodi,tu,instansi,superadmin'],
         ];
     }
 
@@ -91,8 +91,17 @@ class LoginRequest extends FormRequest
 
         if ($user && $this->filled('role')) {
             $expectedRole = strtolower($this->input('role'));
-            $actualRole = strtolower($user->role);
-            if ($actualRole !== $expectedRole) {
+
+            if ($expectedRole === 'superadmin') {
+                if (! $user->isSuperAdmin()) {
+                    Auth::logout();
+                    throw ValidationException::withMessages([
+                        'email' => 'Akun ini tidak memiliki hak akses Super Administrator.',
+                    ]);
+                }
+                $user->active_role = 'superadmin';
+                $user->save();
+            } elseif (! $user->isSuperAdmin() && ! $user->hasRole($expectedRole)) {
                 Auth::logout();
                 $roleNames = [
                     'mahasiswa' => 'Mahasiswa',
@@ -100,13 +109,18 @@ class LoginRequest extends FormRequest
                     'tu' => 'Tata Usaha (TU)',
                     'instansi' => 'Pembimbing Lapangan (Instansi)',
                     'prodi' => 'Koordinator KP',
+                    'superadmin' => 'Super Administrator',
                 ];
-                $actualName = $roleNames[$actualRole] ?? $actualRole;
+                $actualName = $roleNames[strtolower($user->role ?? '')] ?? ($user->role ?? 'Pengguna');
                 $expectedName = $roleNames[$expectedRole] ?? $expectedRole;
 
                 throw ValidationException::withMessages([
                     'email' => "Akun ini terdaftar sebagai peran {$actualName}, bukan {$expectedName}. Silakan pilih portal {$actualName} untuk masuk.",
                 ]);
+            } else {
+                // Set active_role sesuai portal login yang dipilih
+                $user->active_role = $expectedRole;
+                $user->save();
             }
         }
 

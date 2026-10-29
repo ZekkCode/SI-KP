@@ -4,11 +4,12 @@ import {
     LayoutDashboard, ListOrdered, ClipboardCheck,
     LogOut, Menu, Bell,
     FileText, BellRing, Building2, BookOpen, X, Calendar, Award,
-    AlertCircle, CheckCircle2,
+    AlertCircle, CheckCircle2, ShieldAlert,
 } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 import { useTranslation } from '@/hooks/useTranslation';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import ImpersonateBanner from '@/Components/ImpersonateBanner';
 
 export default function ProdiLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage();
@@ -69,13 +70,13 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
                     </div>
                     
                     <h2 className="text-sm font-bold text-slate-900 leading-tight text-center px-2 line-clamp-1" title={user?.name}>
-                        {user?.name || 'Koordinator Prodi'}
+                        {user?.name || 'Koordinator KP'}
                     </h2>
                     <p className="text-xs font-medium text-slate-500 text-center mt-0.5">
                         {user?.nip || (user?.program_studi?.nama || 'Teknik Informatika')}
                     </p>
                     <span className="mt-1.5 px-2.5 py-0.5 bg-blue-50 text-[#00288e] border border-blue-200/60 rounded-full text-[10px] font-semibold uppercase tracking-wider">
-                        Koordinator Prodi
+                        Koordinator KP
                     </span>
                 </div>
 
@@ -121,6 +122,7 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col md:ml-64 min-h-screen relative w-full overflow-hidden">
+                <ImpersonateBanner />
                 {/* Top App Bar */}
                 <header className="sticky top-0 z-40 flex justify-between items-center w-full px-4 sm:px-6 py-3.5 bg-white border-b border-slate-200 shadow-xs">
                     <div className="flex items-center gap-3">
@@ -143,6 +145,18 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
                     <div className="flex items-center space-x-2 sm:space-x-3">
                         {/* Language Switcher */}
                         <LanguageSwitcher />
+
+                        {/* Super Admin Panel Shortcut */}
+                        {(user?.is_superadmin || user?.is_root) && (
+                            <Link
+                                href="/admin/dashboard"
+                                className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition shadow-xs"
+                                title="Buka Panel Super Administrator"
+                            >
+                                <ShieldAlert className="w-3.5 h-3.5 text-indigo-600" />
+                                <span className="hidden sm:inline">Panel Super Admin</span>
+                            </Link>
+                        )}
 
                         {/* Panduan Button */}
                         <Link
@@ -231,7 +245,7 @@ export default function ProdiLayout({ children }: PropsWithChildren) {
 
                         {/* Profile Link */}
                         <Link
-                            href={route('profile.edit')}
+                            href={route('profile.edit', { from: 'prodi' })}
                             className="flex items-center gap-2 p-1 sm:p-1.5 rounded-lg hover:bg-slate-100 transition text-slate-700"
                             title={t('header.profile', undefined, 'Profil Saya')}
                         >

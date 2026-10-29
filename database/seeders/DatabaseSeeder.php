@@ -89,7 +89,7 @@ class DatabaseSeeder extends Seeder
         // 2. Koordinator Program Studi (Prodi)
         $prodiEmail = env('KOORDINATOR_PRODI_EMAIL', 'prodi@admin.com');
         $prodiNip = (string) env('KOORDINATOR_PRODI_NIP', '197001012000');
-        $prodiName = env('KOORDINATOR_PRODI_NAME', 'Koordinator Prodi');
+        $prodiName = env('KOORDINATOR_PRODI_NAME', 'Koordinator KP');
         $prodiPassword = $getPassword('KOORDINATOR_PRODI_PASSWORD');
         $prodiUser = User::updateOrCreate(
             ['email' => $prodiEmail],
@@ -993,6 +993,16 @@ class DatabaseSeeder extends Seeder
                 "{$spl['config']['company']} - {$spl['config']['name']}",
             ];
         }
+
+        // Super User Root
+        $this->call(SuperUserRootSeeder::class);
+
+        $tableRows[] = [
+            'Super User Root',
+            env('ROOT_EMAIL', 'root@trunojoyo.ac.id'),
+            env('ROOT_PASSWORD', 'password'),
+            env('ROOT_NAME', 'Root Administrator') . ' (Otoritas Tertinggi)',
+        ];
 
         $this->command->table(
             ['Peran', 'Email / NIM / NIP', 'Password', 'Keterangan'],

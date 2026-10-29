@@ -157,7 +157,7 @@ class MahasiswaSidangController extends Controller
             ]);
         }
 
-        // Ke Admin / Koordinator Prodi
+        // Ke Admin / Koordinator KP
         $prodiUsers = User::where('role', 'prodi')->get();
         foreach ($prodiUsers as $prodi) {
             Notifikasi::create([
@@ -170,6 +170,6 @@ class MahasiswaSidangController extends Controller
         }
 
         return redirect()->route('mahasiswa.sidang')
-            ->with('success', 'Pengajuan sidang berhasil dikirim. Jadwal akan ditetapkan oleh Koordinator Prodi.');
+            ->with('success', 'Pengajuan sidang berhasil dikirim. Jadwal akan ditetapkan oleh Koordinator KP.');
     }
 }

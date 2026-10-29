@@ -56,7 +56,7 @@ class RoleUserSeeder extends Seeder
                 'role' => 'instansi',
             ],
             [
-                'name' => 'Koordinator Prodi',
+                'name' => 'Koordinator KP',
                 'email' => 'prodi@sikp.test',
                 'password' => $defaultPassword,
                 'role' => 'prodi',

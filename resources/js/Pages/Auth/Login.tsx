@@ -23,11 +23,12 @@ import {
     BookOpen,
     ExternalLink,
     Building2,
-    Compass
+    Compass,
+    ShieldAlert
 } from 'lucide-react';
 
 
-export type RoleId = 'mahasiswa' | 'dosen' | 'tu' | 'instansi' | 'prodi';
+export type RoleId = 'mahasiswa' | 'dosen' | 'tu' | 'instansi' | 'prodi' | 'superadmin';
 
 interface RoleConfig {
     id: RoleId;
@@ -109,7 +110,7 @@ const ROLES: RoleConfig[] = [
     {
         id: 'prodi',
         title: 'Koordinator KP',
-        badge: 'Koordinator Prodi',
+        badge: 'Koordinator KP',
         portalName: 'Portal Koordinator KP',
         description: 'Verifikasi pendaftaran, tetapkan dosen pembimbing, atur kuota, dan terbitkan berita acara.',
         labelInput: 'Email atau Nama Pengguna Koordinator',
@@ -120,6 +121,21 @@ const ROLES: RoleConfig[] = [
         badgeText: 'text-indigo-700',
         iconBg: 'bg-indigo-50/90',
         iconColor: 'text-indigo-700',
+    },
+    {
+        id: 'superadmin',
+        title: 'Super Administrator',
+        badge: 'Pusat Kendali',
+        portalName: 'Portal Super Administrator',
+        description: 'Kelola penugasan akun dosen & staff, penetapan Dekan, import data, dan login troubleshooting.',
+        labelInput: 'Email Super Administrator',
+        placeholder: 'root@trunojoyo.ac.id',
+        icon: ShieldAlert,
+        badgeBg: 'bg-slate-100',
+        badgeBorder: 'border-indigo-300',
+        badgeText: 'text-indigo-900',
+        iconBg: 'bg-indigo-100',
+        iconColor: 'text-indigo-800',
     },
 ];
 
@@ -354,22 +370,17 @@ export default function Login({ status, canResetPassword = true, initialRole, de
                                 </p>
                             </div>
 
-                            {/* 5-Box Grid Layout (3 row 1, 2 centered row 2) */}
-                            <div id="tour-roles" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-5 w-full">
-                                {ROLES.map((role, idx) => {
+                            {/* 6-Box Grid Layout (3 row 1, 3 row 2) */}
+                            <div id="tour-roles" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
+                                {ROLES.map((role) => {
                                     const IconComponent = role.icon;
-                                    const gridSpanClass = idx < 3
-                                        ? 'lg:col-span-2'
-                                        : idx === 3
-                                            ? 'lg:col-start-2 lg:col-span-2'
-                                            : 'lg:col-span-2';
 
                                     return (
                                         <button
                                             key={role.id}
                                             type="button"
                                             onClick={() => handleSelectRole(role.id)}
-                                            className={`${gridSpanClass} bg-white border border-slate-200 hover:border-[#00288e] rounded-xl p-5 sm:p-6 transition-all duration-200 flex flex-col justify-between text-left cursor-pointer group shadow-xs hover:shadow-md hover:-translate-y-0.5`}
+                                            className="bg-white border border-slate-200 hover:border-[#00288e] rounded-xl p-5 sm:p-6 transition-all duration-200 flex flex-col justify-between text-left cursor-pointer group shadow-xs hover:shadow-md hover:-translate-y-0.5"
                                         >
                                             <div className="space-y-4">
                                                 {/* Top Row: Icon and Badge */}

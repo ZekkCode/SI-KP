@@ -406,7 +406,7 @@ class CriticalWorkflowsTest extends TestCase
     }
 
     /**
-     * 8. Penerbitan Berita Acara oleh Koordinator Prodi & Status Selesai
+     * 8. Penerbitan Berita Acara oleh Koordinator KP & Status Selesai
      */
     public function test_prodi_berita_acara_approval_completes_kp(): void
     {
@@ -722,7 +722,7 @@ class CriticalWorkflowsTest extends TestCase
     }
 
     /**
-     * 17. Mahasiswa upload Berita Acara memberi notifikasi ke Koordinator Prodi
+     * 17. Mahasiswa upload Berita Acara memberi notifikasi ke Koordinator KP
      */
     public function test_berita_acara_upload_notifies_prodi_coordinators(): void
     {

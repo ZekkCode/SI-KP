@@ -207,7 +207,7 @@ export default function BeritaAcara({
                   isSelesai ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
                 }`}>3</span>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  <strong>Validasi Koordinator KP:</strong> Koordinator Prodi meninjau dan menyetujui Berita Acara.
+                  <strong>Validasi Koordinator KP:</strong> Koordinator KP meninjau dan menyetujui Berita Acara.
                 </p>
               </li>
               <li className="flex gap-2.5 items-start">

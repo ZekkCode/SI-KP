@@ -115,21 +115,29 @@ class GoogleController extends Controller
                         'diverifikasi_pada' => now(),
                     ]);
                 }
-                // Skenario B: Dosen Kampus (@trunojoyo.ac.id)
+                // Skenario B: Pegawai/Dosen/Staff Kampus (@trunojoyo.ac.id)
                 elseif (str_ends_with($email, '@trunojoyo.ac.id')) {
-                    $prodi = ProgramStudi::first();
-                    $user = User::create([
-                        'name' => $googleName ?: 'Dosen Pembimbing',
+                    // Buat akun baru resmi kampus tapi role & tugas kosong.
+                    // Akun ini aktif secara otoritas kampus (tidak butuh persetujuan permohonan),
+                    // namun belum bisa login sebelum di-assign peran & tugas oleh Administrator.
+                    User::create([
+                        'name' => $googleName ?: 'Pegawai UTM',
                         'email' => $email,
                         'avatar' => $googleUser->getAvatar(),
                         'google_id' => $googleUser->getId(),
                         'google_token' => $googleUser->token,
                         'password' => Hash::make(Str::random(32)),
-                        'role' => 'dosen',
+                        'user_type' => null,
+                        'role' => null,
+                        'roles_assignment' => [],
+                        'active_role' => null,
                         'status_akun' => 'aktif',
-                        'program_studi_id' => $prodi?->id,
-                        'must_change_password' => false,
+                        'must_change_password' => true,
                         'has_set_password' => false,
+                    ]);
+
+                    return redirect()->route('login')->withErrors([
+                        'email' => "Akun Google resmi kampus Anda ({$email}) berhasil didaftarkan. Namun akun Anda belum memiliki penugasan peran (Dosen / Staff) dan tugas dari Administrator. Silakan hubungi Administrator untuk penetapan peran dan tugas Anda sebelum dapat masuk ke sistem.",
                     ]);
                 }
                 // Skenario C: Email Luar / Non-Kampus yang belum didaftarkan oleh admin
@@ -140,7 +148,21 @@ class GoogleController extends Controller
                 }
             }
 
-            // 3. Jika user sudah ada, pastikan google_id, avatar, dan token terhubung
+            // 3. Jika user sudah ada di database, periksa apakah akun sudah memiliki penugasan role/tugas
+            if (! $user->hasAssignedRole()) {
+                // Hubungkan info Google agar profil terupdate
+                $user->update([
+                    'google_id' => $googleUser->getId(),
+                    'google_token' => $googleUser->token,
+                    'avatar' => $googleUser->getAvatar() ?? $user->avatar,
+                ]);
+
+                return redirect()->route('login')->withErrors([
+                    'email' => "Akun Anda ({$email}) belum memiliki penugasan peran (Dosen / Staff) dan tugas dari Administrator. Silakan hubungi Administrator untuk penetapan peran dan tugas Anda sebelum dapat masuk ke sistem.",
+                ]);
+            }
+
+            // 4. Pastikan google_id, avatar, dan token terhubung
             $updateData = [
                 'google_id' => $googleUser->getId(),
                 'google_token' => $googleUser->token,
@@ -151,11 +173,21 @@ class GoogleController extends Controller
             }
             $user->update($updateData);
 
-            // 4. Buat sesi login langsung (Direct Login)
+            // 5. Buat sesi login langsung (Direct Login)
             Auth::login($user, true);
             request()->session()->regenerate();
 
-            // 5. Arahkan langsung ke dashboard sesuai role
+            // 6. Jika akun bukan mahasiswa dan wajib ganti password (atau belum mengatur kata sandi pribadi),
+            // arahkan langsung ke halaman ganti kata sandi pertama kali.
+            if ($user->role !== 'mahasiswa' && ($user->must_change_password || ! $user->has_set_password)) {
+                if (! $user->must_change_password) {
+                    $user->update(['must_change_password' => true]);
+                }
+                return redirect()->route('password.force_change')
+                    ->with('info', 'Selamat datang! Silakan buat kata sandi akun Anda terlebih dahulu sebelum melanjutkan ke dashboard.');
+            }
+
+            // 7. Arahkan langsung ke dashboard sesuai role
             return redirect()->intended($user->dashboardRoute());
 
         } catch (Exception $e) {

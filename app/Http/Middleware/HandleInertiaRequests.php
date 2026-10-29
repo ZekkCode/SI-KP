@@ -57,6 +57,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
                 'notifications' => $user ? $user->notifikasis()->latest()->take(10)->get() : [],
+                'impersonated_by' => $request->session()->get('impersonator_id'),
             ],
             'locale' => $locale,
             'translations' => $translations,

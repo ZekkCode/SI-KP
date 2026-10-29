@@ -7,6 +7,7 @@ interface Props {
         name: string;
         email: string;
         nim?: string;
+        is_google?: boolean;
     };
 }
 
@@ -154,39 +155,51 @@ export default function ForceChangePassword({ user }: Props) {
 
                         {/* Form */}
                         <form onSubmit={submit} className="space-y-4">
-                            {/* Current / Temporary Password */}
-                            <div>
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5" htmlFor="current_password">
-                                    Kata Sandi Sementara
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        className={`w-full pl-9 pr-10 py-2.5 rounded-lg border bg-white text-slate-800 focus:ring-2 focus:ring-[#00288e]/20 focus:border-[#00288e] outline-none transition-all text-sm placeholder:text-slate-400 ${
-                                            errors.current_password ? 'border-red-500' : 'border-slate-200'
-                                        }`}
-                                        id="current_password"
-                                        name="current_password"
-                                        placeholder="Masukkan kata sandi dari email"
-                                        type={showCurrentPassword ? 'text' : 'password'}
-                                        value={data.current_password}
-                                        onChange={(e) => setData('current_password', e.target.value)}
-                                        required
-                                        autoFocus
-                                        autoComplete="current-password"
-                                    />
-                                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
-                                    >
-                                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
+                            {/* Current / Temporary Password (Hanya untuk non-Google SSO) */}
+                            {user.is_google ? (
+                                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-start gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                                    <div>
+                                        <span className="font-semibold">Terotentikasi Google SSO Kampus</span>
+                                        <p className="text-[11px] text-emerald-700 mt-0.5">
+                                            Anda tidak memerlukan kata sandi lama. Silakan langsung tentukan kata sandi baru untuk akun Anda.
+                                        </p>
+                                    </div>
                                 </div>
-                                {errors.current_password && (
-                                    <p className="text-xs font-medium text-red-600 mt-1">{errors.current_password}</p>
-                                )}
-                            </div>
+                            ) : (
+                                <div>
+                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5" htmlFor="current_password">
+                                        Kata Sandi Sementara
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            className={`w-full pl-9 pr-10 py-2.5 rounded-lg border bg-white text-slate-800 focus:ring-2 focus:ring-[#00288e]/20 focus:border-[#00288e] outline-none transition-all text-sm placeholder:text-slate-400 ${
+                                                errors.current_password ? 'border-red-500' : 'border-slate-200'
+                                            }`}
+                                            id="current_password"
+                                            name="current_password"
+                                            placeholder="Masukkan kata sandi dari email"
+                                            type={showCurrentPassword ? 'text' : 'password'}
+                                            value={data.current_password}
+                                            onChange={(e) => setData('current_password', e.target.value)}
+                                            required={!user.is_google}
+                                            autoFocus={!user.is_google}
+                                            autoComplete="current-password"
+                                        />
+                                        <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
+                                        >
+                                            {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    {errors.current_password && (
+                                        <p className="text-xs font-medium text-red-600 mt-1">{errors.current_password}</p>
+                                    )}
+                                </div>
+                            )}
 
                             {/* New Password */}
                             <div>
@@ -205,6 +218,7 @@ export default function ForceChangePassword({ user }: Props) {
                                         value={data.password}
                                         onChange={(e) => setData('password', e.target.value)}
                                         required
+                                        autoFocus={!!user.is_google}
                                         autoComplete="new-password"
                                     />
                                     <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
