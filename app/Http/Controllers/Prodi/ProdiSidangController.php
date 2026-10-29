@@ -249,10 +249,69 @@ class ProdiSidangController extends Controller
     }
 
     /**
-     * Halaman Arsip Nilai KP per periode (Req 9).
+     * Menentukan label Semester (Ganjil/Genap per Tahun Akademik) dari data NilaiAkhir/Pendaftaran.
+     * Mengutamakan informasi semester dari profil mahasiswa ($user->semester).
      */
-    public function arsipNilai(Request $request): Response
+    private function resolveSemesterLabel($na, $periodes = null): string
     {
+        $p = $na->pendaftaran;
+        $mhs = $p?->mahasiswa;
+
+        // 1. Ambil langsung dari data user/mahasiswa jika tersedia
+        if (!empty($mhs?->semester)) {
+            $userSem = trim($mhs->semester);
+            // Normalisasi ejaan Gasal -> Ganjil
+            $userSem = preg_replace('/^Gasal/i', 'Ganjil', $userSem);
+            // Hilangkan kata "Semester " di awal jika ada agar seragam ("Ganjil 2025/2026")
+            $userSem = preg_replace('/^Semester\s+/i', '', $userSem);
+            
+            // Jika formatnya angka semester (misal "6" atau "7"), konversikan ke Ganjil/Genap + Tahun Akademik
+            if (is_numeric($userSem)) {
+                $semNum = (int) $userSem;
+                $isGanjil = ($semNum % 2) !== 0;
+                $refDate = $p?->tanggal_mulai ?? $p?->created_at ?? $na->created_at ?? now();
+                $year = (int) Carbon::parse($refDate)->format('Y');
+                $academicYear = $isGanjil ? $year . '/' . ($year + 1) : ($year - 1) . '/' . $year;
+                return ($isGanjil ? 'Ganjil ' : 'Genap ') . $academicYear;
+            }
+
+            return $userSem;
+        }
+
+        // 2. Fallback jika semester user kosong: cek periode KP
+        $refDate = $p?->tanggal_mulai ?? $p?->created_at ?? $na->created_at ?? now();
+        $carbonDate = Carbon::parse($refDate);
+
+        if ($periodes) {
+            foreach ($periodes as $periode) {
+                if ($periode->tanggal_pendaftaran && $periode->tanggal_batas_pendaftaran) {
+                    if ($carbonDate->betweenIncluded($periode->tanggal_pendaftaran, $periode->tanggal_batas_pendaftaran->copy()->addMonths(6))) {
+                        return preg_replace('/^Gasal/i', 'Ganjil', trim($periode->semester));
+                    }
+                }
+            }
+        }
+
+        // 3. Fallback kalender akademik standar
+        $year = (int) $carbonDate->format('Y');
+        $month = (int) $carbonDate->format('n');
+
+        if ($month >= 8) {
+            return 'Ganjil ' . $year . '/' . ($year + 1);
+        } elseif ($month === 1) {
+            return 'Ganjil ' . ($year - 1) . '/' . $year;
+        } else {
+            return 'Genap ' . ($year - 1) . '/' . $year;
+        }
+    }
+
+    /**
+     * Mengambil data dan statistik Arsip Nilai berdasarkan filter.
+     */
+    private function buildArsipNilaiData(Request $request): array
+    {
+        $periodes = \App\Models\PeriodeKp::orderByDesc('created_at')->get();
+
         $query = NilaiAkhir::with([
             'pendaftaran.mahasiswa',
             'pendaftaran.instansi',
@@ -280,11 +339,14 @@ class ProdiSidangController extends Controller
             });
         }
 
-        $records = $query->latest()->get()->map(function ($na) {
+        $allMapped = $query->latest()->get()->map(function ($na) use ($periodes) {
             $p = $na->pendaftaran;
+            $semesterLabel = $this->resolveSemesterLabel($na, $periodes);
+
             return [
                 'id' => $na->id,
                 'pendaftaran_id' => $p?->id,
+                'semester' => $semesterLabel,
                 'mahasiswa' => [
                     'name' => $p?->mahasiswa?->name ?? 'Mahasiswa',
                     'nim' => $p?->mahasiswa?->nim ?? '-',
@@ -307,11 +369,67 @@ class ProdiSidangController extends Controller
             ];
         });
 
+        // Kumpulkan opsi semester (dari data, tabel PeriodeKp, dan tahun akademik standar)
+        $defaultSemesters = [
+            'Ganjil 2024/2025',
+            'Genap 2024/2025',
+            'Ganjil 2025/2026',
+            'Genap 2025/2026',
+            'Ganjil 2026/2027',
+            'Genap 2026/2027',
+        ];
+        $periodeSemesters = $periodes->map(fn($pr) => preg_replace('/^Gasal/i', 'Ganjil', trim($pr->semester)))->toArray();
+        $dataSemesters = $allMapped->pluck('semester')->unique()->toArray();
+
+        $semesterOptions = collect(array_merge($defaultSemesters, $periodeSemesters, $dataSemesters))
+            ->filter()
+            ->unique()
+            ->sortByDesc(function ($s) {
+                if (preg_match('/(Ganjil|Genap)\s+(\d{4})\/(\d{4})/i', $s, $m)) {
+                    $typeOrder = strtolower($m[1]) === 'genap' ? '2' : '1';
+                    return $m[2] . '-' . $typeOrder;
+                }
+                return $s;
+            })
+            ->values()
+            ->toArray();
+
+        // Rekap ringkasan per semester (sebelum difilter berdasarkan 1 semester tertentu)
+        $rekapSemester = $allMapped->groupBy('semester')->map(function ($items, $sem) {
+            $scored = $items->where('nilai_total', '!=', '-');
+            return [
+                'semester' => $sem,
+                'total' => $items->count(),
+                'lulus' => $items->where('status', 'lulus')->count(),
+                'tidak_lulus' => $items->where('status', 'tidak_lulus')->count(),
+                'proses' => $items->where('status', 'proses')->count(),
+                'rata_rata' => $scored->count() > 0 ? round($scored->avg('nilai_total'), 1) : 0,
+            ];
+        })->values()->toArray();
+
+        // Filter berdasarkan semester jika dipilih
+        $selectedSemester = $request->input('semester', 'all');
+        $records = $selectedSemester !== 'all' && $selectedSemester !== ''
+            ? $allMapped->where('semester', $selectedSemester)->values()
+            : $allMapped->values();
+
         $totalEvaluated = $records->count();
         $lulusCount = $records->where('status', 'lulus')->count();
-        $avgScore = $totalEvaluated > 0 
-            ? round($records->where('nilai_total', '!=', '-')->avg('nilai_total'), 1) 
+        $scoredRecords = $records->where('nilai_total', '!=', '-');
+        $avgScore = $scoredRecords->count() > 0
+            ? round($scoredRecords->avg('nilai_total'), 1)
             : 0;
+
+        $distribusiHuruf = [
+            'A' => $records->where('nilai_huruf', 'A')->count(),
+            'B+' => $records->where('nilai_huruf', 'B+')->count(),
+            'B' => $records->where('nilai_huruf', 'B')->count(),
+            'C+' => $records->where('nilai_huruf', 'C+')->count(),
+            'C' => $records->where('nilai_huruf', 'C')->count(),
+            'D+' => $records->where('nilai_huruf', 'D+')->count(),
+            'D' => $records->where('nilai_huruf', 'D')->count(),
+            'E' => $records->where('nilai_huruf', 'E')->count(),
+        ];
 
         $stats = [
             'total' => $totalEvaluated,
@@ -319,16 +437,44 @@ class ProdiSidangController extends Controller
             'tidak_lulus' => $records->where('status', 'tidak_lulus')->count(),
             'proses' => $records->where('status', 'proses')->count(),
             'rata_rata' => $avgScore,
+            'distribusi_huruf' => $distribusiHuruf,
         ];
 
-        return Inertia::render('Prodi/ArsipNilai', [
+        return [
             'arsip' => $records,
             'stats' => $stats,
+            'semester_options' => $semesterOptions,
+            'rekap_semester' => $rekapSemester,
             'filters' => [
+                'semester' => $selectedSemester ?: 'all',
                 'status_lulus' => $request->status_lulus ?? 'all',
                 'nilai_huruf' => $request->nilai_huruf ?? 'all',
                 'search' => $request->search ?? '',
-            ]
+            ],
+        ];
+    }
+
+    /**
+     * Halaman Arsip Nilai KP per periode (Req 9).
+     */
+    public function arsipNilai(Request $request): Response
+    {
+        $data = $this->buildArsipNilaiData($request);
+        return Inertia::render('Prodi/ArsipNilai', $data);
+    }
+
+    /**
+     * Cetak Laporan Rekapitulasi KP per Semester (Ganjil/Genap per Tahun Akademik).
+     */
+    public function cetakArsipNilai(Request $request)
+    {
+        $data = $this->buildArsipNilaiData($request);
+
+        return view('cetak.rekap-nilai-semester', [
+            'arsip' => $data['arsip'],
+            'stats' => $data['stats'],
+            'filters' => $data['filters'],
+            'tanggal_cetak' => now()->translatedFormat('d F Y'),
         ]);
     }
 }

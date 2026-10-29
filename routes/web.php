@@ -288,6 +288,7 @@ Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->grou
     Route::post('/sidang/{id}/selesai', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'selesai'])->name('sidang.selesai');
     Route::get('/mitra-instansi', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'mitraInstansi'])->name('mitra-instansi');
     Route::get('/arsip-nilai', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'arsipNilai'])->name('arsip-nilai');
+    Route::get('/arsip-nilai/cetak', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'cetakArsipNilai'])->name('arsip-nilai.cetak');
 
     Route::get('/dosen', [App\Http\Controllers\Prodi\ProdiDosenController::class, 'index'])->name('dosen.index');
     Route::get('/dosen/template', [App\Http\Controllers\Prodi\ProdiDosenController::class, 'downloadTemplate'])->name('dosen.template');
@@ -313,6 +314,7 @@ Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->grou
     
     // Berita Acara
     Route::get('/berita-acara', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'index'])->name('berita-acara.index');
+    Route::get('/berita-acara/cetak-rekap', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'cetakRekap'])->name('berita-acara.cetak-rekap');
     Route::get('/berita-acara/{id}/preview', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'preview'])->name('berita-acara.preview');
     Route::put('/berita-acara/{id}', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'update'])->name('berita-acara.update');
     Route::post('/berita-acara/{id}/approve', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'approve'])->name('berita-acara.approve');

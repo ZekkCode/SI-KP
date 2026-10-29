@@ -85,36 +85,49 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
     let initialTotalUjian = 0;
     const hasUjianValues = initPerumusan !== '' || initManfaat !== '' || initTinjauan !== '' || initMetode !== '' || initPresentasi !== '';
     if (hasUjianValues) {
-        initialTotalUjian = (parseFloat(initPerumusan) || 0) * 0.15 +
-                            (parseFloat(initManfaat) || 0) * 0.20 +
-                            (parseFloat(initTinjauan) || 0) * 0.15 +
-                            (parseFloat(initMetode) || 0) * 0.20 +
-                            (parseFloat(initPresentasi) || 0) * 0.30;
+        initialTotalUjian = Math.round((
+            (parseFloat(initPerumusan) || 0) * 0.15 +
+            (parseFloat(initManfaat) || 0) * 0.20 +
+            (parseFloat(initTinjauan) || 0) * 0.15 +
+            (parseFloat(initMetode) || 0) * 0.20 +
+            (parseFloat(initPresentasi) || 0) * 0.30
+        ) * 100) / 100;
+    }
+
+    const effectiveInitUjianKp = initUjianKp !== '' ? initUjianKp : (hasUjianValues ? initialTotalUjian.toFixed(2) : '');
+    const hasBimbinganValues = initPermasalahan !== '' || initLaporan !== '' || effectiveInitUjianKp !== '';
+    let initialTotalBimbingan = 0;
+    if (hasBimbinganValues) {
+        initialTotalBimbingan = Math.round((
+            (parseFloat(initPermasalahan) || 0) * 0.30 +
+            (parseFloat(initLaporan) || 0) * 0.30 +
+            (parseFloat(effectiveInitUjianKp) || 0) * 0.40
+        ) * 100) / 100;
     }
 
     const { data, setData, post, processing, errors } = useForm({
         // Tabel 1: Komponen Penilaian Ujian KP (Penguji)
         perumusan_masalah: initPerumusan,
-        perumusan_masalah_huruf: huruf_sebelumnya?.ujian?.perumusan_masalah || (initPerumusan !== '' ? calculateGradeLetter(initPerumusan) : ''),
+        perumusan_masalah_huruf: initPerumusan !== '' ? calculateGradeLetter(initPerumusan) : '',
         manfaat: initManfaat,
-        manfaat_huruf: huruf_sebelumnya?.ujian?.manfaat || (initManfaat !== '' ? calculateGradeLetter(initManfaat) : ''),
+        manfaat_huruf: initManfaat !== '' ? calculateGradeLetter(initManfaat) : '',
         tinjauan_pustaka: initTinjauan,
-        tinjauan_pustaka_huruf: huruf_sebelumnya?.ujian?.tinjauan_pustaka || (initTinjauan !== '' ? calculateGradeLetter(initTinjauan) : ''),
+        tinjauan_pustaka_huruf: initTinjauan !== '' ? calculateGradeLetter(initTinjauan) : '',
         metode: initMetode,
-        metode_huruf: huruf_sebelumnya?.ujian?.metode || (initMetode !== '' ? calculateGradeLetter(initMetode) : ''),
+        metode_huruf: initMetode !== '' ? calculateGradeLetter(initMetode) : '',
         presentasi: initPresentasi,
-        presentasi_huruf: huruf_sebelumnya?.ujian?.presentasi || (initPresentasi !== '' ? calculateGradeLetter(initPresentasi) : ''),
-        nilai_ujian_huruf: huruf_sebelumnya?.ujian?.total || (hasUjianValues ? calculateGradeLetter(initialTotalUjian) : ''),
+        presentasi_huruf: initPresentasi !== '' ? calculateGradeLetter(initPresentasi) : '',
+        nilai_ujian_huruf: hasUjianValues ? calculateGradeLetter(initialTotalUjian) : '',
 
         // Tabel 2: Penilaian Lapangan & Bimbingan (Pembimbing)
         permasalahan: initPermasalahan,
-        permasalahan_huruf: huruf_sebelumnya?.bimbingan?.permasalahan || (initPermasalahan !== '' ? calculateGradeLetter(initPermasalahan) : ''),
+        permasalahan_huruf: initPermasalahan !== '' ? calculateGradeLetter(initPermasalahan) : '',
         laporan: initLaporan,
-        laporan_huruf: huruf_sebelumnya?.bimbingan?.laporan || (initLaporan !== '' ? calculateGradeLetter(initLaporan) : ''),
-        ujian_kp: initUjianKp !== '' ? initUjianKp : (hasUjianValues ? initialTotalUjian.toFixed(2) : ''),
-        ujian_kp_huruf: huruf_sebelumnya?.bimbingan?.ujian_kp || (initUjianKp !== '' ? calculateGradeLetter(initUjianKp) : (hasUjianValues ? calculateGradeLetter(initialTotalUjian) : '')),
-        nilai_bimbingan_huruf: huruf_sebelumnya?.bimbingan?.total || '',
-        nilai_huruf: huruf_sebelumnya?.total || pendaftaran.nilai_huruf || '',
+        laporan_huruf: initLaporan !== '' ? calculateGradeLetter(initLaporan) : '',
+        ujian_kp: effectiveInitUjianKp,
+        ujian_kp_huruf: effectiveInitUjianKp !== '' ? calculateGradeLetter(effectiveInitUjianKp) : '',
+        nilai_bimbingan_huruf: hasBimbinganValues ? calculateGradeLetter(initialTotalBimbingan) : '',
+        nilai_huruf: hasBimbinganValues ? calculateGradeLetter(initialTotalBimbingan) : (pendaftaran.nilai_huruf || ''),
 
         catatan: pendaftaran.catatan ?? '',
     });
@@ -340,12 +353,12 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                 </div>
             )}
 
-            {flash?.error && (
+            {(flash?.error || (errors as any).error) && (
                 <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-xl flex items-center gap-3 shadow-xs">
                     <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
                     <div>
                         <p className="font-bold text-sm">Gagal!</p>
-                        <p className="text-xs">{flash.error}</p>
+                        <p className="text-xs">{flash?.error || (errors as any).error}</p>
                     </div>
                 </div>
             )}
@@ -415,16 +428,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.perumusan_masalah && <p className="text-[10px] text-rose-600 mt-1">{errors.perumusan_masalah}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.perumusan_masalah_huruf}
-                                            onChange={e => setData('perumusan_masalah_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.perumusan_masalah !== '' ? calculateGradeLetter(data.perumusan_masalah) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -448,16 +458,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.manfaat && <p className="text-[10px] text-rose-600 mt-1">{errors.manfaat}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.manfaat_huruf}
-                                            onChange={e => setData('manfaat_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.manfaat !== '' ? calculateGradeLetter(data.manfaat) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -481,16 +488,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.tinjauan_pustaka && <p className="text-[10px] text-rose-600 mt-1">{errors.tinjauan_pustaka}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.tinjauan_pustaka_huruf}
-                                            onChange={e => setData('tinjauan_pustaka_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.tinjauan_pustaka !== '' ? calculateGradeLetter(data.tinjauan_pustaka) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -514,16 +518,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.metode && <p className="text-[10px] text-rose-600 mt-1">{errors.metode}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.metode_huruf}
-                                            onChange={e => setData('metode_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.metode !== '' ? calculateGradeLetter(data.metode) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -547,16 +548,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.presentasi && <p className="text-[10px] text-rose-600 mt-1">{errors.presentasi}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.presentasi_huruf}
-                                            onChange={e => setData('presentasi_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.presentasi !== '' ? calculateGradeLetter(data.presentasi) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -572,16 +570,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         </span>
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.nilai_ujian_huruf}
-                                            onChange={e => setData('nilai_ujian_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-black text-blue-900 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={hasAnyUjian ? calculateGradeLetter(totalUjian) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-black text-blue-900 border border-blue-200 rounded-lg bg-blue-100/70 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
                             </tbody>
@@ -654,16 +649,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.permasalahan && <p className="text-[10px] text-rose-600 mt-1">{errors.permasalahan}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.permasalahan_huruf}
-                                            onChange={e => setData('permasalahan_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.permasalahan !== '' ? calculateGradeLetter(data.permasalahan) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -685,16 +677,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.laporan && <p className="text-[10px] text-rose-600 mt-1">{errors.laporan}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.laporan_huruf}
-                                            onChange={e => setData('laporan_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.laporan !== '' ? calculateGradeLetter(data.laporan) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -719,16 +708,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         {errors.ujian_kp && <p className="text-[10px] text-rose-600 mt-1">{errors.ujian_kp}</p>}
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.ujian_kp_huruf}
-                                            onChange={e => setData('ujian_kp_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={data.ujian_kp !== '' ? calculateGradeLetter(data.ujian_kp) : (hasAnyUjian ? calculateGradeLetter(totalUjian) : '-')}
+                                            className="w-full px-2.5 py-1.5 text-center font-bold text-slate-700 border border-slate-200 rounded-lg bg-slate-100 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -744,16 +730,13 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                         </span>
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <select
-                                            value={data.nilai_bimbingan_huruf}
-                                            onChange={e => setData('nilai_bimbingan_huruf', e.target.value)}
-                                            className="w-full px-2.5 py-1.5 text-center font-black text-emerald-900 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition bg-white"
-                                        >
-                                            <option value="">-</option>
-                                            {GRADE_OPTIONS.map(g => (
-                                                <option key={g} value={g}>{g}</option>
-                                            ))}
-                                        </select>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            disabled
+                                            value={hasAnyBimbingan ? calculateGradeLetter(totalBimbingan) : '-'}
+                                            className="w-full px-2.5 py-1.5 text-center font-black text-emerald-900 border border-emerald-200 rounded-lg bg-emerald-100/70 cursor-not-allowed select-none"
+                                        />
                                     </td>
                                 </tr>
 
@@ -764,21 +747,16 @@ export default function Create({ pendaftaran, nilai_sebelumnya, huruf_sebelumnya
                                     </td>
                                     <td colSpan={2} className="py-4 px-4 text-center">
                                         <div className="flex items-center justify-center gap-3">
-                                            <select
-                                                value={data.nilai_huruf}
-                                                onChange={e => setData('nilai_huruf', e.target.value)}
-                                                className="w-36 px-4 py-2 text-center text-base font-black text-amber-950 border-2 border-amber-400 rounded-xl focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 outline-none transition bg-white shadow-xs"
-                                            >
-                                                <option value="">Pilih Huruf</option>
-                                                {GRADE_OPTIONS.map(g => (
-                                                    <option key={g} value={g}>Grade {g}</option>
-                                                ))}
-                                            </select>
-                                            {data.nilai_huruf && (
-                                                <span className="text-xs text-amber-800 font-semibold hidden sm:inline">
-                                                    (Otomatis terkonversi dari skala resmi)
-                                                </span>
-                                            )}
+                                            <input
+                                                type="text"
+                                                readOnly
+                                                disabled
+                                                value={hasAnyBimbingan ? `Grade ${calculateGradeLetter(totalBimbingan)}` : '-'}
+                                                className="w-36 px-4 py-2 text-center text-base font-black text-amber-950 border-2 border-amber-300 rounded-xl bg-amber-100/70 cursor-not-allowed select-none shadow-xs"
+                                            />
+                                            <span className="text-xs text-amber-800 font-semibold hidden sm:inline">
+                                                (Otomatis dari skala konversi nilai angka)
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>

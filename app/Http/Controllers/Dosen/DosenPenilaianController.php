@@ -23,7 +23,7 @@ class DosenPenilaianController extends Controller
 
         // Ambil pendaftaran bimbingan beserta relasi nilai
         $pendaftarans = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) use ($dosenId) {
-                $query->whereIn('tipe', ['pembimbing', 'penguji']);
+                $query->whereIn('tipe', ['pembimbing', 'ujian_kp']);
             }])
             ->where(function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId)
@@ -68,7 +68,7 @@ class DosenPenilaianController extends Controller
     {
         $dosenId = Auth::id();
         $pendaftaran = Pendaftaran::with(['mahasiswa', 'nilaiAkhir', 'nilais' => function ($query) {
-            $query->whereIn('tipe', ['pembimbing', 'penguji']);
+            $query->whereIn('tipe', ['pembimbing', 'ujian_kp']);
         }])
         ->where(function ($q) use ($dosenId) {
             $q->where('dosen_pembimbing_id', $dosenId)
@@ -157,9 +157,9 @@ class DosenPenilaianController extends Controller
 
         DB::beginTransaction();
         try {
-            // Hapus nilai lama tipe pembimbing & penguji untuk pendaftaran ini
+            // Hapus nilai lama tipe pembimbing & ujian_kp untuk pendaftaran ini
             Nilai::where('pendaftaran_id', $pendaftaran->id)
-                ->whereIn('tipe', ['pembimbing', 'penguji'])
+                ->whereIn('tipe', ['pembimbing', 'ujian_kp'])
                 ->delete();
 
             // Konversi nilai huruf sesuai standar UTM Form KP-6b
@@ -176,15 +176,22 @@ class DosenPenilaianController extends Controller
                 return 'E';
             };
 
-            $isFormKP6b = $request->filled('permasalahan') || $request->filled('perumusan_masalah') || $request->filled('laporan');
+            $isFormKP6b = $request->filled('permasalahan')
+                || $request->filled('perumusan_masalah')
+                || $request->filled('manfaat')
+                || $request->filled('tinjauan_pustaka')
+                || $request->filled('metode')
+                || $request->filled('presentasi')
+                || $request->filled('laporan')
+                || $request->filled('ujian_kp');
 
             if ($isFormKP6b) {
                 // Tabel 1: Komponen Penilaian Ujian KP (Penguji)
-                $valPerumusan = $request->perumusan_masalah ?? 0;
-                $valManfaat = $request->manfaat ?? 0;
-                $valTinjauan = $request->tinjauan_pustaka ?? 0;
-                $valMetode = $request->metode ?? 0;
-                $valPresentasi = $request->presentasi ?? 0;
+                $valPerumusan = (float) ($request->perumusan_masalah ?? 0);
+                $valManfaat = (float) ($request->manfaat ?? 0);
+                $valTinjauan = (float) ($request->tinjauan_pustaka ?? 0);
+                $valMetode = (float) ($request->metode ?? 0);
+                $valPresentasi = (float) ($request->presentasi ?? 0);
 
                 $komponenUjian = [
                     ['nama' => 'perumusan_masalah', 'label' => 'Perumusan Masalah', 'bobot' => 15, 'nilai' => $valPerumusan],
@@ -199,7 +206,7 @@ class DosenPenilaianController extends Controller
                     Nilai::create([
                         'pendaftaran_id' => $pendaftaran->id,
                         'penilai_id' => $penilaiId,
-                        'tipe' => 'penguji',
+                        'tipe' => 'ujian_kp',
                         'komponen' => $k['nama'],
                         'bobot' => $k['bobot'],
                         'nilai' => $k['nilai'],
@@ -209,9 +216,9 @@ class DosenPenilaianController extends Controller
                 $totalNilaiUjian = round($totalNilaiUjian, 2);
 
                 // Tabel 2: Penilaian Lapangan & Bimbingan (Pembimbing)
-                $valPermasalahan = $request->permasalahan ?? 0;
-                $valLaporan = $request->laporan ?? 0;
-                $valUjianKp = $request->filled('ujian_kp') ? $request->ujian_kp : $totalNilaiUjian;
+                $valPermasalahan = (float) ($request->permasalahan ?? 0);
+                $valLaporan = (float) ($request->laporan ?? 0);
+                $valUjianKp = $request->filled('ujian_kp') ? (float) $request->ujian_kp : $totalNilaiUjian;
 
                 $komponenBimbingan = [
                     ['nama' => 'permasalahan', 'label' => 'Permasalahan Masalah dan Solusi', 'bobot' => 30, 'nilai' => $valPermasalahan],
@@ -233,23 +240,23 @@ class DosenPenilaianController extends Controller
                 }
                 $totalNilaiPembimbing = round($totalNilaiPembimbing, 2);
 
-                $hurufUjian = $request->nilai_ujian_huruf ?: $convertHuruf($totalNilaiUjian);
-                $hurufPembimbing = $request->nilai_bimbingan_huruf ?: $convertHuruf($totalNilaiPembimbing);
-                $hurufTotal = $request->nilai_huruf ?: $hurufPembimbing;
+                $hurufUjian = $convertHuruf($totalNilaiUjian);
+                $hurufPembimbing = $convertHuruf($totalNilaiPembimbing);
+                $hurufTotal = $hurufPembimbing;
 
                 $hurufDetailJson = json_encode([
                     'ujian' => [
-                        'perumusan_masalah' => $request->perumusan_masalah_huruf ?: $convertHuruf($valPerumusan),
-                        'manfaat' => $request->manfaat_huruf ?: $convertHuruf($valManfaat),
-                        'tinjauan_pustaka' => $request->tinjauan_pustaka_huruf ?: $convertHuruf($valTinjauan),
-                        'metode' => $request->metode_huruf ?: $convertHuruf($valMetode),
-                        'presentasi' => $request->presentasi_huruf ?: $convertHuruf($valPresentasi),
+                        'perumusan_masalah' => $convertHuruf($valPerumusan),
+                        'manfaat' => $convertHuruf($valManfaat),
+                        'tinjauan_pustaka' => $convertHuruf($valTinjauan),
+                        'metode' => $convertHuruf($valMetode),
+                        'presentasi' => $convertHuruf($valPresentasi),
                         'total' => $hurufUjian,
                     ],
                     'bimbingan' => [
-                        'permasalahan' => $request->permasalahan_huruf ?: $convertHuruf($valPermasalahan),
-                        'laporan' => $request->laporan_huruf ?: $convertHuruf($valLaporan),
-                        'ujian_kp' => $request->ujian_kp_huruf ?: $convertHuruf($valUjianKp),
+                        'permasalahan' => $convertHuruf($valPermasalahan),
+                        'laporan' => $convertHuruf($valLaporan),
+                        'ujian_kp' => $convertHuruf($valUjianKp),
                         'total' => $hurufPembimbing,
                     ],
                     'total' => $hurufTotal,
@@ -283,7 +290,7 @@ class DosenPenilaianController extends Controller
                 }
                 $totalNilaiPembimbing = round($totalNilaiPembimbing, 2);
                 $totalNilaiUjian = null;
-                $hurufTotal = $request->nilai_huruf ?: $convertHuruf($totalNilaiPembimbing);
+                $hurufTotal = $convertHuruf($totalNilaiPembimbing);
                 $hurufDetailJson = null;
             }
 
@@ -293,7 +300,7 @@ class DosenPenilaianController extends Controller
             if ($totalNilaiUjian !== null) {
                 $nilaiAkhir->nilai_ujian = $totalNilaiUjian;
             }
-            if ($hurufTotal && !$nilaiAkhir->nilai_huruf) {
+            if ($hurufTotal) {
                 $nilaiAkhir->nilai_huruf = $hurufTotal;
             }
             
@@ -309,7 +316,7 @@ class DosenPenilaianController extends Controller
                     $total = ($np * 0.6) + ($ni * 0.4);
                 }
                 $nilaiAkhir->nilai_total = round($total, 2);
-                $nilaiAkhir->nilai_huruf = $hurufTotal ?: $convertHuruf($total);
+                $nilaiAkhir->nilai_huruf = $convertHuruf($total);
                 $nilaiAkhir->status = $total >= 55 ? 'lulus' : 'tidak_lulus';
             }
 
@@ -421,7 +428,7 @@ class DosenPenilaianController extends Controller
             $hurufDetail = json_decode($mH[1], true) ?? [];
         }
 
-        $rincianUjian = $nilais->where('tipe', 'penguji')->map(function($n) use ($hurufDetail) {
+        $rincianUjian = $nilais->where('tipe', 'ujian_kp')->map(function($n) use ($hurufDetail) {
             return [
                 'komponen' => $n->komponen,
                 'bobot' => $n->bobot,
