@@ -27,6 +27,11 @@ class User extends Authenticatable
         'google_id',
         'google_token',
         'password',
+        'user_type',
+        'roles_assignment',
+        'active_role',
+        'is_dekan',
+        'is_root',
         'role',
         'status_akun',
         'nim',
@@ -56,6 +61,15 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'is_superadmin',
+    ];
+
+    public function getIsSuperadminAttribute(): bool
+    {
+        return $this->isSuperAdmin();
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -66,6 +80,10 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'user_type' => 'string',
+            'roles_assignment' => 'array',
+            'is_dekan' => 'boolean',
+            'is_root' => 'boolean',
             'bidang_keahlian' => 'array',
             'must_change_password' => 'boolean',
             'has_set_password' => 'boolean',
@@ -77,7 +95,12 @@ class User extends Authenticatable
      */
     public function dashboardRoute(): string
     {
-        return match (strtolower($this->role)) {
+        if ($this->isSuperAdmin() && (strtolower($this->active_role ?? '') === 'superadmin' || strtolower($this->role ?? '') === 'superadmin' || $this->is_root)) {
+            return '/admin/dashboard';
+        }
+
+        return match (strtolower($this->active_role ?: ($this->role ?? ''))) {
+            'superadmin', 'admin' => '/admin/dashboard',
             'mahasiswa' => '/mahasiswa/dashboard',
             'dosen' => '/dosen/dashboard',
             'tu' => '/tu/dashboard',
@@ -89,7 +112,67 @@ class User extends Authenticatable
 
     public function hasRole(string $role): bool
     {
-        return strtolower($this->role ?? '') === strtolower($role);
+        $roleLower = strtolower($role);
+        // Cek kolom legacy role atau active_role
+        if (strtolower($this->role ?? '') === $roleLower || strtolower($this->active_role ?? '') === $roleLower) {
+            return true;
+        }
+
+        // Cek dalam assignment array roles_assignment
+        $assigned = is_array($this->roles_assignment) ? $this->roles_assignment : [];
+        $assigned = array_map('strtolower', $assigned);
+
+        if (in_array($roleLower, $assigned)) {
+            return true;
+        }
+
+        // Mapping alias fungsional
+        if ($roleLower === 'prodi' && in_array('koor_prodi', $assigned)) {
+            return true;
+        }
+        if ($roleLower === 'dosen' && (in_array('dosen_pembimbing', $assigned) || $this->user_type === 'dosen')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Memeriksa apakah user sudah memiliki penugasan tipe akun atau peran.
+     */
+    public function hasAssignedRole(): bool
+    {
+        if (!empty($this->user_type)) {
+            return true;
+        }
+
+        if (!empty($this->role)) {
+            return true;
+        }
+
+        if (is_array($this->roles_assignment) && count($this->roles_assignment) > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Helper untuk menetapkan Dekan (hanya boleh ada 1 dekan dalam sistem).
+     */
+    public function assignAsDekan(): void
+    {
+        // Reset dekan lama
+        static::where('is_dekan', true)->where('id', '!=', $this->id)->update(['is_dekan' => false]);
+        $this->update(['is_dekan' => true]);
+    }
+
+    /**
+     * Mendapatkan dosen yang saat ini menjabat sebagai Dekan.
+     */
+    public static function getDekan(): ?self
+    {
+        return static::where('is_dekan', true)->first();
     }
 
     public function isMahasiswa(): bool
@@ -115,6 +198,16 @@ class User extends Authenticatable
     public function isInstansi(): bool
     {
         return $this->hasRole('instansi');
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_root || $this->hasRole('superadmin');
+    }
+
+    public function isRoot(): bool
+    {
+        return (bool) $this->is_root;
     }
 
     // ─── Relations ──────────────────────────────────────────────

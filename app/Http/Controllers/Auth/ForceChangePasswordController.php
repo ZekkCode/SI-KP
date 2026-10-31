@@ -31,6 +31,7 @@ class ForceChangePasswordController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'nim' => $user->nim,
+                'is_google' => !empty($user->google_id) && !$user->has_set_password,
             ],
         ]);
     }
@@ -48,26 +49,38 @@ class ForceChangePasswordController extends Controller
             return redirect('/login');
         }
 
-        $request->validate([
-            'current_password' => ['required', 'string'],
+        $isGoogleWithoutKnownPassword = !empty($user->google_id) && !$user->has_set_password;
+
+        $rules = [
             'password' => ['required', 'string', 'confirmed', Password::defaults()],
-        ], [
+        ];
+
+        if (! $isGoogleWithoutKnownPassword) {
+            $rules['current_password'] = ['required', 'string'];
+        } else {
+            $rules['current_password'] = ['nullable', 'string'];
+        }
+
+        $request->validate($rules, [
             'current_password.required' => 'Password lama/sementara wajib diisi.',
             'password.required' => 'Password baru wajib diisi.',
             'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
         ]);
 
-        // Verifikasi password lama / sementara
-        if (! Hash::check($request->current_password, $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => 'Password sementara yang Anda masukkan salah.',
-            ]);
+        // Verifikasi password lama / sementara jika bukan user Google SSO baru
+        if (! $isGoogleWithoutKnownPassword) {
+            if (! Hash::check($request->current_password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'current_password' => 'Password sementara yang Anda masukkan salah.',
+                ]);
+            }
         }
 
         // Update password baru & hilangkan flag must_change_password
         $user->update([
             'password' => Hash::make($request->password),
             'must_change_password' => false,
+            'has_set_password' => true,
         ]);
 
         // Hapus rekaman password sementara di permohonan karena mahasiswa sudah mengatur password pribadinya

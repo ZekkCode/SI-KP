@@ -288,6 +288,7 @@ Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->grou
     Route::post('/sidang/{id}/selesai', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'selesai'])->name('sidang.selesai');
     Route::get('/mitra-instansi', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'mitraInstansi'])->name('mitra-instansi');
     Route::get('/arsip-nilai', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'arsipNilai'])->name('arsip-nilai');
+    Route::get('/arsip-nilai/cetak', [App\Http\Controllers\Prodi\ProdiSidangController::class, 'cetakArsipNilai'])->name('arsip-nilai.cetak');
 
     Route::get('/dosen', [App\Http\Controllers\Prodi\ProdiDosenController::class, 'index'])->name('dosen.index');
     Route::get('/dosen/template', [App\Http\Controllers\Prodi\ProdiDosenController::class, 'downloadTemplate'])->name('dosen.template');
@@ -309,10 +310,12 @@ Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->grou
     
     Route::get('/periode', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'index'])->name('periode');
     Route::post('/periode', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'store'])->name('periode.store');
-    Route::post('/periode/{id}', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'update'])->name('periode.update');
+    Route::match(['post', 'put'], '/periode/{id}', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'update'])->name('periode.update');
+    Route::delete('/periode/{id}', [App\Http\Controllers\Prodi\ProdiPeriodeController::class, 'destroy'])->name('periode.destroy');
     
     // Berita Acara
     Route::get('/berita-acara', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'index'])->name('berita-acara.index');
+    Route::get('/berita-acara/cetak-rekap', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'cetakRekap'])->name('berita-acara.cetak-rekap');
     Route::get('/berita-acara/{id}/preview', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'preview'])->name('berita-acara.preview');
     Route::put('/berita-acara/{id}', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'update'])->name('berita-acara.update');
     Route::post('/berita-acara/{id}/approve', [App\Http\Controllers\Prodi\ProdiBeritaAcaraController::class, 'approve'])->name('berita-acara.approve');
@@ -323,6 +326,44 @@ Route::middleware(['auth', 'role:prodi'])->prefix('prodi')->name('prodi.')->grou
     // Pembimbing Lapangan
     Route::resource('pembimbing-lapangan', App\Http\Controllers\Prodi\ProdiPembimbingLapanganController::class)->except(['show']);
 });
+
+// ============================================================
+// SUPER USER / SUPER ADMIN ROUTES
+// ============================================================
+Route::middleware(['auth', 'role:superadmin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Manajemen Pegawai (Dosen & Staff Bersatu)
+    Route::post('/pegawai', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'storePegawai'])->name('pegawai.store');
+    Route::put('/pegawai/{id}', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'updatePegawai'])->name('pegawai.update');
+
+    // Manajemen Dosen (Legacy compatibility)
+    Route::post('/dosen', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'storeDosen'])->name('dosen.store');
+    Route::put('/dosen/{id}', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'updateDosen'])->name('dosen.update');
+
+    // Manajemen Staff (Legacy compatibility)
+    Route::post('/staff', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'storeStaff'])->name('staff.store');
+    Route::put('/staff/{id}', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'updateStaff'])->name('staff.update');
+
+    // Hapus Pengguna (Protected Root)
+    Route::delete('/users/{id}', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'destroyUser'])->name('users.destroy');
+
+    // Penetapan Peran & Tugas Akun Baru SSO
+    Route::post('/users/{id}/assign-role', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'assignRole'])->name('users.assign-role');
+
+    // Penetapan Jabatan Dekan (Single Dekan Switcher)
+    Route::post('/set-dekan', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'setDekan'])->name('set-dekan');
+
+    // Import Excel & Download Template Sederhana
+    Route::post('/import-users', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'importUsers'])->name('import-users');
+    Route::get('/download-template', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'downloadTemplate'])->name('download-template');
+
+    // Impersonate / Login As (Troubleshooting)
+    Route::post('/impersonate/{id}', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'impersonate'])->name('impersonate');
+});
+
+// Route kembali dari mode Impersonate (Bisa diakses saat sedang login impersonated)
+Route::middleware('auth')->get('/admin/impersonate/leave', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'leaveImpersonate'])->name('admin.impersonate.leave');
 
 // ============================================================
 // PROFILE ROUTES (shared, from Breeze)

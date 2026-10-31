@@ -308,7 +308,7 @@ const LAMPIRAN_ITEMS: LampiranItem[] = [
         title: 'Formulir Tanda Terima Laporan KP (Form KP-7)',
         category: 'Format Naskah',
         tahapAlur: 'Tahap 4: Yudisium & Penyerahan Berkas',
-        kegunaan: 'Menggantikan tanda terima perpustakaan/prodi. Bukti sah bahwa mahasiswa telah menyerahkan hardcopy laporan akhir yang telah dijilid rapi serta softcopy kepada Koordinator Prodi, Perpustakaan, dan Instansi.',
+        kegunaan: 'Menggantikan tanda terima perpustakaan/prodi. Bukti sah bahwa mahasiswa telah menyerahkan hardcopy laporan akhir yang telah dijilid rapi serta softcopy kepada Koordinator KP, Perpustakaan, dan Instansi.',
         pihak: 'Mahasiswa, Staf TU / Perpus, & Koordinator KP',
         desc: 'Bukti tanda terima penyerahan naskah laporan final kerja praktik yang telah dijilid dan disahkan.',
         filename: 'Lampiran_12_Tanda_Terima_Laporan_KP_Form_KP-7.pdf',

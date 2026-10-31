@@ -49,8 +49,8 @@ class AuthenticatedSessionController extends Controller
         $intended = session()->get('url.intended');
         if ($intended) {
             $path = parse_url($intended, PHP_URL_PATH) ?? '';
-            $rolePrefix = '/' . strtolower($user->role);
-            if (!str_starts_with($path, $rolePrefix)) {
+            $rolePrefix = '/' . strtolower($user->role ?? '');
+            if (!$user->isSuperAdmin() && !str_starts_with($path, $rolePrefix)) {
                 session()->forget('url.intended');
             }
         }

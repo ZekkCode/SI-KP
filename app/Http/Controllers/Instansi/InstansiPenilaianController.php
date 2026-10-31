@@ -179,7 +179,7 @@ class InstansiPenilaianController extends Controller
                 return 'E';
             };
 
-            $hurufTotal = $request->nilai_huruf ?: $convertHuruf($totalNilaiInstansi);
+            $hurufTotal = $convertHuruf($totalNilaiInstansi);
 
             // Simpan/Update Nilai Akhir
             $nilaiAkhir = NilaiAkhir::firstOrNew(['pendaftaran_id' => $pendaftaran->id]);
@@ -206,10 +206,10 @@ class InstansiPenilaianController extends Controller
 
             // Simpan detail huruf per komponen dan catatan
             $hurufDetailJson = json_encode([
-                'tugas' => $request->tugas_huruf ?: $convertHuruf($valTugas),
-                'sikap' => $request->sikap_huruf ?: $convertHuruf($valSikap),
-                'kedisiplinan' => $request->kedisiplinan_huruf ?: $convertHuruf($valDisiplin),
-                'laporan' => $request->laporan_huruf ?: $convertHuruf($valLaporan),
+                'tugas' => $convertHuruf($valTugas),
+                'sikap' => $convertHuruf($valSikap),
+                'kedisiplinan' => $convertHuruf($valDisiplin),
+                'laporan' => $convertHuruf($valLaporan),
                 'total' => $hurufTotal,
             ]);
 

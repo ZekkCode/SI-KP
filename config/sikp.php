@@ -66,7 +66,7 @@ return [
         'prodi' => [
             'identifier' => env('KOORDINATOR_PRODI_EMAIL', 'prodi@admin.com'),
             'email' => env('KOORDINATOR_PRODI_EMAIL', 'prodi@admin.com'),
-            'name' => env('KOORDINATOR_PRODI_NAME', 'Koordinator Prodi'),
+            'name' => env('KOORDINATOR_PRODI_NAME', 'Koordinator KP'),
             'password' => env('KOORDINATOR_PRODI_PASSWORD', env('INITIAL_DEMO_PASSWORD', 'password')),
         ],
         'instansi' => [
@@ -74,6 +74,12 @@ return [
             'email' => env('DEMO_MITRA_EMAIL', 'mitra@demo.com'),
             'name' => env('DEMO_MITRA_NAME', 'Bambang Sudarmono, S.T.'),
             'password' => env('DEMO_MITRA_PASSWORD', env('INITIAL_DEMO_PASSWORD', 'password')),
+        ],
+        'superadmin' => [
+            'identifier' => env('ROOT_EMAIL', 'root@trunojoyo.ac.id'),
+            'email' => env('ROOT_EMAIL', 'root@trunojoyo.ac.id'),
+            'name' => env('ROOT_NAME', 'Root Administrator'),
+            'password' => env('ROOT_PASSWORD', 'password'),
         ],
     ],
 ];

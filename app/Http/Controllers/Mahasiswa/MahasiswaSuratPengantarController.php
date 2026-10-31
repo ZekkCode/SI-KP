@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Instansi;
 use App\Models\Pendaftaran;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -211,9 +212,14 @@ class MahasiswaSuratPengantarController extends Controller
             $updateData['confirmation_status'] = $surat->confirmation_status ?: 'pending';
         }
         if (empty($surat->ditandatangani_oleh)) {
-            $updateData['ditandatangani_oleh'] = config('sikp.dekan.nama', 'Ari Basuki, S.T., M.T.');
-            $updateData['nip_penandatangan'] = config('sikp.dekan.nip', '197801202003121002');
+            $dekan = User::where(
+                'is_dekan',
+                1
+            )->first();
+            $updateData['ditandatangani_oleh'] = $dekan->name ?? 'Dekan Fakultas Teknologi Informasi';
+            $updateData['nip_penandatangan'] = $dekan->nip ?? '202601012000';
         }
+
         if (!empty($updateData)) {
             $surat->update($updateData);
         }

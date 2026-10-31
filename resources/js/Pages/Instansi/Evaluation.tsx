@@ -44,15 +44,16 @@ interface Props {
   error?: string;
 }
 
-export const calculateGradeLetter = (score: number): string => {
-  if (isNaN(score) || score < 0) return '';
-  if (score > 80) return 'A';
-  if (score >= 75) return 'B+';
-  if (score >= 70) return 'B';
-  if (score >= 60) return 'C+';
-  if (score >= 55) return 'C';
-  if (score >= 50) return 'D+';
-  if (score >= 45) return 'D';
+export const calculateGradeLetter = (score: number | string): string => {
+  const val = typeof score === 'string' ? parseFloat(score) : score;
+  if (isNaN(val) || val < 0) return '';
+  if (val > 80) return 'A';
+  if (val >= 75) return 'B+';
+  if (val >= 70) return 'B';
+  if (val >= 60) return 'C+';
+  if (val >= 55) return 'C';
+  if (val >= 50) return 'D+';
+  if (val >= 45) return 'D';
   return 'E';
 };
 
@@ -119,27 +120,27 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
     setSelectedPendaftaran(pendaftaran);
 
     const kNilai = pendaftaran.komponen_nilai || {};
-    const kHuruf = pendaftaran.komponen_huruf || {};
 
     const rawTugas = kNilai.tugas != null ? String(kNilai.tugas) : (kNilai.kinerja != null ? String(kNilai.kinerja) : '');
     const rawSikap = kNilai.sikap != null ? String(kNilai.sikap) : (kNilai.kerjasama != null ? String(kNilai.kerjasama) : '');
     const rawDisiplin = kNilai.kedisiplinan != null ? String(kNilai.kedisiplinan) : '';
     const rawLaporan = kNilai.laporan != null ? String(kNilai.laporan) : '';
 
-    const tugasHuruf = kHuruf.tugas || (rawTugas !== '' ? calculateGradeLetter(parseFloat(rawTugas)) : '');
-    const sikapHuruf = kHuruf.sikap || (rawSikap !== '' ? calculateGradeLetter(parseFloat(rawSikap)) : '');
-    const disiplinHuruf = kHuruf.kedisiplinan || (rawDisiplin !== '' ? calculateGradeLetter(parseFloat(rawDisiplin)) : '');
-    const laporanHuruf = kHuruf.laporan || (rawLaporan !== '' ? calculateGradeLetter(parseFloat(rawLaporan)) : '');
+    const tugasHuruf = rawTugas !== '' ? calculateGradeLetter(rawTugas) : '';
+    const sikapHuruf = rawSikap !== '' ? calculateGradeLetter(rawSikap) : '';
+    const disiplinHuruf = rawDisiplin !== '' ? calculateGradeLetter(rawDisiplin) : '';
+    const laporanHuruf = rawLaporan !== '' ? calculateGradeLetter(rawLaporan) : '';
 
     let totalScore = 0;
-    if (rawTugas !== '' || rawSikap !== '' || rawDisiplin !== '' || rawLaporan !== '') {
+    const hasAny = rawTugas !== '' || rawSikap !== '' || rawDisiplin !== '' || rawLaporan !== '';
+    if (hasAny) {
       totalScore = (parseFloat(rawTugas) || 0) * 0.35 +
                    (parseFloat(rawSikap) || 0) * 0.25 +
                    (parseFloat(rawDisiplin) || 0) * 0.20 +
                    (parseFloat(rawLaporan) || 0) * 0.20;
     }
 
-    const totalHuruf = pendaftaran.nilai_huruf || kHuruf.total || (totalScore > 0 ? calculateGradeLetter(totalScore) : '');
+    const totalHuruf = hasAny ? calculateGradeLetter(totalScore) : '';
 
     setData({
       tugas: rawTugas,
@@ -166,58 +167,39 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
   };
 
   const handleScoreChange = (field: 'tugas' | 'sikap' | 'kedisiplinan' | 'laporan', value: string) => {
-    if (value === '') {
-      const nextData = {
-        ...data,
-        [field]: '',
-        [`${field}_huruf`]: '',
-      };
-      const t = parseFloat(field === 'tugas' ? '' : data.tugas) || 0;
-      const s = parseFloat(field === 'sikap' ? '' : data.sikap) || 0;
-      const d = parseFloat(field === 'kedisiplinan' ? '' : data.kedisiplinan) || 0;
-      const l = parseFloat(field === 'laporan' ? '' : data.laporan) || 0;
-      const hasAny = (field === 'tugas' ? '' : data.tugas) !== '' ||
-                     (field === 'sikap' ? '' : data.sikap) !== '' ||
-                     (field === 'kedisiplinan' ? '' : data.kedisiplinan) !== '' ||
-                     (field === 'laporan' ? '' : data.laporan) !== '';
-      const total = (t * 0.35) + (s * 0.25) + (d * 0.20) + (l * 0.20);
-      nextData.nilai_huruf = hasAny ? calculateGradeLetter(total) : '';
-      setData(nextData);
+    if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
       return;
     }
 
-    // Allow decimal numbers up to 100
-    if (/^\d*\.?\d*$/.test(value)) {
+    if (value !== '') {
       const num = parseFloat(value);
-      if (isNaN(num)) {
-        setData(field, value);
-        return;
-      }
-      if (num <= 100) {
-        const autoLetter = calculateGradeLetter(num);
-        const nextData = {
-          ...data,
-          [field]: value,
-          [`${field}_huruf`]: autoLetter,
-        };
-
-        const t = parseFloat(field === 'tugas' ? value : data.tugas) || 0;
-        const s = parseFloat(field === 'sikap' ? value : data.sikap) || 0;
-        const d = parseFloat(field === 'kedisiplinan' ? value : data.kedisiplinan) || 0;
-        const l = parseFloat(field === 'laporan' ? value : data.laporan) || 0;
-        const total = (t * 0.35) + (s * 0.25) + (d * 0.20) + (l * 0.20);
-        nextData.nilai_huruf = calculateGradeLetter(total);
-
-        setData(nextData);
-      }
+      if (num > 100) return;
     }
-  };
 
-  const handleGradeLetterChange = (
-    field: 'tugas_huruf' | 'sikap_huruf' | 'kedisiplinan_huruf' | 'laporan_huruf' | 'nilai_huruf',
-    letter: string
-  ) => {
-    setData(field, letter);
+    const nextScores = {
+      tugas: field === 'tugas' ? value : data.tugas,
+      sikap: field === 'sikap' ? value : data.sikap,
+      kedisiplinan: field === 'kedisiplinan' ? value : data.kedisiplinan,
+      laporan: field === 'laporan' ? value : data.laporan,
+    };
+
+    const t = parseFloat(nextScores.tugas) || 0;
+    const s = parseFloat(nextScores.sikap) || 0;
+    const d = parseFloat(nextScores.kedisiplinan) || 0;
+    const l = parseFloat(nextScores.laporan) || 0;
+
+    const hasAny = nextScores.tugas !== '' || nextScores.sikap !== '' || nextScores.kedisiplinan !== '' || nextScores.laporan !== '';
+    const total = (t * 0.35) + (s * 0.25) + (d * 0.20) + (l * 0.20);
+
+    setData({
+      ...data,
+      ...nextScores,
+      tugas_huruf: nextScores.tugas !== '' ? calculateGradeLetter(nextScores.tugas) : '',
+      sikap_huruf: nextScores.sikap !== '' ? calculateGradeLetter(nextScores.sikap) : '',
+      kedisiplinan_huruf: nextScores.kedisiplinan !== '' ? calculateGradeLetter(nextScores.kedisiplinan) : '',
+      laporan_huruf: nextScores.laporan !== '' ? calculateGradeLetter(nextScores.laporan) : '',
+      nilai_huruf: hasAny ? calculateGradeLetter(total) : '',
+    });
   };
 
   const handleCatatanChange = (value: string) => {
@@ -673,16 +655,13 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                         {errors.tugas && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.tugas}</p>}
                       </td>
                       <td className="py-3 px-3">
-                        <select
-                          value={data.tugas_huruf}
-                          onChange={(e) => handleGradeLetterChange('tugas_huruf', e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
-                        >
-                          <option value="">-</option>
-                          {GRADE_OPTIONS.map((g) => (
-                            <option key={g} value={g}>{g}</option>
-                          ))}
-                        </select>
+                        <input
+                          type="text"
+                          readOnly
+                          disabled
+                          value={data.tugas !== '' ? calculateGradeLetter(data.tugas) : '-'}
+                          className="w-full bg-slate-100 border border-slate-200 rounded-lg py-2 px-2.5 text-center font-bold text-slate-700 text-sm cursor-not-allowed select-none shadow-2xs"
+                        />
                       </td>
                     </tr>
 
@@ -712,16 +691,13 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                         {errors.sikap && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.sikap}</p>}
                       </td>
                       <td className="py-3 px-3">
-                        <select
-                          value={data.sikap_huruf}
-                          onChange={(e) => handleGradeLetterChange('sikap_huruf', e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
-                        >
-                          <option value="">-</option>
-                          {GRADE_OPTIONS.map((g) => (
-                            <option key={g} value={g}>{g}</option>
-                          ))}
-                        </select>
+                        <input
+                          type="text"
+                          readOnly
+                          disabled
+                          value={data.sikap !== '' ? calculateGradeLetter(data.sikap) : '-'}
+                          className="w-full bg-slate-100 border border-slate-200 rounded-lg py-2 px-2.5 text-center font-bold text-slate-700 text-sm cursor-not-allowed select-none shadow-2xs"
+                        />
                       </td>
                     </tr>
 
@@ -751,16 +727,13 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                         {errors.kedisiplinan && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.kedisiplinan}</p>}
                       </td>
                       <td className="py-3 px-3">
-                        <select
-                          value={data.kedisiplinan_huruf}
-                          onChange={(e) => handleGradeLetterChange('kedisiplinan_huruf', e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
-                        >
-                          <option value="">-</option>
-                          {GRADE_OPTIONS.map((g) => (
-                            <option key={g} value={g}>{g}</option>
-                          ))}
-                        </select>
+                        <input
+                          type="text"
+                          readOnly
+                          disabled
+                          value={data.kedisiplinan !== '' ? calculateGradeLetter(data.kedisiplinan) : '-'}
+                          className="w-full bg-slate-100 border border-slate-200 rounded-lg py-2 px-2.5 text-center font-bold text-slate-700 text-sm cursor-not-allowed select-none shadow-2xs"
+                        />
                       </td>
                     </tr>
 
@@ -790,57 +763,56 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
                         {errors.laporan && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.laporan}</p>}
                       </td>
                       <td className="py-3 px-3">
-                        <select
-                          value={data.laporan_huruf}
-                          onChange={(e) => handleGradeLetterChange('laporan_huruf', e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg py-2 px-2 text-center font-bold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm shadow-2xs cursor-pointer"
-                        >
-                          <option value="">-</option>
-                          {GRADE_OPTIONS.map((g) => (
-                            <option key={g} value={g}>{g}</option>
-                          ))}
-                        </select>
+                        <input
+                          type="text"
+                          readOnly
+                          disabled
+                          value={data.laporan !== '' ? calculateGradeLetter(data.laporan) : '-'}
+                          className="w-full bg-slate-100 border border-slate-200 rounded-lg py-2 px-2.5 text-center font-bold text-slate-700 text-sm cursor-not-allowed select-none shadow-2xs"
+                        />
                       </td>
                     </tr>
 
                     {/* Row 5: TOTAL */}
                     <tr className="bg-blue-50/80 border-t-2 border-slate-300 font-bold text-slate-900">
                       <td colSpan={2} className="py-3 px-4 text-right uppercase tracking-wider text-xs sm:text-sm">
-                        <div className="font-bold text-[#00288e]">TOTAL (100%)</div>
-                        <div className="text-[10px] text-slate-500 font-normal lowercase">Dihitung otomatis oleh sistem</div>
+                        <div className="font-bold text-[#00288e]">TOTAL NILAI (100%)</div>
+                        <div className="text-[10px] text-slate-500 font-normal lowercase">Dihitung otomatis (35% Tugas + 25% Sikap + 20% Disiplin + 20% Laporan)</div>
                       </td>
                       <td className="py-3 px-3 text-center">
                         <div className="inline-flex items-baseline gap-1 bg-white px-3 py-1.5 rounded-lg border border-blue-300 shadow-2xs">
                           <span className="text-base sm:text-lg font-black font-display text-[#00288e]">
-                            {totalScore > 0 ? totalScore.toFixed(2) : '0.00'}
+                            {isFormFilled || totalScore > 0 ? totalScore.toFixed(2) : '0.00'}
                           </span>
                           <span className="text-[10px] text-slate-400 font-semibold">/100</span>
                         </div>
                       </td>
                       <td className="py-3 px-3 text-center">
-                        <div className="inline-block bg-white px-3 py-1.5 rounded-lg border border-blue-300 shadow-2xs font-black text-sm text-[#00288e]">
-                          {data.nilai_huruf || '-'}
-                        </div>
+                        <input
+                          type="text"
+                          readOnly
+                          disabled
+                          value={isFormFilled || totalScore > 0 ? calculateGradeLetter(totalScore) : '-'}
+                          className="w-full bg-blue-100/70 border border-blue-200 rounded-lg py-2 px-2 text-center font-black text-blue-900 text-sm cursor-not-allowed select-none shadow-2xs"
+                        />
                       </td>
                     </tr>
 
                     {/* Row 6: NILAI HURUF ***) */}
                     <tr className="bg-blue-100/50 border-t border-blue-200">
                       <td colSpan={2} className="py-3 px-4 text-right font-bold text-slate-900 text-xs sm:text-sm">
-                        NILAI HURUF ***)
+                        <div>NILAI HURUF AKHIR ***)</div>
+                        <div className="text-[10px] text-slate-500 font-normal">Otomatis dihitung dari Nilai Total Form KP-6a</div>
                       </td>
                       <td colSpan={2} className="py-3 px-3">
                         <div className="flex items-center gap-2">
-                          <select
-                            value={data.nilai_huruf}
-                            onChange={(e) => handleGradeLetterChange('nilai_huruf', e.target.value)}
-                            className="w-full bg-white border border-blue-300 rounded-lg py-2 px-3 text-center font-black text-base text-[#00288e] focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs cursor-pointer"
-                          >
-                            <option value="">Pilih Nilai Huruf Akhir</option>
-                            {GRADE_OPTIONS.map((g) => (
-                              <option key={g} value={g}>{g}</option>
-                            ))}
-                          </select>
+                          <input
+                            type="text"
+                            readOnly
+                            disabled
+                            value={isFormFilled || totalScore > 0 ? calculateGradeLetter(totalScore) : '-'}
+                            className="w-full bg-white border border-blue-300 rounded-lg py-2.5 px-3 text-center font-black text-lg text-[#00288e] cursor-not-allowed select-none shadow-2xs"
+                          />
                         </div>
                         {errors.nilai_huruf && <p className="text-[10px] font-semibold text-rose-600 mt-1">{errors.nilai_huruf}</p>}
                       </td>
@@ -867,8 +839,8 @@ export default function EvaluationScreen({ pendaftarans = [], error }: Props) {
               </div>
               <div className="space-y-0.5 text-slate-500 italic text-[10px]">
                 <div>*) Diisi oleh Dosen Penguji</div>
-                <div>**) Diisi oleh Pembimbing Lapangan &amp; Dosen Pembimbing</div>
-                <div>***) Cukup masukkan Nilai Angka (0 – 100), sistem otomatis menghitung Total Nilai berbobot &amp; mengonversi Nilai Huruf. Anda juga dapat menyesuaikan Nilai Huruf secara manual.</div>
+                <div>**) Dihitung otomatis oleh sistem berdasarkan nilai angka (0 – 100) sesuai skala resmi UTM.</div>
+                <div>***) Nilai Huruf Akhir terkunci dan dihitung otomatis berdasarkan Nilai Total Form KP-6a (sama seperti penilaian dosen pembimbing).</div>
               </div>
             </div>
 

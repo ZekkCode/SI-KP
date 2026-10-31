@@ -4,20 +4,22 @@ import DosenLayout from '@/Layouts/DosenLayout';
 import InstansiLayout from '@/Layouts/InstansiLayout';
 import TULayout from '@/Layouts/TULayout';
 import ProdiLayout from '@/Layouts/ProdiLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { PageProps } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import { ComponentType, PropsWithChildren } from 'react';
-import { User, Shield, Camera, IdCard, Building2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { User, Shield, ShieldAlert, Camera, IdCard, Building2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getAvatarUrl } from '@/utils/avatar';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Edit({
     mustVerifyEmail,
     status,
-}: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
+    from,
+}: PageProps<{ mustVerifyEmail: boolean; status?: string; from?: string }>) {
     const { t } = useTranslation();
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
@@ -26,21 +28,67 @@ export default function Edit({
     const isGoogleUser = Boolean((user as any).google_id || (user.email && (user.email.endsWith('@student.trunojoyo.ac.id') || user.email.endsWith('@trunojoyo.ac.id'))));
     const hasSetPassword = Boolean((user as any).has_set_password);
 
-    let Layout: ComponentType<PropsWithChildren<any>> = AuthenticatedLayout;
+    // Identifikasi peran aktif dan wewenang superadmin / root
+    const activeRole = (user as any).active_role;
+    const isRoot = Boolean((user as any).is_root);
+    const rolesAssignment: string[] = (user as any).roles_assignment || [];
+    const isSuperAdmin = isRoot || Boolean((user as any).is_superadmin) || activeRole === 'superadmin' || (user.role as string) === 'superadmin' || rolesAssignment.includes('superadmin');
 
-    if (user.role === 'mahasiswa') {
-        Layout = MahasiswaLayout;
-    } else if (user.role === 'dosen') {
-        Layout = DosenLayout;
-    } else if (user.role === 'instansi') {
-        Layout = InstansiLayout;
-    } else if (user.role === 'tu') {
-        Layout = TULayout;
-    } else if (user.role === 'prodi') {
-        Layout = ProdiLayout;
+    // Tentukan peran efektif berdasarkan query 'from' atau peran aktif
+    let effectiveRole: string = from || activeRole || user.role;
+
+    if (from === 'admin' || isRoot || activeRole === 'superadmin' || (isSuperAdmin && (!from || from === 'admin'))) {
+        effectiveRole = 'superadmin';
     }
 
-    const roleLabel = user.role === 'instansi' ? 'Pembimbing Lapangan' : user.role === 'tu' ? 'Tata Usaha' : user.role === 'prodi' ? 'Koordinator Prodi' : user.role;
+    let Layout: ComponentType<PropsWithChildren<any>> = AuthenticatedLayout;
+    let roleLabel: string = user.role;
+
+    switch (effectiveRole) {
+        case 'superadmin':
+        case 'admin':
+            Layout = AdminLayout;
+            roleLabel = isRoot ? 'Root Administrator' : 'Super Administrator';
+            break;
+        case 'prodi':
+            Layout = ProdiLayout;
+            roleLabel = 'Koordinator KP';
+            break;
+        case 'tu':
+            Layout = TULayout;
+            roleLabel = 'Tata Usaha';
+            break;
+        case 'dosen':
+            Layout = DosenLayout;
+            roleLabel = 'Dosen Pembimbing';
+            break;
+        case 'instansi':
+            Layout = InstansiLayout;
+            roleLabel = 'Pembimbing Lapangan';
+            break;
+        case 'mahasiswa':
+            Layout = MahasiswaLayout;
+            roleLabel = 'Mahasiswa';
+            break;
+        default:
+            if (user.role === 'tu') {
+                Layout = TULayout;
+                roleLabel = 'Tata Usaha';
+            } else if (user.role === 'dosen') {
+                Layout = DosenLayout;
+                roleLabel = 'Dosen Pembimbing';
+            } else if (user.role === 'prodi') {
+                Layout = ProdiLayout;
+                roleLabel = 'Koordinator KP';
+            } else if (user.role === 'instansi') {
+                Layout = InstansiLayout;
+                roleLabel = 'Pembimbing Lapangan';
+            } else if (user.role === 'mahasiswa') {
+                Layout = MahasiswaLayout;
+                roleLabel = 'Mahasiswa';
+            }
+            break;
+    }
 
     const content = (
         <>
@@ -73,11 +121,18 @@ export default function Edit({
                             </h1>
                             <p className="mt-0.5 text-sm text-slate-600">{user.email}</p>
                             <div className="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                                <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-semibold text-[#00288e]">
-                                    <Shield className="h-3.5 w-3.5" />
-                                    {roleLabel}
-                                </span>
-                                {(user.role === 'dosen' || user.role === 'prodi' || user.role === 'tu') && user.nip && (
+                                {isSuperAdmin ? (
+                                    <span className="inline-flex items-center gap-1.5 rounded-md bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                                        <ShieldAlert className="h-3.5 w-3.5 text-indigo-600" />
+                                        {roleLabel}
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-semibold text-[#00288e]">
+                                        <Shield className="h-3.5 w-3.5" />
+                                        {roleLabel}
+                                    </span>
+                                )}
+                                {(user.role === 'dosen' || user.role === 'prodi' || user.role === 'tu' || isSuperAdmin) && user.nip && (
                                     <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
                                         <IdCard className="h-3.5 w-3.5 text-slate-500" />
                                         NIP: {user.nip}
@@ -219,8 +274,8 @@ export default function Edit({
                                 </div>
                             )}
 
-                            {/* Danger Zone (Disembunyikan khusus untuk Mahasiswa) */}
-                            {user.role !== 'mahasiswa' && (
+                            {/* Danger Zone (Disembunyikan khusus untuk Mahasiswa & Root Administrator) */}
+                            {user.role !== 'mahasiswa' && !isRoot && (
                                 <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-error/20">
                                     <div className="p-6">
                                         <DeleteUserForm />

@@ -28,6 +28,7 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
+            'from' => $request->query('from'),
         ]);
     }
 
@@ -66,8 +67,8 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        if ($user->role === 'mahasiswa') {
-            return back()->with('error', 'Akun mahasiswa dikelola secara resmi oleh pihak institusi dan tidak dapat dihapus secara mandiri.');
+        if ($user->role === 'mahasiswa' || $user->is_root) {
+            return back()->with('error', 'Akun ini dilindungi oleh sistem dan tidak dapat dihapus secara mandiri.');
         }
 
         Auth::logout();

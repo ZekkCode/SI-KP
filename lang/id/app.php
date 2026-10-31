@@ -20,7 +20,7 @@ return [
         'role_mahasiswa' => 'Mahasiswa',
         'role_dosen' => 'Dosen Pembimbing',
         'role_tu' => 'Tata Usaha',
-        'role_prodi' => 'Koordinator Prodi',
+        'role_prodi' => 'Koordinator KP',
         'role_instansi' => 'Pembimbing Lapangan',
         'notifications' => 'Notifikasi',
         'mark_all_read' => 'Tandai semua dibaca',

@@ -237,7 +237,7 @@ class MahasiswaPenilaianController extends Controller
             $hurufDetail = json_decode($mH[1], true) ?? [];
         }
 
-        $rincianUjian = $nilais->where('tipe', 'penguji')->map(function($n) use ($hurufDetail) {
+        $rincianUjian = $nilais->where('tipe', 'ujian_kp')->map(function($n) use ($hurufDetail) {
             return [
                 'komponen' => $n->komponen,
                 'bobot' => $n->bobot,

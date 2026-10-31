@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import ProdiLayout from '@/Layouts/ProdiLayout';
 import PageHeader from '@/Components/PageHeader';
 import ModernTable, { ModernTableHeader, ModernTableTh, ModernTableBody, ModernTableTd } from '@/Components/ModernTable';
-import { FileText, CheckCircle, Search, ClipboardCheck, Clock, Printer, ExternalLink, Award } from 'lucide-react';
+import { FileText, CheckCircle, Search, ClipboardCheck, Clock, Printer, ExternalLink, Award, Calendar } from 'lucide-react';
 
 interface Mahasiswa {
   id: string;
@@ -25,6 +25,7 @@ interface BeritaAcara {
 
 interface Pendaftaran {
   id: string;
+  semester: string;
   mahasiswa: Mahasiswa;
   instansi?: { nama: string; kota: string };
   dosen_pembimbing?: DosenPembimbing | null;
@@ -41,11 +42,32 @@ interface Pendaftaran {
 
 interface Props {
   pendaftarans: Pendaftaran[];
+  semester_options?: string[];
+  filters?: {
+    semester?: string;
+  };
 }
 
-export default function BeritaAcaraIndex({ pendaftarans = [] }: Props) {
+export default function BeritaAcaraIndex({ pendaftarans = [], semester_options = [], filters = {} }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'menunggu' | 'disetujui'>('all');
+  const [selectedSemester, setSelectedSemester] = useState(filters.semester || 'all');
+
+  const handleSemesterChange = (newSemester: string) => {
+    setSelectedSemester(newSemester);
+    router.get(
+      route('prodi.berita-acara.index'),
+      { semester: newSemester },
+      { preserveState: true, replace: true }
+    );
+  };
+
+  const handleCetakRekapTerpenuhi = () => {
+    const params = new URLSearchParams({
+      semester: selectedSemester,
+    });
+    window.open(`/prodi/berita-acara/cetak-rekap?${params.toString()}`, '_blank', 'noopener,noreferrer');
+  };
 
   const handleApprove = (id: string, name: string) => {
     if (confirm(`Apakah Anda yakin ingin menyetujui & menerbitkan Berita Acara (Form KP-5) milik ${name}?`)) {
@@ -72,10 +94,26 @@ export default function BeritaAcaraIndex({ pendaftarans = [] }: Props) {
       <Head title="Validasi & Penerbitan Berita Acara" />
       <div className="animate-in fade-in duration-300 p-4 md:p-8 space-y-6">
         {/* Page Header */}
-        <PageHeader
-          title="Validasi & Penerbitan Berita Acara KP"
-          description="Validasi Berita Acara resmi (Form KP-5) setelah Dosen Pembimbing selesai melakukan penilaian akhir KP."
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <PageHeader
+            title="Validasi & Penerbitan Berita Acara KP"
+            description="Validasi Berita Acara resmi (Form KP-5) setelah Dosen Pembimbing selesai melakukan penilaian akhir KP."
+          />
+
+          <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+            <button
+              type="button"
+              onClick={handleCetakRekapTerpenuhi}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#00288e] hover:bg-blue-900 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+              title="Cetak Rekapitulasi Berita Acara Terpenuhi / Disetujui"
+            >
+              <Printer className="w-4 h-4" />
+              <span>
+                {selectedSemester !== 'all' ? `Cetak Berita Acara (${selectedSemester})` : 'Cetak Berita Acara Terpenuhi'}
+              </span>
+            </button>
+          </div>
+        </div>
 
         {/* Stats Section */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -92,7 +130,7 @@ export default function BeritaAcaraIndex({ pendaftarans = [] }: Props) {
 
           <div className="bg-white rounded-xl border border-outline-variant shadow-sm p-5 flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-secondary">Telah Disetujui</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-secondary">Telah Disetujui (Terpenuhi)</p>
               <h3 className="text-3xl font-extrabold text-emerald-600 mt-1">{totalApproved}</h3>
               <p className="text-xs text-secondary mt-1">Berita acara resmi diterbitkan</p>
             </div>
@@ -113,9 +151,28 @@ export default function BeritaAcaraIndex({ pendaftarans = [] }: Props) {
           </div>
         </div>
 
-        {/* Filter Tabs & Search Bar */}
-        <div className="bg-white rounded-xl border border-outline-variant/60 shadow-sm p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2 w-full md:w-auto">
+        {/* Filter Tabs, Semester Filter & Search Bar */}
+        <div className="bg-white rounded-xl border border-outline-variant/60 shadow-sm p-4 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Filter Semester (Ganjil/Genap per Tahun Akademik) */}
+            <div className="relative flex items-center">
+              <Calendar className="w-3.5 h-3.5 text-[#00288e] absolute left-3 pointer-events-none" />
+              <select
+                value={selectedSemester}
+                onChange={(e) => handleSemesterChange(e.target.value)}
+                className="text-xs font-semibold bg-blue-50/70 border border-blue-200 rounded-lg pl-8 pr-7 py-1.5 focus:outline-none focus:border-primary text-[#00288e]"
+              >
+                <option value="all">Semua Semester (Ganjil &amp; Genap)</option>
+                {semester_options.map((sem) => (
+                  <option key={sem} value={sem}>
+                    Semester {sem}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block mx-0.5" />
+
             <button
               type="button"
               onClick={() => setActiveTab('all')}
@@ -151,7 +208,7 @@ export default function BeritaAcaraIndex({ pendaftarans = [] }: Props) {
             </button>
           </div>
 
-          <div className="relative w-full md:w-80">
+          <div className="relative w-full lg:w-80">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary w-4 h-4" />
             <input
               type="text"
@@ -166,133 +223,150 @@ export default function BeritaAcaraIndex({ pendaftarans = [] }: Props) {
         {/* Table */}
         <ModernTable>
           <ModernTableHeader>
-            <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider w-14">No</th>
+            <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider w-14 text-center">No</th>
             <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider">Mahasiswa & Instansi</th>
+            <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider text-center w-36">Semester</th>
             <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider">Nilai Evaluasi</th>
             <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider">Template Form KP-5</th>
             <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider">Status</th>
             <th className="px-6 py-4 font-semibold text-xs text-secondary uppercase tracking-wider text-right w-44">Aksi</th>
           </ModernTableHeader>
           <ModernTableBody>
-            {filteredPendaftarans.map((pendaftaran, i) => (
-              <tr key={pendaftaran.id} className="hover:bg-slate-50/70 transition-colors">
-                <ModernTableTd className="px-6 py-4 font-semibold text-secondary">{i + 1}</ModernTableTd>
-                
-                {/* Mahasiswa Info */}
-                <ModernTableTd className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-md flex items-center justify-center font-bold text-sm bg-primary/10 text-primary shrink-0 ring-1 ring-primary/20">
-                      {pendaftaran.mahasiswa?.name?.substring(0, 2).toUpperCase() ?? 'M'}
+            {filteredPendaftarans.map((pendaftaran, i) => {
+              const isGanjil = pendaftaran.semester?.toLowerCase().includes('ganjil');
+              return (
+                <tr key={pendaftaran.id} className="hover:bg-slate-50/70 transition-colors">
+                  <ModernTableTd className="px-6 py-4 font-semibold text-secondary text-center">{i + 1}</ModernTableTd>
+                  
+                  {/* Mahasiswa Info */}
+                  <ModernTableTd className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-md flex items-center justify-center font-bold text-sm bg-primary/10 text-primary shrink-0 ring-1 ring-primary/20">
+                        {pendaftaran.mahasiswa?.name?.substring(0, 2).toUpperCase() ?? 'M'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-on-surface text-sm">{pendaftaran.mahasiswa?.name ?? 'Tanpa Nama'}</p>
+                        <p className="text-secondary text-xs font-mono">{pendaftaran.mahasiswa?.nim ?? '-'}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5 truncate max-w-xs">
+                          {pendaftaran.instansi?.nama || 'Mitra Instansi'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-on-surface text-sm">{pendaftaran.mahasiswa?.name ?? 'Tanpa Nama'}</p>
-                      <p className="text-secondary text-xs font-mono">{pendaftaran.mahasiswa?.nim ?? '-'}</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5 truncate max-w-xs">
-                        {pendaftaran.instansi?.nama || 'Mitra Instansi'}
-                      </p>
-                    </div>
-                  </div>
-                </ModernTableTd>
+                  </ModernTableTd>
 
-                {/* Nilai */}
-                <ModernTableTd className="px-6 py-4">
-                  <div className="text-xs space-y-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-slate-500">Dosen:</span>
-                      <span className="font-bold text-slate-800">
-                        {pendaftaran.nilai_pembimbing !== null && pendaftaran.nilai_pembimbing !== undefined
-                          ? Number(pendaftaran.nilai_pembimbing).toFixed(1)
-                          : '-'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-slate-500">Industri:</span>
-                      <span className="font-bold text-slate-800">
-                        {pendaftaran.nilai_instansi !== null && pendaftaran.nilai_instansi !== undefined
-                          ? Number(pendaftaran.nilai_instansi).toFixed(1)
-                          : '-'}
-                      </span>
-                    </div>
-                    {pendaftaran.nilai_total !== null && (
-                      <div className="pt-1 mt-1 border-t border-slate-100 flex items-center gap-1.5">
-                        <span className="text-blue-700 font-bold">Total:</span>
-                        <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[11px]">
-                          {pendaftaran.nilai_total} ({pendaftaran.nilai_huruf})
+                  {/* Semester */}
+                  <ModernTableTd className="px-6 py-4 text-center">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border whitespace-nowrap ${
+                        isGanjil
+                          ? 'bg-indigo-50 text-indigo-800 border-indigo-200'
+                          : 'bg-teal-50 text-teal-800 border-teal-200'
+                      }`}
+                    >
+                      {pendaftaran.semester}
+                    </span>
+                  </ModernTableTd>
+
+                  {/* Nilai */}
+                  <ModernTableTd className="px-6 py-4">
+                    <div className="text-xs space-y-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-500">Dosen:</span>
+                        <span className="font-bold text-slate-800">
+                          {pendaftaran.nilai_pembimbing !== null && pendaftaran.nilai_pembimbing !== undefined
+                            ? Number(pendaftaran.nilai_pembimbing).toFixed(1)
+                            : '-'}
                         </span>
                       </div>
-                    )}
-                  </div>
-                </ModernTableTd>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-500">Industri:</span>
+                        <span className="font-bold text-slate-800">
+                          {pendaftaran.nilai_instansi !== null && pendaftaran.nilai_instansi !== undefined
+                            ? Number(pendaftaran.nilai_instansi).toFixed(1)
+                            : '-'}
+                        </span>
+                      </div>
+                      {pendaftaran.nilai_total !== null && (
+                        <div className="pt-1 mt-1 border-t border-slate-100 flex items-center gap-1.5">
+                          <span className="text-blue-700 font-bold">Total:</span>
+                          <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[11px]">
+                            {pendaftaran.nilai_total} ({pendaftaran.nilai_huruf})
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </ModernTableTd>
 
-                {/* Template Berita Acara Auto-Generate */}
-                <ModernTableTd className="px-6 py-4">
-                  <div className="flex flex-col gap-1.5 items-start">
-                    <a
-                      href={route('prodi.berita-acara.preview', pendaftaran.id)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all font-semibold text-xs border border-blue-200"
-                    >
-                      <Printer size={13} />
-                      Pratinjau Form KP-5 (Auto)
-                      <ExternalLink size={11} className="opacity-70" />
-                    </a>
-
-                    {pendaftaran.url_file && (
+                  {/* Template Berita Acara Auto-Generate */}
+                  <ModernTableTd className="px-6 py-4">
+                    <div className="flex flex-col gap-1.5 items-start">
                       <a
-                        href={pendaftaran.url_file}
+                        href={route('prodi.berita-acara.preview', pendaftaran.id)}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] text-slate-600 hover:text-slate-900 underline"
+                        className="inline-flex items-center gap-1.5 text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all font-semibold text-xs border border-blue-200"
                       >
-                        <FileText size={11} />
-                        Lihat Berkas Scan Mahasiswa
+                        <Printer size={13} />
+                        Pratinjau Form KP-5 (Auto)
+                        <ExternalLink size={11} className="opacity-70" />
                       </a>
+
+                      {pendaftaran.url_file && (
+                        <a
+                          href={pendaftaran.url_file}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] text-slate-600 hover:text-slate-900 underline"
+                        >
+                          <FileText size={11} />
+                          Lihat Berkas Scan Mahasiswa
+                        </a>
+                      )}
+                    </div>
+                  </ModernTableTd>
+
+                  {/* Status Validasi */}
+                  <ModernTableTd className="px-6 py-4">
+                    {pendaftaran.is_approved ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle size={12} />
+                        Telah Divalidasi
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                        <Clock size={12} />
+                        Menunggu Validasi
+                      </span>
                     )}
-                  </div>
-                </ModernTableTd>
+                  </ModernTableTd>
 
-                {/* Status Validasi */}
-                <ModernTableTd className="px-6 py-4">
-                  {pendaftaran.is_approved ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <CheckCircle size={12} />
-                      Telah Divalidasi
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                      <Clock size={12} />
-                      Menunggu Validasi
-                    </span>
-                  )}
-                </ModernTableTd>
-
-                {/* Aksi */}
-                <ModernTableTd className="px-6 py-4 text-right">
-                  {!pendaftaran.is_approved ? (
-                    <button
-                      type="button"
-                      onClick={() => handleApprove(pendaftaran.id, pendaftaran.mahasiswa?.name ?? 'Mahasiswa')}
-                      className="inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all active:scale-95"
-                    >
-                      <CheckCircle size={14} />
-                      Validasi & Terbitkan
-                    </button>
-                  ) : (
-                    <span className="text-xs text-slate-400 font-semibold italic">
-                      Sudah Disetujui
-                    </span>
-                  )}
-                </ModernTableTd>
-              </tr>
-            ))}
+                  {/* Aksi */}
+                  <ModernTableTd className="px-6 py-4 text-right">
+                    {!pendaftaran.is_approved ? (
+                      <button
+                        type="button"
+                        onClick={() => handleApprove(pendaftaran.id, pendaftaran.mahasiswa?.name ?? 'Mahasiswa')}
+                        className="inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all active:scale-95"
+                      >
+                        <CheckCircle size={14} />
+                        Validasi & Terbitkan
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-400 font-semibold italic">
+                        Sudah Disetujui
+                      </span>
+                    )}
+                  </ModernTableTd>
+                </tr>
+              );
+            })}
 
             {filteredPendaftarans.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-secondary">
+                <td colSpan={7} className="px-6 py-12 text-center text-secondary">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <ClipboardCheck size={36} className="text-outline/40" />
-                    <p className="font-medium text-sm">Tidak ada dokumen Berita Acara dalam daftar.</p>
+                    <p className="font-medium text-sm">Tidak ada dokumen Berita Acara dalam daftar untuk semester yang dipilih.</p>
                   </div>
                 </td>
               </tr>
